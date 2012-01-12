@@ -1,0 +1,88 @@
+<?php
+/******************************************************************
+* Copyright © 2011 ICT Innovations Pakistan All Rights Reserved   *
+* Developed By: Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// following line will allow to include files from both wwwroot and lib directories
+//$path_lib = dirname(__FILE__);
+//$path_www = dirname($path_lib);
+//$path_etc = dirname($path_www).DIRECTORY_SEPARATOR.'etc';
+//$path_log = dirname($path_www).DIRECTORY_SEPARATOR.'logs';
+//set_include_path( get_include_path().PATH_SEPARATOR.$path_www.PATH_SEPARATOR.$path_lib);
+
+// initializing global variables
+$request     = '';
+$pageTitle   = '';
+$pageAction  = '';
+$messageType = '';
+$message     = '';
+$body_onload = '';
+$cssFiles    = array();
+$javaFiles   = array();
+$aErrors     = array();
+$conf        = array();
+$input       = array();
+$output      = array();
+/*
+// populating data into input for all type of requests
+$input['action'] = '';
+$input = array_merge($input, $_GET, $_FILES, $_POST);
+
+// initializing output data
+$output['action']      = '';
+$output['top_menu']    = '';
+$output['body']        = '';
+$output['url']         = '';
+$output['page_title']  = &$pageTitle;   // using reference to keep compatibility between new and existing code
+$output['page_action'] = &$pageAction;
+$output['request']     = &$request;
+$output['errors']      = &$aErrors;
+$output['css_files']   = &$cssFiles;
+$output['java_files']  = &$javaFiles;
+$output['body_onload'] = &$body_onload;
+$output['with_portal'] = false;
+$output['account_url'] = 'account.php';
+$output['login_url']   = 'login.php';
+$output['logout_url']  = 'login.php?action=logout';
+*/
+//reading configuration file.
+//in success result is $conf array.
+$configSource = './modules/broadcast/ictdialer.conf';
+if (is_file($configSource)) {
+    $conf = parse_ini_file($configSource, TRUE);
+    if (!is_array($conf)) {
+        //mssgLog(t('Bad configuration file'));
+        exec("echo 'Bad configuration file ".$configSource."' >>./campaign.log");
+    }
+} else {
+    //mssgLog(t('No configuration file found'));
+    exec("echo 'No configuration file found'>>./campaign.log");
+}
+
+//Connecting, selecting database
+$link = mysql_connect($conf['db']['host'], $conf['db']['user'], $conf['db']['pass'])
+    or exec("echo 'Could not connect ".$conf['db']['host']."'>>./campaign.log");
+mysql_select_db($conf['db']['name'])
+    or exec("echo 'Could not select db ".$conf['db']['name']."'>>./campaign.log");
+
+
+/*
+// if portal installed
+if (isset($conf['portal']['enabled']) && $conf['portal']['enabled'] == 1) {
+  $output['with_portal'] = true;
+  $output['account_url'] = $conf['portal']['account_url'];
+  $output['login_url']   = $conf['portal']['login_url'];
+  $output['logout_url']  = $conf['portal']['logout_url'];
+}
+*/
+
+// preparing a session
+//$sess_name = isset($conf['site']['cookie_name']) ? $conf['site']['cookie_name'] : 'BROADCAST';
+//session_name($sess_name);
+
+
+?>

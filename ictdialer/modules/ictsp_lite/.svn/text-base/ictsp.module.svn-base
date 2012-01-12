@@ -1,0 +1,438 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: ictsp.module,v 1.0 2009/10/16 18:08:59 ictinnovations Exp $
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Defines six menu entries: an Campaign page that lists all campaigns in the module's
+ * database table, add and edit/add/delete pages for each campaign, and six more
+ * menu entries for group management, and one more entry to import bulk campaigns
+ * into database.
+ */
+ 
+function ictsp_menu() {
+  $items = array();
+
+  $items['user/%user/activate'] = array(
+    'title'            => 'Activate Account',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('ictsp_user_activate_form', 1),
+    'access callback'  => 'ictsp_access', 
+    'access arguments' => array('ictsp blocked'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+
+  $items['user/%user/payment'] = array(
+    'title'            => 'Add Funds',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('ictsp_user_payment_form', 1),
+    'access callback'  => 'ictsp_access',
+    'access arguments' => array('ictsp user'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/ictsp'] = array(
+    'title'            => 'ICT SP System',
+    'description'      => 'Configure ICT SP',
+    'page callback'    => 'system_admin_menu_block_page',
+    'file'             => 'system.admin.inc',
+    'file path'        => drupal_get_path('module', 'system'),
+    'access callback'  => 'ictsp_access',
+    'access arguments' => array('ictsp system admin'),
+    'position'         => 'left',
+  );
+
+  $items['admin/ictsp/package'] = array(
+    'title'            => 'SMS Package',
+    'description'      => 'Create SMS Package',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('ictsp_package_admin_settings'),
+    'weight'           => 6,
+    'access callback'  => 'ictsp_access',
+    'access arguments' => array('ictsp system admin'),
+  );
+
+  return $items;
+}
+
+/**
+ * Build the user activation form.
+ *
+ * @ingroup forms
+ * @see broadcast_campaign_form_submit()
+ */
+function ictsp_user_activate_form(&$form_state, $account = array()) {
+
+  $form['activate'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Activate Account'),
+  );
+
+  $form['activate']['verification_code'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Verification Code'),
+    '#description'   => t('Please enter verification code which you have received via sms'),
+  );
+
+  $form['activate']['submit'] = array(
+    '#type'          => 'submit',
+    '#value'         => t('Submit'),
+  );
+
+  return $form;
+}
+
+function ictsp_user_activate_form_submit($form, &$form_state) {
+  global $user;
+
+  $result   = false;
+  $activate = $form_state['values'];
+
+  if (isset($activate['verification_code']) && $activate['verification_code'] != '') {
+	$user_data = db_query('SELECT * FROM {ictsp_user} WHERE uid=%d', $user->uid);
+	$user_data = db_fetch_object($user_data);
+	if ($user_data->verification_code == $activate['verification_code']) {
+	  $result = db_query('UPDATE {ictsp_user} SET phone_verified=1');
+	  $user->phone_verified = 1;
+	  user_save($user);
+	  $result = true;
+	}
+  }
+
+  if ($result) {
+  	drupal_set_message(t('Activated successfully!'), 'status');
+	// TODO : redirect to normal page at this will be bloacked if success
+  } else {
+  	drupal_set_message(t('Invalid code please try again!'), 'error');
+  }
+  $form_state['redirect'] = "user/$user->uid";
+}
+
+/**
+ * Build the user payment form.
+ *
+ * @ingroup forms
+ * @see broadcast_campaign_form_submit()
+ */
+function ictsp_user_payment_form(&$form_state, $account = array()) {
+
+  $vars = array('uid'           => $account->uid,
+                'nid'           => 1,
+                'module'        => 'ictsp',
+                'currency_code' => variable_get('ictsp_package_currency', 'USD'),
+                'amount'        => variable_get('ictsp_package_amount', '10.00'),
+                'quantity'      => 1,
+                'item_name'     => 'SMS Package',
+                'return'        => url('user/payment'),
+                'cancel_return' => url('user/payment'),
+               );
+
+  $form['payment'] = array(
+    '#type'     => 'fieldset',
+    '#title'    => t('Purchase Units'),
+  );
+
+  $form['payment']['from'] = array(
+    '#type'     => 'item',
+    '#title'    => t('From'),
+    '#value'    => $account->name .' &lt;'. $account->mail .'&gt;',
+  );
+
+  $form = $form + simple_payments_paypal_payment_form($vars);
+
+  $form['payment']['submit'] = array(
+    '#type'     => 'submit',
+    '#value'    => t('Buy Now'),
+  );
+
+  return $form;
+}
+
+
+function ictsp_simple_payment_process($payment) {
+	if ($payment['currency'] == variable_get('ictsp_package_currency', 'USD') &&
+	    $payment['amount']   == bcmul(variable_get('ictsp_package_amount', '10.00'), 100) &&
+	    $payment['details']['business'] == variable_get('simple_payments_paypal_account', '')) {
+	    // TODO: checking bussines email works only for paypal
+	  $result = db_query('UPDATE {ictsp_user} SET units=(units+%d) WHERE uid=%d', variable_get('ictsp_package_unit', '100'), $payment['uid']);
+	} else {
+	  watchdog('ictsp payment', 'Invalid amount or currency given unable to process', array(), WATCHDOG_NOTICE);
+	}
+}
+
+/**
+ * Implementation of hook_user().
+ */
+function ictsp_user($type, &$edit, &$account, $category = NULL) {
+  switch ($type) {
+    case 'load':
+      return ictsp_user_load($account);
+    case 'register':
+      return ictsp_user_form($edit, $account, $category, TRUE);
+    case 'update':
+    return ictsp_user_save($edit, $account, $category);
+    case 'insert':
+      return ictsp_user_save($edit, $account, $category, TRUE);
+    case 'view':
+      return ictsp_user_view($account);
+    case 'form':
+      return ictsp_user_form($edit, $account, $category);
+    case 'validate':
+      return ictsp_user_validate($edit, $category);
+    case 'delete':
+      db_query('DELETE FROM {ictsp_user} WHERE uid = %d', $account->uid);
+  }
+}
+
+function ictsp_user_load(&$account) {
+  $result = db_query('SELECT * FROM {ictsp_user} WHERE uid = %d', $account->uid);
+  $record = db_fetch_object($result); 
+
+  $account->phone          = $record->phone;
+  $account->address        = $record->address;
+  $account->phone_verified = $record->phone_verified;
+  $account->units          = $record->units;  
+}
+
+function ictsp_user_validate($edit, $category) {
+  if (broadcast_contact_phone_validate($edit['phone'], 'gsm') === false) {
+    form_set_error('phone', t('Invalid cell number! format mismatch!'));
+  } else {
+    $edit['phone'] = broadcast_contact_phone_validate($edit['phone'], 'gsm');
+  }
+  return $edit;
+}
+
+function ictsp_user_save(&$edit, &$account, $category, $register = FALSE) {
+  $verify_phone = FALSE;
+
+  if ($account->phone_verified == 1) { 
+    $edit['phone_verified'] = 1;
+  } else {
+  	$edit['phone_verified'] = 0;
+  }
+
+  unset($edit['units']);
+  $edit['uid'] = $account->uid;
+
+  if ($register) {
+    $verify_phone              = TRUE;
+    $edit['verification_code'] =  ictsp_rand_str(8, '1234567890');
+    $edit['phone_verified']    = 0;
+    drupal_write_record('ictsp_user', $edit);
+  } else {
+    if ($edit['phone'] != $account->phone) {
+      $verify_phone              = TRUE;
+      $edit['verification_code'] =  ictsp_rand_str(8, '1234567890');
+      $edit['phone_verified']    = 0;
+    }
+    drupal_write_record('ictsp_user', $edit, 'uid');
+  }
+
+  if ($verify_phone) {
+    $message = t('Login at @site and enter this code: @code', 
+                 array('@site' => variable_get('site_name', 'website'), '@code' => $edit['verification_code']));
+
+    $gateway_deliver = broadcast_sms_get_gateway(0);
+    $deliver_result  = $gateway_deliver($edit['phone'], $message, 0);
+    
+    drupal_set_message(t('New cell number! account has locked! Please verifiy cell number'), 'warning', true);
+    drupal_set_message(t('We have just sent a verification code at provided cell number, Please use it to unlock the account!'), 'status', true);
+  }
+
+  $edit['verification_code'] = null;
+  //$edit['phone_verified']    = null;
+  $edit['phone']             = null;
+  $edit['address'] 			 = null;
+  $edit['units']             = null;
+}
+
+function ictsp_user_view(&$account) {
+  global $user;
+
+  ictsp_user_load($account);
+
+  $account->content['contact'] = array(
+    '#type' => 'user_profile_category',
+    '#title' => t('Contacts'),
+  );
+  $account->content['contact']['phone'] = array(
+    '#type' => 'user_profile_item',
+    '#title' => t('Mobile Number'),
+    '#value' => $account->phone,
+    '#weight' => 10,
+    '#attributes' => array('class' => 'profile-textfield'),
+  );
+  $account->content['contact']['address'] = array(
+    '#type' => 'user_profile_item',
+    '#title' => t('Billing Address'),
+    '#value' => $account->address,
+    '#weight' => 20,
+    '#attributes' => array('class' => 'profile-textarea'),
+  );
+
+  if ($user->uid == $account->uid || user_access('ictsp user system admin')) {
+    $account->content['balance'] = array(
+      '#type' => 'user_profile_category',
+      '#title' => t('Account Balance'),
+    );
+    $account->content['balance']['units'] = array(
+      '#type' => 'user_profile_item',
+      '#title' => t('Available SMS Units'),
+      '#value' => $account->units,
+      '#weight' => 10,
+      '#attributes' => array('class' => 'profile-textfield'),
+    );
+  }
+  if (user_access('ictsp user system admin')) {
+  	$account->content['report'] = array(
+      '#type' => 'user_profile_category',
+      '#title' => t('Account Campaign Logs'),
+    );
+    $account->content['balance']['units'] = array(
+      '#type' => 'user_profile_item',
+      '#title' => t('Campaign Logs'),
+      '#value' => l(t('Click here to view'), 'broadcast/report/user/'.$account->uid),
+      '#weight' => 10,
+      '#attributes' => array('class' => 'profile-textfield'),
+    );
+  }
+}
+
+function ictsp_user_form($edit, $account, $category, $register = FALSE) {
+
+  $fields['contact'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Contacts'),
+  );
+  $fields['contact']['phone'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Mobile Number'),
+    '#required'      => TRUE,
+    '#weight'        => 10,
+    '#default_value' => isset($edit['phone']) ? $edit['phone'] : $account->phone,
+  );
+  $fields['contact']['address'] = array(
+    '#type'          => 'textarea',
+    '#title'         => t('Billing Address'),
+    '#required'      => TRUE,
+    '#weight'        => 20,
+    '#default_value' => isset($edit['address']) ? $edit['address'] : $account->address,
+  );
+
+  return $fields;
+}
+
+function ictsp_rand_str($length = 10, $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890') {
+    $chars_length = (strlen($chars) - 1);
+    $string       = $chars{rand(0, $chars_length)};
+    for ($i = 1; $i < $length; $i = strlen($string)) {
+        $r = $chars{rand(0, $chars_length)};
+        if ($r != $string{$i - 1}) $string .=  $r;
+    }
+    return $string;
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on campaign module.
+ */
+function ictsp_perm() {
+  return array(
+    'ictsp blocked',
+    'ictsp user',
+    'ictsp user system admin'
+  );
+}
+
+function ictsp_package_admin_settings() {
+  $form['package'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('SMS Package Settings')
+  );
+
+  $form['package']['ictsp_package_currency'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Currecy Symbole'),
+    '#default_value' => variable_get('ictsp_package_currency', 'USD'),
+    '#description'   => t('Default Currecy that will be used for this package'),
+  );
+
+  $form['package']['ictsp_package_amount'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Amount $'),
+    '#default_value' => variable_get('ictsp_package_amount', '10.00'),
+    '#description'   => t('This amount will be charged to client when he purchase this package'),
+  );
+
+  $form['package']['ictsp_package_unit'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('SMS Units'),
+    '#default_value' => variable_get('ictsp_package_unit', '100'),
+    '#description'   => t('This no. of SMS will be added to user account when he purchase this package'),
+  );
+
+  return system_settings_form($form);
+}
+
+function ictsp_billing_balance($uid) {
+  $result = db_query('SELECT units FROM {ictsp_user} WHERE uid=%d', $uid);
+  $result = db_fetch_object($result);
+  if ($result->units > 0) {
+    return $result->units;
+  }	else {
+  	return false;
+  }
+}
+
+function ictsp_billing_charge($uid, $units, $campaign_id) {
+  $result = db_query('UPDATE {ictsp_user} SET units=(units-%d) WHERE uid=%d', $units, $uid);
+  return ictsp_billing_balance($uid);
+}
+
+function ictsp_db_filter($query, $after = 'WHERE', $table = false) {
+  global $user;
+
+  if ($table !== false) {
+  	$table = "{$table}.";
+  }
+
+  if (strtoupper($after) == 'WHERE') {
+    $filter = ' '.$table.'created_by=' . $user->uid . ' AND';
+  } else {
+    $filter = ' WHERE '.$table.'created_by=' . $user->uid;
+  }
+
+  $position = strrpos(strtoupper($query), strtoupper($after)) + strlen($after);
+
+  $query = substr_replace($query, $filter, $position, 0);
+
+  return $query;
+}
+
+function ictsp_access($access) {
+  global $user;
+
+  if (is_array($access)) $access = $access[0];
+
+  /*if ($user->phone_verified == 0) {
+  	if ($access == 'ictsp blocked') {
+  	  return true;
+  	} else {
+  	  return false;
+  	}
+  }*/
+  if (!user_access($access)) return false;
+
+  return true;
+}

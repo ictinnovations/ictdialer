@@ -1,0 +1,55 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: broadcast_document.install,v 1.3.2.2 2011/12/12 13:34:59 diggersf Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function broadcast_document_install() {
+  //drupal_install_schema('broadcast_document');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function broadcast_document_schema() {
+  $schema['broadcast_document'] = array(
+    'fields' => array(
+      'document_id'    => array('type' => 'serial',  'not null' => TRUE),
+      'name'            => array('type' => 'text',    'not null' => TRUE),
+      'description'     => array('type' => 'text',    'not null' => TRUE),
+      'type'            => array('type' => 'text',    'not null' => TRUE),
+      'path'            => array('type' => 'text',    'not null' => TRUE),
+      'size'            => array('type' => 'int',    'not null' => TRUE),
+      'created'    => array('type' => 'int',     'not null' => FALSE, 'unsigned' => TRUE),
+      'created_by' => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
+    ),
+    'primary key' => array('document_id'),
+  );
+  
+  $schema['broadcast_campaign_document'] = array(
+    'fields' => array(
+      'campaign_document_id' => array('type' => 'serial',  'not null' => TRUE),
+      'document_id'          => array('type' => 'int',     'not null' => TRUE),
+      'campaign_id'           => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
+    ),
+    'primary key' => array('campaign_document_id'),
+  );
+  
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function broadcast_document_uninstall() {
+  drupal_uninstall_schema('broadcast_document');
+}

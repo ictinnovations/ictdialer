@@ -1,0 +1,30 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: ictsp_report.install, v 1.0 2009/10/16 18:08:59 ictinnovations Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function ictsp_report_install() {
+  // drupal_install_schema('ictsp_report');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+//function ictsp_report_schema() {
+//}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ictsp_report_uninstall() {
+  // drupal_uninstall_schema('ictsp_report');
+}

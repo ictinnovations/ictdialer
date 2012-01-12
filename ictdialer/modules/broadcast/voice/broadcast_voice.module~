@@ -1,0 +1,527 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: broadcast_voice.module,v 1.0 2011/09/08 18:08:59 ictinnovations Exp $
+
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Defines six menu entries: a Voice page that lists all voice in the module's
+ * database table, add and edit/add/delete pages for each voice
+ */
+ 
+function broadcast_voice_menu() {
+  $items = array();
+
+  $items['admin/broadcast/voice'] = array(
+    'title'            => 'Voice Settings',
+    'description'      => 'Configure Voice Broadcasting behavior',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_voice_admin_settings'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast voice system admin'),
+    'type'             => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on voice module.
+ */
+function broadcast_voice_perm() {
+  return array(
+    'broadcast voice system admin'
+  );
+}
+
+/**
+ * Loader function for individual recordings.
+ * Used in broadcast module as a hook for invoke all
+ * @param $recording_id
+ *   An int containing the ID of a recording.
+ * @return
+ *   A single recording in array format, or FALSE if none matched the incoming ID.
+ */
+function broadcast_voice_campaign_message_load($campaign_id, $campaign) {
+  
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    $sql    = "SELECT * FROM {broadcast_campaign_recording} WHERE campaign_id = :campaign_id";
+    $result = db_query($sql, array(':campaign_id'=>$campaign_id));
+    if ($campaign_recording = $result->fetchAssoc()) {
+      $selectedRecording = array(
+        'recording'  => $campaign_recording['recording_id'],
+      );
+      return $selectedRecording;
+    } else {
+      $sql    = "SELECT * FROM {broadcast_campaign_ivr} WHERE campaign_id = :campaign_id";
+      $result = db_query($sql, array(':campaign_id'=>$campaign_id));
+      if ($campaign_ivr = $result->fetchAssoc()) {
+        $selectedIVR = array(
+          'ivr'  => $campaign_ivr['ivr_id'],
+        );
+        return $selectedIVR;
+      } else {
+        drupal_set_message(t('Specified Message does not exist! or you have not proper permissions!'), 'error');
+        return FALSE;
+      }
+    }
+  }
+}
+/*
+// used to load a recording id for given campaign id
+function broadcast_voice_load($campaign_id) {  
+  $sql    = "SELECT * FROM {broadcast_campaign_recording} WHERE campaign_id = %d";
+  $result = db_query($sql, $campaign_id);
+  if ($campaign_recording = db_fetch_array($result)) {
+    $selectedRecording = array(
+      'recording'  => $campaign_recording['recording_id'],
+    );  
+    return $selectedRecording;
+  } else {
+    drupal_set_message(t('Specified Recording does not exist! or you have not proper permissions!'), 'error');
+    return FALSE;
+  }
+}
+*/
+
+// used to load a first application id for given campaign id
+function broadcast_voice_load($campaign_id) {  
+  $sql    = "SELECT * FROM {broadcast_campaign_application} WHERE campaign_id = :campaign_id order by campaign_application_id";
+  $result = db_query($sql, array(':campaign_id'=>$campaign_id));
+  if($app = $result->fetchAssoc()) {
+    return $app['campaign_application_id'];
+  } else { 
+    drupal_set_message(t('Specified applications does not exist! or you have not proper permissions!'), 'error');
+    return FALSE;
+  }
+}
+
+
+function broadcast_voice_supported_types()
+{
+  return array('voice'=> t('Voice Campaign'));
+}
+
+
+
+/**
+ * Build the voice message editing form.
+ *
+ * @ingroup forms
+ * @see broadcast_voice_campaign_message_submit()
+ */
+function broadcast_voice_campaign_message($form_state, $campaign = array()) {
+
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    // It's safe to use on both an empty array, and an incoming array with full or partial data.
+    $campaign += array(
+      'recording'       => '0',
+      'message_type'    => '0',
+      'ivr'             => '0',
+    );
+    if(!empty($campaign['recording'])) {
+      $campaign['message_type'] = 1;
+    } else if(!empty($campaign['ivr'])) {
+      $campaign['message_type'] = 2;
+    }
+    /*
+    // If we're editing an existing voice campaign, we'll add a value field to the form
+    // containing the voice's unique ID.
+    if (!empty($campaign['recording_id'])) {
+      $form['recording_id'] = array(
+        '#type'        => 'value',
+        '#value'       => $campaign['recording_id'],
+      );
+    }
+    if (!empty($campaign['campaign_recording_id'])) {
+      $form['campaign_recording_id'] = array(
+        '#type'        => 'value',
+        '#value'       => $campaign['campaign_recording_id'],
+      );
+    }
+
+    // If we're editing an existing voice campaign, we'll add a value field to the form
+    // containing the voice's unique ID.
+    if (!empty($campaign['ivr_id'])) {
+      $form['ivr_id'] = array(
+        '#type'        => 'value',
+        '#value'       => $campaign['ivr_id'],
+      );
+    }
+    if (!empty($campaign['campaign_ivr_id'])) {
+      $form['campaign_ivr_id'] = array(
+        '#type'        => 'value',
+        '#value'       => $campaign['campaign_ivr_id'],
+      );
+    }*/
+    
+    $form['voice'] = array(
+      '#type'          => 'fieldset',
+      '#title'         => t('Voice Message'),
+    );
+    
+    $form['voice']['message_type'] = array(
+      '#type'          => 'select',
+      '#title'         => t('Message Type'),
+      '#options'       => array(0 => t('[Select Message Type]'),1 => t('Voice'),2 => t('IVR')),
+      '#default_value' => $campaign['message_type'],
+    );
+    $js = "(function ($) {
+            Drupal.behaviors.broadcast_ivr = {
+                  attach: function(){
+                            $('#edit-message-type').change(function() {
+                            if ($('#edit-message-type').val() == 1) {
+                              $('#edit-recording-wrapper').show();
+                              $('#edit-ivr-wrapper').hide();
+                            } else if ($('#edit-message-type').val() == 2){
+                              $('#edit-recording-wrapper').hide();
+                              $('#edit-ivr-wrapper').show();
+                            } else {
+                              $('#edit-recording-wrapper').hide();
+                              $('#edit-ivr-wrapper').hide();
+                            }
+                            });
+                          }
+                  }
+           }(jQuery));";
+
+    drupal_add_js($js, array('type'=>'inline', 'scope'=>'footer'));
+    
+    $form['voice']['recording_field'] = array(
+      '#type'          => 'fieldset',
+      '#title'         => t('Pre-Recorded Message'),
+      '#attributes'    => array('style' => 'display: '. (($campaign['recording'] == 0) ? 'none': ''), 'id' => 'edit-recording-wrapper'),
+    );
+
+    $optionsRec = broadcast_recording_option();
+    $form['voice']['recording_field']['recording'] = array(
+      '#type'          => 'select',
+      '#title'         => t('Recording'),
+      '#options'       => $optionsRec, 
+      '#default_value' => $campaign['recording'],
+    );
+    
+    $form['voice']['ivr_field'] = array(
+      '#type'          => 'fieldset',
+      '#title'         => t('IVR Message'),
+      '#attributes'    => array('style' => 'display: '. (($campaign['ivr'] == 0) ? 'none': ''), 'id'    => 'edit-ivr-wrapper'),
+    );
+
+    $optionsIvr = broadcast_ivr_option();
+    $form['voice']['ivr_field']['ivr'] = array(
+      '#type'          => 'select',
+      '#title'         => t('IVR'),
+      '#options'       => $optionsIvr, 
+      '#default_value' => $campaign['ivr'],
+    );
+    
+    $form['voice']['campaign_type'] = array(
+    '#type'          => 'value',
+    '#default_value' => 'voice',
+    );
+
+    return $form;
+  }
+}
+
+function broadcast_voice_campaign_message_validate($form, $form_state) {
+  // no validation required
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    if ($form_state['values']['message_type'] == 0) {
+      form_set_error('voice', t('No message selected! Please select one message'));
+      return false;
+    }
+    return true;
+  }
+}
+
+/**
+ * Inserts a new link in broadcast_campaign_recording, or updates an existing one.
+ *
+ * @param $campaign
+ *   A recording link to be saved. If $campaign['campaign_id'] is set, the recording link will be updated.
+ *   Otherwise, a new link will be inserted into the database.
+ * @return
+ *   The saved recording link, with its ID set.
+ */
+function broadcast_voice_campaign_message_submit($form, $form_state, $campaign) {
+  global $user;
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    $voice = $form_state['values'];
+    if($voice['message_type'] == 1) { //recording
+      // Save assigned recording to this campaign. but first delete existing recording in case of update
+      broadcast_voice_campaign_message_delete($campaign);
+      $aSelectedRecording = array(
+        'recording_id' => $voice['recording'],
+        'campaign_id'  => $campaign['campaign_id'],
+      );
+      drupal_write_record('broadcast_campaign_recording', $aSelectedRecording);
+      // then write applications and action of selected recording
+      writeRecordingApplication($campaign['campaign_id'], $voice['recording']);
+      
+    } else if($voice['message_type'] == 2) { // IVR
+      // Save assigned IVR to this campaign. but first delete existing recording in case of update
+      broadcast_voice_campaign_message_delete($campaign);
+      $aSelectedIVR = array(
+        'ivr_id' => $voice['ivr'],
+        'campaign_id'  => $campaign['campaign_id'],
+      );
+      drupal_write_record('broadcast_campaign_ivr', $aSelectedIVR);
+      // then write applications and actions of selected IVR
+      writeIVRApplication($campaign['campaign_id'], $voice['ivr']);
+      
+    }
+    
+  }
+}
+
+/**
+ * Delete a recording link, according to given campaign ID.
+ *
+ * @param $campaign
+ *   An array of campaign containing the ID of campaign and recording link.
+ */
+function broadcast_voice_campaign_message_delete($campaign) {
+  
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    // if deleted campaign was linked with some recording, remove that link
+    $sql = 'DELETE FROM {broadcast_campaign_recording} WHERE campaign_id = :campaign_id';
+    db_query($sql, array(':campaign_id'=>$campaign['campaign_id']));
+    
+    // if deleted campaign is linked with some ivr, remove that link
+    $sql = 'DELETE FROM {broadcast_campaign_ivr} WHERE campaign_id = :campaign_id';
+    db_query($sql, array(':campaign_id'=> $campaign['campaign_id']));
+    
+    // Also delete applications and actions
+    $sql = "SELECT * FROM {broadcast_campaign_application} WHERE campaign_id = :campaign_id";
+    $result = db_query($sql, array(':campaign_id'=>$campaign['campaign_id']));
+    while ($campaign_ivr = $result->fetchAssoc()) {
+      $sql = 'DELETE FROM {broadcast_campaign_action} WHERE campaign_application_id = :campaign_application_id';
+      db_query($sql, array(':campaign_application_id'=>$campaign_ivr['campaign_application_id']));  
+    }
+    $sql = 'DELETE FROM {broadcast_campaign_application} WHERE campaign_id = :campaign_id';
+    db_query($sql, array(':campaign_id'=>$campaign['campaign_id'])); 
+  }
+}
+
+function broadcast_voice_admin_settings() {
+  $form['voice'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Voice Settings')
+  );
+  $form['voice']['broadcast_voice_default_gateway'] = array(
+    '#type'          => 'select',
+    '#title'         => t("Default Voice Gateway"),
+    '#options'       => _broadcast_voice_get_gateways(),
+    '#default_value' => variable_get('broadcast_voice_default_gateway', 'broadcast_dummy'),
+    '#description'   => t('Select which gateway will be used for outgoing Voice'),
+  );
+  
+  $form['voice']['broadcast_voice_default_directory'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Recording Directory Path"),
+    '#default_value' => variable_get('broadcast_voice_default_directory', '/usr/ictdialer/sites/default/files/broadcast/recording'),
+    '#description'   => t('Directory path where all the recording files are available (Do not add a trailing \'/\')'),
+  );
+  
+  return system_settings_form($form);
+}
+
+
+/********************************************************
+*             FUNCTION FOR BACKGROUND TASK              *
+********************************************************/
+
+/* Enumerate all VOICE gateways
+*****************************/
+
+function _broadcast_voice_get_gateways() {
+  $gateways = array();
+
+  foreach (module_list() as $module) {
+    $function = $module . '_supported_services';
+    if (function_exists($function)) {
+      $services = $function();
+      if (isset($services['voice'])) {
+        $gateways[$module] = $services['voice'];
+      }
+    }
+  }
+
+  return $gateways;
+}
+
+
+/* Get, load, and test default Voice gateway
+******************************************/
+
+function broadcast_voice_get_gateway($campaign_id) {
+  static $voice_gateway      = FALSE;
+  static $gateway_loaded     = FALSE;
+  static $function_ready     = FALSE;
+  static $function_deliver   = FALSE;
+
+  if (!$gateway_loaded) {
+    $voice_gateway      = variable_get('broadcast_voice_default_gateway', 'broadcast_plivo');
+    $function_load    = $voice_gateway . '_load';
+    $function_ready   = $voice_gateway . '_is_ready';
+    $function_deliver = $voice_gateway . '_deliver';
+
+    $gateway_loaded   = $function_load('voice', $campaign_id);
+  }
+
+  if ($gateway_loaded) {
+    // Wait until gateway is ready
+    // TODO: timeout ??
+    while (!$function_ready('sms')) {
+      usleep(200000); // 200000 = 0.2 second
+    }
+    return $function_deliver;
+  } else {
+    return FALSE;
+  }
+}
+
+/* Load applications for this campaign and gateway function
+************************************************************/
+
+function broadcast_voice_get_apps($campaign_id) {
+    $message = broadcast_voice_load($campaign_id);
+
+    $voice_gateway      = variable_get('broadcast_voice_default_gateway', 'broadcast_plivo');
+    $function_prepare = $voice_gateway . '_message_prepare';
+
+    return $function_prepare('voice', $message); 
+ 
+}
+
+
+
+/* Enumerate all Voice gateways
+*****************************/
+
+function broadcast_voice_deliver($campaign_id, $contact_id, $log_id) {
+  static $first_app_id       = FALSE;
+  static $message_variables = array('%firstname', 
+                                    '%lastname', 
+                                    '%phone', 
+                                    '%email', 
+                                    '%company'
+                                   );
+      
+  // No need to send message. We will get it by application id. 
+  // We'll handle IVRs and get applications and actions.
+  if (!$first_app_id) {
+    $first_app_id = broadcast_voice_get_apps($campaign_id);
+    //TODO: what to do if it failed
+  }
+  
+  $gateway_deliver = broadcast_voice_get_gateway($campaign_id);
+  //TODO: what to do if gateway is not ready
+  
+  $contact         = broadcast_contact_load($contact_id);
+  $message_values  = array($contact['first_name'], 
+                           $contact['last_name'], 
+                           $contact['phone'], 
+                           $contact['email'], 
+                           $contact['company']
+                          );
+  
+  // customize message for each contact by replacing variables (if used) with there values
+  //$message_custom  = str_replace($message_variables, $message_values, $voice_message);
+
+  $deliver_result  = $gateway_deliver($contact['phone'], $first_app_id, $log_id);
+  
+  return $deliver_result;
+  
+}
+
+/* Write IVR to database
+*************************/
+
+function writeIVRApplication($campaign_id, $ivr_id) {
+  $result = db_query("SELECT * FROM broadcast_ivr WHERE ivr_id=:ivr_id", array(':ivr_id'=>$ivr_id));
+  if($ivr = $result->fetchAssoc()) {
+    $applications = json_decode($ivr["data"], true);
+  }
+  
+  foreach($applications as $app) {
+    if($app["isRemoved"] == "yes") {
+      continue;
+    }
+    $appType = $app["appType"];
+    switch($appType) {
+    case 'play_audio':
+      $test_val = array();
+      $data = array('recording' => $app["data"]["recording_id"]);
+      break;
+    case 'transfer':
+      $test_val = array();
+      $data = array('extension' => $app["data"]["extension_id"]);
+      break;
+    case 'tts':
+      $test_val = array();
+      $data = array('tts' => $app["data"]["tts"]);
+      break;
+    case 'getdigit':
+      $test_val = array();
+      $data = array('recording' => $app["data"]["getdigit_recording_id"]);
+      break;
+    case 'amd':
+      $test_val = array(0 => 'machine', 1 => 'human');
+      $data = array();
+      break;
+    case 'play_menu':
+      $test_val = array(1, 2, 3, 4);
+      $data = array();
+      break;
+    default:
+      $data = array();
+      $test_val = array();
+    }
+    $cur_app = dialplan_application_add(
+      $campaign_id, 
+      $appType, 
+      $data
+    );
+    dialplan_action_next(null);
+    for($out = 0; $out < count($app["nodes"]["output"]); $out++) {
+      if($app["element"]["outPointer"][$out]["isAttached"]=="yes") {
+        dialplan_action_set($app["index"], $out, array('src_app' => $cur_app, 'test_value' => $test_val[$out]));
+      }
+    }
+    for($in = 0; $in < count($app["element"]["inPointer"]); $in++) {
+      if(!empty($app["element"]["inPointer"][$in])) {
+        $app_ref = $app["element"]["inPointer"][$in]["sourceAppIndex"];
+        $node_ref = $app["element"]["inPointer"][$in]["ptrIndex"];
+        dialplan_action_set($app_ref, $node_ref, array('dst_app' => $cur_app));
+      }
+    }
+  }// end loop for applications
+  
+  // to save all pending actions
+  dialplan_action_update_all();
+}
+
+function writeRecordingApplication($campaign_id, $recording_id) {
+  
+  $app_id = dialplan_application_add($campaign_id, 'start', array());
+  $app_rec = dialplan_application_add($campaign_id, 'play_audio', array('recording' => $recording_id));        
+  $app_id  = dialplan_application_add($campaign_id, 'hangup');
+  
+}
+
+
+

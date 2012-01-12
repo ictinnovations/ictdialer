@@ -1,0 +1,13 @@
+<?php 
+
+// Include the PHP Plivo Rest library
+require "lib/plivohelper.php";
+
+//$base_http = "http://".dirname($_SERVER["SERVER_NAME"].$_SERVER["PHP_SELF"]);
+$recording = $_GET['recording'];
+/* Render RESTXML */
+$r = new Response();
+$r->addPlay("/usr/ictsms/sites/default/files/broadcast/recording/$recording.wav", array('loop' => 4)); 
+$r->Respond();
+?>
+

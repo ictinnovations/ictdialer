@@ -1,0 +1,13 @@
+; /******************************************************************
+; * Copyright © 2009 ICT Innovations.                               *
+; * Developed By: Nasir Iqbal                                       *
+; *             : Tahir Almas                                       *
+; * Website : http://www.ictinnovations.com/                        *
+; * Mail : info@ictinnovations.com                                  *
+; ******************************************************************/
+;
+; $Id: broadcast_kannel.info,v 1.0 2010/05/02 17:57:59 ictinnovations Exp $
+name = "Broadcast Kannel Gateway Module"
+description = "Provides a Kannel Gateway for SMS sending functionality to broadcast module"
+package = "ICT Broadcast System"
+core = "6.x"

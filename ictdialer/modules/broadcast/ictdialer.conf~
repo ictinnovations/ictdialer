@@ -1,0 +1,35 @@
+[site]
+title = ICT Broadcast
+mode = live
+item_per_page = 20
+cookie_name = ictbroadcast
+language = en
+
+[db]
+host = localhost
+port = 3306
+user = root
+pass = mypass
+name = ictdialer
+type = mysql
+
+ssh_user  = root
+ssh_pass  = godisone
+ssh_port  = 22
+
+[kannel]
+host = localhost
+port = 13013
+user = myuser
+pass = mypass
+path = /cgi-bin/sendsms
+size = 160
+
+ssh_user  = root
+ssh_pass  = godisone
+ssh_port  = 22
+
+[broadcast]
+callerid     = 1223334444
+
+

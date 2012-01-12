@@ -1,0 +1,13 @@
+; /******************************************************************
+; * Copyright © 2009 ICT Innovations.                               *
+; * Developed By: Nasir Iqbal                                       *
+; *             : Tahir Almas                                       *
+; * Website : http://www.ictinnovations.com/                        *
+; * Mail : info@ictinnovations.com                                  *
+; ******************************************************************/
+;
+; $Id: broadcast_dummy.info,v 1.0 2009/10/16 18:08:59 ictinnovations Exp $
+name = "Broadcast Dummy Gateway Module"
+description = "Provides a Dummy Gateway for testing broadcast module functionality"
+package = "ICTDialer System"
+core = "7.x"

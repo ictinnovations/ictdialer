@@ -1,0 +1,14 @@
+; /******************************************************************
+; * Copyright © 2009 ICT Innovations.                               *
+; * Developed By: Falak Nawaz                                       *
+; *             : Nasir Iqbal                                       *
+; *             : Tahir Almas                                       *
+; * Website : http://www.ictinnovations.com/                        *
+; * Mail : info@ictinnovations.com                                  *
+; ******************************************************************/
+;
+; $Id: broadcast_voice.info,v 1.0 2011/09/07 11:13:59 ictinnovations Exp $
+name = "Broadcast Voice Module"
+description = "Provides Voice Support for broadcast module"
+package = "ICTDialer System"
+core = "7.x"

@@ -1,0 +1,74 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+//  $Id: broadcast.info,v 1.0 2009/10/16 18:08:59 ictinnovations Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function broadcast_contact_install() {
+//  drupal_install_schema('broadcast_contact');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function broadcast_contact_schema() {
+  $schema['broadcast_contact'] = array(
+    'fields' => array(
+      'contact_id' => array('type' => 'serial',  'not null' => TRUE,  'unsigned' => TRUE),
+      'first_name' => array('type' => 'varchar', 'not null' => TRUE,  'length'   => 32),
+      'last_name'  => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 32),
+      'company'    => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 32),
+      'address'    => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 128),
+      'phone'      => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 32),
+      'email'      => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 64),
+      'description'=> array('type' => 'varchar', 'not null' => FALSE, 'length'   => 128),
+      'created'    => array('type' => 'int',     'not null' => FALSE, 'unsigned' => TRUE),
+      'created_by' => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
+    ),
+    'primary key' => array('contact_id'),
+  );
+
+  $schema['broadcast_contact_group'] = array(
+    'fields' => array(
+      'contact_group_id' => array('type' => 'serial',  'not null' => TRUE,  'unsigned' => TRUE),
+      'title'            => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 32),
+      'type'             => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 16),
+      'description'      => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 128),
+      'created'          => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
+      'created_by'       => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
+    ),
+    'primary key' => array('contact_group_id'),
+  );
+
+  $schema['broadcast_contact_link'] = array(
+    'fields' => array(
+      'contact_link_id'  => array('type' => 'serial', 'not null' => TRUE, 'unsigned' => TRUE),
+      'contact_group_id' => array('type' => 'int',    'not null' => TRUE, 'unsigned' => TRUE),
+      'contact_id'       => array('type' => 'int',    'not null' => TRUE, 'unsigned' => TRUE),
+    ),
+    'primary key' => array('contact_link_id'),
+    'indexes'     => array(
+      'contact_id_group_id' => array(
+        'contact_id', 
+        'contact_group_id'
+      ),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function broadcast_contact_uninstall() {
+  drupal_uninstall_schema('broadcast_contact');
+}

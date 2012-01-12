@@ -1,0 +1,152 @@
+<?php
+// $Id: simple_payments_paypal.module,v 1.1 2009/11/17 03:48:49 jbrown Exp $
+
+define('SIMPLE_PAYMENTS_PAYPAL_SUBMIT_URL', 'https://www.paypal.com/cgi-bin/webscr');
+define('SIMPLE_PAYMENTS_PAYPAL_IPN_PATH', 'system/simple_payments_paypal/ipn');
+
+
+/**
+ * Creates a PayPal payment form.
+ *
+ * A button will still need to be added to the form before it can be used.
+ *
+ * @param $vars
+ *   An array of variables to be passed to PayPal.
+ *   They can be PayPal variables from 
+ *     https://www.paypal.com/IntegrationCenter/ic_std-variable-ref-buy-now.html
+ *   and the following:
+ *     'uid' - the uid of the user who is making this payment (defaults to the current user)
+ *     'nid' - the nid of the node this payment relates to
+ *     'module' - the module that should receive a callback when the payment is complete
+ *     'type' - any payment subclassification the module wishes to use
+ *     'custom' - data specific to the module / type, e.g. cart_id
+ *
+ * @return
+ *   A generated FAPI form
+ *
+ * @see simple_payments_moneybookers_payment_form()
+ */
+function simple_payments_paypal_payment_form($vars = array()) {
+
+	$vars['cmd'] = '_xclick';
+	$vars['notify_url'] = url(SIMPLE_PAYMENTS_PAYPAL_IPN_PATH, array('absolute' => TRUE));
+	
+	if(!$vars['business'])
+  	$vars['business'] = variable_get('simple_payments_paypal_account', '');
+
+  $form = simple_payments_build_form($vars);
+	
+	$form['#action'] = SIMPLE_PAYMENTS_PAYPAL_SUBMIT_URL;
+
+	return $form;
+}
+
+
+/**
+ * Implement hook_menu() .
+ */
+function simple_payments_paypal_menu() {
+		
+	$items[SIMPLE_PAYMENTS_PAYPAL_IPN_PATH] = array(
+		'type' => MENU_CALLBACK,
+    'page callback' => 'simple_payments_paypal_ipn',
+    'access callback' => TRUE
+	);
+	
+  $items['admin/ictsp/simple-payments/paypal'] = array(
+    'title' => 'PayPal',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('simple_payments_paypal_admin_form'),
+    'description' => 'Administer PayPal.',
+    'access callback'  => 'ictsp_access',
+    'access arguments' => array('administer simple payments'),
+  );
+
+	return $items;
+}
+
+
+/**
+ * Form builder for the PayPal configuration form.
+ *
+ * @ingroup forms
+ */
+function simple_payments_paypal_admin_form($form_state) {
+
+	$form['simple_payments_paypal_account'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Account'),
+		'#default_value' => variable_get('simple_payments_paypal_account', ''),
+		'#description' => '(email address)',
+	);
+
+  return system_settings_form($form);
+}
+
+
+function _simple_payments_paypal_post($data = array()) {
+  $post = '';
+  foreach ($data as $key => $value) {
+    $post .= $key. '='. urlencode($value). '&';
+  }
+  $post .= 'cmd=_notify-validate';
+
+  return $post;
+}
+
+
+function _simple_payments_paypal_ipn_verify($vars = array()) {
+
+  $ch = curl_init(SIMPLE_PAYMENTS_PAYPAL_SUBMIT_URL);
+
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, _simple_payments_paypal_post($vars));
+
+  ob_start();
+
+  if (curl_exec($ch)) {
+    $info = ob_get_contents();
+    curl_close($ch);
+    ob_end_clean();
+
+    if (eregi('VERIFIED', $info)) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  else {
+    watchdog('simple_payments_paypal', 'Call to curl_exec() failed. url=@url vars=@vars', array(
+      '@vars' => print_r($vars, TRUE)
+      ), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+
+/**
+ * Handles an incoming PayPal IPN.
+ */
+function simple_payments_paypal_ipn() {
+	$ipn = $_POST;
+
+	if(!_simple_payments_paypal_ipn_verify($ipn))
+		return;
+	
+	if($ipn['payment_status'] != 'Completed')
+	  return;
+	
+	
+  $payment = simple_payments_explode_custom($ipn['custom']);
+
+  $payment['gateway'] = 'paypal';
+	$payment['currency'] = $ipn['mc_currency'];
+	$payment['amount'] = bcmul($ipn['mc_gross'], 100);
+  $payment['timestamp'] = strtotime($ipn['payment_date']);
+	$payment['details'] = $ipn;
+	
+	simple_payments_payment_received($payment);
+}
+

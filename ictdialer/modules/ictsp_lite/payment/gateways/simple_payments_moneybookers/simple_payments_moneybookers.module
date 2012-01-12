@@ -1,0 +1,147 @@
+<?php
+// $Id: simple_payments_moneybookers.module,v 1.1 2009/11/17 03:48:49 jbrown Exp $
+
+define('SIMPLE_PAYMENTS_MONEYBOOKERS_SUBMIT_URL', 'https://www.moneybookers.com/app/payment.pl');
+define('SIMPLE_PAYMENTS_MONEYBOOKERS_STATUS_PATH', 'system/simple_payments_moneybookers/status');
+
+
+/**
+ * Creates a Moneybookers payment form.
+ *
+ * A button will still need to be added to the form before it can be used.
+ *
+ * @param $vars
+ *   An array of variables to be passed to Moneybookers.
+ *   They can be Moneybookers variables from 
+ *     http://www.moneybookers.com/app/help.pl?s=m_shoppingcart
+ *   and the following:
+ *     'uid' - the uid of the user who is making this payment (defaults to the current user)
+ *     'nid' - the nid of the node this payment relates to
+ *     'module' - the module that should receive a callback when the payment is complete
+ *     'type' - any payment subclassification the module wishes to use
+ *     'custom' - data specific to the module / type, e.g. cart_id
+ *
+ * @return
+ *   A generated FAPI form
+ *
+ * @see simple_payments_paypal_payment_form()
+ */
+function simple_payments_moneybookers_payment_form($vars = array()) {
+
+	$vars['language'] = 'EN';
+	$vars['status_url'] = url(SIMPLE_PAYMENTS_MONEYBOOKERS_STATUS_PATH, array('absolute' => TRUE));
+	$vars['merchant_fields'] = 'custom';
+	
+	if(!$vars['pay_to_email'])
+   	$vars['pay_to_email'] = variable_get('simple_payments_moneybookers_account', '');
+
+  $form = simple_payments_build_form($vars);
+
+	$form['#action'] = SIMPLE_PAYMENTS_MONEYBOOKERS_SUBMIT_URL;
+
+	return $form;
+}
+
+
+/**
+ * Implement hook_menu() .
+ */
+function simple_payments_moneybookers_menu() {
+		
+	$items[SIMPLE_PAYMENTS_MONEYBOOKERS_STATUS_PATH] = array(
+		'type' => MENU_CALLBACK,
+    'page callback' => 'simple_payments_moneybookers_status',
+    'access callback' => TRUE
+	);
+	
+  $items['admin/ictsp/simple-payments/moneybookers'] = array(
+    'title' => 'Moneybookers',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('simple_payments_moneybookers_admin_form'),
+    'description' => 'Administer Moneybookers.',
+    'access callback'  => 'ictsp_access',
+    'access arguments' => array('administer simple payments'),
+  );
+
+	return $items;
+}
+
+
+/**
+ * Form builder for the Moneybookers configuration form.
+ *
+ * @see simple_payments_moneybookers_admin_form_submit()
+ * @ingroup forms
+ */
+function simple_payments_moneybookers_admin_form($form_state) {
+
+	$form['simple_payments_moneybookers_account'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Account'),
+		'#default_value' => variable_get('simple_payments_moneybookers_account', ''),
+		'#description' => '(email address)',
+	);
+
+	$form['simple_payments_moneybookers_secret_word_hash'] = array(
+		'#type' => 'password',
+		'#title' => t('Secret word'),
+		'#description' => 'The secret word submitted in the Merchant Tools section of your Moneybookers account.<br />If the Merchant Tools section is not shown in your account,
+please contact merchantservices@moneybookers.com<br />Just leave this field blank if the secret word hasn\'t been changed.',
+    '#maxlength' => 10,
+	);
+
+  $form['#submit'][] = 'simple_payments_moneybookers_admin_form_submit';
+  
+  return system_settings_form($form);
+}
+
+
+/**
+ * Submit handler for the Moneybookers configuration form.
+ *
+ * @see simple_payments_moneybookers_admin_form()
+ * @ingroup forms
+ */
+function simple_payments_moneybookers_admin_form_submit($form, &$form_state) {
+  
+  $form_state['values']['simple_payments_moneybookers_secret_word_hash'] = 
+    md5(strtolower($form_state['values']['simple_payments_moneybookers_secret_word_hash']));
+}
+
+
+function _simple_payments_moneybookers_status_verify($status) {
+
+  return $status['md5sig'] == strtoupper(md5(
+    $status['merchant_id'] .
+    $status['transaction_id'] .
+    strtoupper(variable_get('simple_payments_moneybookers_secret_word_hash', '')) .
+    $status['mb_amount'] .
+    $status['mb_currency'] .
+    $status['status']));
+}
+
+
+/**
+ * Handles an incoming Moneybookers payment status.
+ */
+function simple_payments_moneybookers_status() {
+	$status = $_POST;
+
+	if(!_simple_payments_moneybookers_status_verify($status))
+		return;
+	
+	if($status['status'] != '2')
+	  return;
+	
+	
+  $payment = simple_payments_explode_custom($status['custom']);
+
+  $payment['gateway'] = 'moneybookers';
+	$payment['currency'] = $status['currency'];
+	$payment['amount'] = bcmul($status['amount'], 100);
+  $payment['timestamp'] = $_SERVER['REQUEST_TIME'];
+	$payment['details'] = $status;
+	
+	simple_payments_payment_received($payment);
+}
+

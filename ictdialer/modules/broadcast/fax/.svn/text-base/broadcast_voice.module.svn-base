@@ -1,0 +1,327 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: broadcast_voice.module,v 1.0 2009/10/16 18:08:59 ictinnovations Exp $
+
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Defines six menu entries: a Voice page that lists all voice in the module's
+ * database table, add and edit/add/delete pages for each voice
+ */
+ 
+function broadcast_voice_menu() {
+  $items = array();
+
+  $items['admin/broadcast/voice'] = array(
+    'title'            => 'Voice Settings',
+    'description'      => 'Configure Voice Broadcasting behavior',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_voice_admin_settings'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast voice system admin'),
+    'type'             => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on voice module.
+ */
+function broadcast_voice_perm() {
+  return array(
+    'broadcast voice system admin'
+  );
+}
+
+/**
+ * Loader function for individual recordings.
+ * Used in broadcast module as a hook for invoke all
+ * @param $recording_id
+ *   An int containing the ID of a recording.
+ * @return
+ *   A single recording in array format, or FALSE if none matched the incoming ID.
+ */
+function broadcast_voice_campaign_message_load($campaign_id, $campaign) {
+  
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    $sql    = "SELECT * FROM {broadcast_campaign_recording} WHERE campaign_id = %d";
+    $result = db_query($sql, $campaign_id);
+    if ($campaign_recording = db_fetch_array($result)) {
+      $selectedRecording = array(
+        'recording'  => $campaign_recording['recording_id'],
+      );
+      
+      return $selectedRecording;
+    } else {
+      drupal_set_message(t('Specified Recording does not exist! or you have not proper permissions!'), 'error');
+      return FALSE;
+    }
+  }
+}
+// used to load a recording id for given campaign id
+function broadcast_voice_load($campaign_id) {  
+  $sql    = "SELECT * FROM {broadcast_campaign_recording} WHERE campaign_id = %d";
+  $result = db_query($sql, $campaign_id);
+  if ($campaign_recording = db_fetch_array($result)) {
+    $selectedRecording = array(
+      'recording'  => $campaign_recording['recording_id'],
+    );  
+    return $selectedRecording;
+  } else {
+    drupal_set_message(t('Specified Recording does not exist! or you have not proper permissions!'), 'error');
+    return FALSE;
+  }
+}
+
+
+function broadcast_voice_supported_types()
+{
+  return array('voice'=> t('Voice Campaign'));
+}
+
+
+
+/**
+ * Build the voice message editing form.
+ *
+ * @ingroup forms
+ * @see broadcast_voice_campaign_message_submit()
+ */
+function broadcast_voice_campaign_message($form_state, $campaign = array()) {
+
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    // It's safe to use on both an empty array, and an incoming array with full or partial data.
+    $campaign += array(
+      'recording' => '',
+      
+    );
+
+    // If we're editing an existing voice campaign, we'll add a value field to the form
+    // containing the voice's unique ID.
+    if (!empty($campaign['recording_id'])) {
+      $form['recording_id'] = array(
+        '#type'        => 'value',
+        '#value'       => $campaign['recording_id'],
+      );
+    }
+    
+    if (!empty($campaign['campaign_recording_id'])) {
+      $form['campaign_recording_id'] = array(
+        '#type'        => 'value',
+        '#value'       => $campaign['campaign_recording_id'],
+      );
+    }
+
+    $form['voice'] = array(
+      '#type'          => 'fieldset',
+      '#title'         => t('Voice Message'),
+    );
+    $options = broadcast_voice_recording_option();
+    $form['voice']['recording'] = array(
+      '#type'          => 'select',
+      '#title'         => t('Recording File'),
+      '#required'      => TRUE,
+      '#options'       => $options, 
+      '#default_value' => $campaign['recording'],
+    );
+    
+    $form['voice']['campaign_type'] = array(
+    '#type'          => 'value',
+    '#default_value' => 'voice',
+    );
+
+    return $form;
+  }
+}
+
+function broadcast_voice_campaign_message_validate($form, $form_state) {
+  // no validation required
+  return true;
+}
+
+/**
+ * Inserts a new link in broadcast_campaign_recording, or updates an existing one.
+ *
+ * @param $campaign
+ *   A recording link to be saved. If $campaign['campaign_id'] is set, the recording link will be updated.
+ *   Otherwise, a new link will be inserted into the database.
+ * @return
+ *   The saved recording link, with its ID set.
+ */
+function broadcast_voice_campaign_message_submit($form, $form_state, $campaign) {
+  global $user;
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    $voice = $form_state['values'];
+    // Save assigned recording to this campaign. but first delete existing recording in case of update
+    $sql    = 'DELETE FROM {broadcast_campaign_recording} WHERE campaign_id = %d';
+    $result = db_query($sql, $campaign['campaign_id']);
+    
+    $aSelectedRecording = array(
+      'recording_id' => $voice['recording'],
+      'campaign_id'       => $campaign['campaign_id'],
+    );
+    drupal_write_record('broadcast_campaign_recording', $aSelectedRecording);
+  }
+}
+
+/**
+ * Delete a recording link, according to given campaign ID.
+ *
+ * @param $campaign
+ *   An array of campaign containing the ID of campaign and recording link.
+ */
+function broadcast_voice_campaign_message_delete($campaign) {
+  if(!empty($campaign['campaign_type']) && $campaign['campaign_type']=='voice'){
+    $sql = 'DELETE FROM {broadcast_campaign_recording} WHERE campaign_id = %d';
+    db_query($sql, $campaign['campaign_id']);
+  }
+}
+
+function broadcast_voice_admin_settings() {
+  $form['voice'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Voice Settings')
+  );
+  $form['voice']['broadcast_voice_default_gateway'] = array(
+    '#type'          => 'select',
+    '#title'         => t("Default Voice Gateway"),
+    '#options'       => _broadcast_voice_get_gateways(),
+    '#default_value' => variable_get('broadcast_voice_default_gateway', 'broadcast_dummy'),
+    '#description'   => t('Select which gateway will be used for outgoing Voice'),
+  );
+  return system_settings_form($form);
+}
+
+function broadcast_voice_recording_option() {
+  $sql = "SELECT * FROM {broadcast_recording}";
+  $sql = broadcast_db_filter($sql, '{broadcast_recording}');
+  $result = db_query($sql);
+  $rows = array();
+  while ($recording = db_fetch_array($result)) {
+    $row_id = $recording['recording_id'];
+    $rows[$row_id] = check_plain($recording['name']);
+  }
+  if (!isset($rows)) {
+    return FALSE;
+  }
+  return $rows;
+}
+
+/********************************************************
+*             FUNCTION FOR BACKGROUND TASK              *
+********************************************************/
+
+/* Enumerate all SMS gateways
+*****************************/
+
+function _broadcast_voice_get_gateways() {
+  $gateways = array();
+
+  foreach (module_list() as $module) {
+    $function = $module . '_supported_services';
+    if (function_exists($function)) {
+      $services = $function();
+      if (isset($services['voice'])) {
+        $gateways[$module] = $services['voice'];
+      }
+    }
+  }
+
+  return $gateways;
+}
+
+
+/* Get, load, and test default Voice gateway
+******************************************/
+
+function broadcast_voice_get_gateway($campaign_id) {
+  static $voice_gateway      = FALSE;
+  static $gateway_loaded     = FALSE;
+  static $function_ready     = FALSE;
+  static $function_deliver   = FALSE;
+
+  if (!$gateway_loaded) {
+    $voice_gateway      = variable_get('broadcast_voice_default_gateway', 'broadcast_plivo');
+    $function_load    = $voice_gateway . '_load';
+    $function_ready   = $voice_gateway . '_is_ready';
+    $function_deliver = $voice_gateway . '_deliver_voice';
+
+    $gateway_loaded   = $function_load('voice', $campaign_id);
+  }
+
+  if ($gateway_loaded) {
+    // Wait until gateway is ready
+    // TODO: timeout ??
+    while (!$function_ready('sms')) {
+      usleep(200000); // 200000 = 0.2 second
+    }
+    return $function_deliver;
+  } else {
+    return FALSE;
+  }
+}
+
+/* Ask gateway to check weather message is OK to deliver
+********************************************************/
+
+function broadcast_voice_get_message($campaign_id) {
+    $voice = broadcast_voice_load($campaign_id);
+
+    $voice_gateway      = variable_get('broadcast_voice_default_gateway', 'broadcast_plivo');
+    $function_prepare = $voice_gateway . '_message_prepare';
+
+    return $function_prepare('voice', $voice['recording']); // returns recording_id
+ 
+}
+
+
+
+/* Enumerate all Voice gateways
+*****************************/
+
+function broadcast_voice_deliver($campaign_id, $contact_id, $log_id) {
+  static $voice_message       = FALSE;
+  static $message_variables = array('%firstname', 
+                                    '%lastname', 
+                                    '%phone', 
+                                    '%email', 
+                                    '%company'
+                                   );
+
+  if (!$voice_message) {
+    $voice_message = broadcast_voice_get_message($campaign_id);
+    //TODO: what to do if it failed
+  }
+
+  $gateway_deliver = broadcast_voice_get_gateway($campaign_id);
+  //TODO: what to do if gateway is not ready
+
+  $contact         = broadcast_contact_load($contact_id);
+  $message_values  = array($contact['first_name'], 
+                           $contact['last_name'], 
+                           $contact['phone'], 
+                           $contact['email'], 
+                           $contact['company']
+                          );
+
+  // customize message for each contact by replacing variables (if used) with there values
+  //$message_custom  = str_replace($message_variables, $message_values, $voice_message);
+
+  $deliver_result  = $gateway_deliver($contact['phone'], $voice_message, $log_id);
+
+  return $deliver_result;
+  
+}

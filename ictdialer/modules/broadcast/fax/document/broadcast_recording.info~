@@ -1,0 +1,13 @@
+; /******************************************************************
+; * Copyright © 2009 ICT Innovations.                               *
+; * Developed By: Nasir Iqbal                                       *
+; *             : Tahir Almas                                       *
+; * Website : http://www.ictinnovations.com/                        *
+; * Mail : info@ictinnovations.com                                  *
+; ******************************************************************/
+;
+; $Id: broadcast_contact.info,v 1.0 2009/10/16 18:08:59 ictinnovations Exp $
+name = "Contact Management"
+description = "Provides virouse ways to broadcast a message"
+package = ICT Broadcast System
+core = "6.x"

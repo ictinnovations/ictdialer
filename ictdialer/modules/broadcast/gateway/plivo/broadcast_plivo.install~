@@ -1,0 +1,24 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: broadcast_plivofreeswitch.install,v 1.0 2011/09/12 17:57:59 diggersf Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function broadcast_plivofreeswitch_install() {
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function broadcast_plivofreeswitch_uninstall() {
+}

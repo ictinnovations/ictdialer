@@ -1,0 +1,227 @@
+<?php
+/******************************************************************
+* Copyright © 2011 ICT Innovations Pakistan All Rights Reserved   *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: broadcast_plivofreeswitch.module,v 1.0 2011/09/12 17:57:59 ictinnovations Exp $
+
+function broadcast_plivofreeswitch_menu() {
+  $items = array();
+
+  $items['admin/broadcast/gateway/freeswitch'] = array(
+    'title'            => 'Freeswitch Settings',
+    'description'      => 'Configure Freeswitch Settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_plivofreeswitch_admin_settings'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast freeswitch system admin'),
+    'type'             => MENU_NORMAL_ITEM,
+  );
+
+  $items['admin/broadcast/gateway/freeswitch/setting'] = array(
+    'title'            => 'Settings',
+    'description'      => 'Configure Freeswitch Settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_plivofreeswitch_admin_settings'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast freeswitch system admin'),
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => -10,
+  );
+
+  $items['admin/broadcast/gateway/freeswitch/test'] = array(
+    'title'            => 'Test Call',
+    'description'      => 'Testing Call with Freeswitch',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_plivofreeswitch_test_form'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast freeswitch system admin'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on sms module.
+ */
+function broadcast_plivofreeswitch_perm() {
+  return array(
+    'broadcast freeswitch system admin'
+  );
+}
+
+function broadcast_plivofreeswitch_admin_settings() {
+  $form['gateway'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Freeswitch Gateway Settings')
+  );
+
+  $form['gateway']['broadcast_plivofreeswitch_server'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Server Address"),
+    '#default_value' => variable_get('broadcast_plivofreeswitch_server', '127.0.0.1'),
+    '#description'   => t('Freeswitch server IP address'),
+  );
+
+  $form['gateway']['broadcast_plivofreeswitch_accountid'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Account ID"),
+    '#default_value' => variable_get('broadcast_plivofreeswitch_accountid', 'test'),
+    '#description'   => t('Account ID for Plivo Rest API'),
+  );
+
+  $form['gateway']['broadcast_plivofreeswitch_authenticationtoken'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Authentication Token"),
+    '#default_value' => variable_get('broadcast_plivofreeswitch_authenticationtoken', 'test'),
+    '#description'   => t('password for Plivo Rest API'),
+  );
+  
+    $form['gateway']['broadcast_plivofreeswitch_port'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Server Port"),
+    '#default_value' => variable_get('broadcast_plivofreeswitch_port', '8088'),
+    '#description'   => t('Port number for Freeswitch'),
+  );
+/*
+  $form['gateway']['broadcast_plivofreeswitch_path_config'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Configuration File"),
+    '#default_value' => variable_get('broadcast_plivofreeswitch_path_binary', 'system/etc/ib_extensions.conf'),
+    '#description'   => t('Path to freeswitch configuration file'),
+  );
+*/
+
+  return system_settings_form($form);
+}
+
+/**
+ * Build the campaign editing form.
+ *
+ * @ingroup forms
+ * @see broadcast_plivofreeswitch_test_form_submit()
+ */
+function broadcast_plivofreeswitch_test_form(&$form_state, $campaign = array()) {
+
+  $form['test'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Testing Freeswitch Gateway'),
+  );
+
+  $form['test']['number'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Phone Number'),
+    '#required'      => TRUE,
+  );
+
+  $form['test']['recording'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Recording File'),
+    '#options'       => broadcast_voice_recording_option(),
+  );
+
+  $form['submit'] = array(
+    '#type'          => 'submit',
+    '#value'         => t('Submit'),
+  );
+
+  return $form;
+}
+
+function broadcast_plivofreeswitch_test_form_submit($form, &$form_state) {
+  $sms = $form_state['values'];
+
+  if (!$result = broadcast_plivofreeswitch_load('sms')) {
+    drupal_set_message(t('Unable to load gateway, message failed!'), 'error');
+    $form_state['redirect'] = 'admin/broadcast/gateway/plivofreeswitch/test';
+  }
+  
+  if ($result && broadcast_plivofreeswitch_deliver_sms($sms['number'], $sms['message'])) {
+    drupal_set_message(t('Message sent successfully!'), 'status');
+    $form_state['redirect'] = 'admin/broadcast/gateway/plivofreeswitch/test';
+  } else {
+    drupal_set_message(t('Unable to send message, failed!'), 'error');
+    $form_state['redirect'] = 'admin/broadcast/gateway/plivofreeswitch/test';
+  }
+}
+
+function broadcast_plivofreeswitch_supported_services() {
+  $services = array('voice' => t('Freeswitch Voice Service'));
+
+  return $services;
+}
+
+/**********************************************************
+Functions for Background Tasks                            *
+**********************************************************/
+
+function broadcast_campaign_voice_start($campaign_id) {
+  // Include the PHP Plivo Rest library
+  require "lib/plivohelper.php";
+
+  $plivo_server     = variable_get('broadcast_plivofreeswitch_server', '127.0.0.1');
+  $plivo_port       = variable_get('broadcast_plivofreeswitch_port', '8088');
+  $plivo_AccountSid = variable_get('broadcast_plivofreeswitch_accountid', 'test');
+  $plivo_AuthToken  = variable_get('broadcast_plivofreeswitch_authenticationtoken', 'test');
+  //$sms_url      = variable_get('broadcast_plivofreeswitch_url_sendsms', '/cgi-bin/sendsms');
+  //$sms_from     = variable_get('broadcast_plivofreeswitch_source_number', '1111111111');
+  //$sms_size     = variable_get('broadcast_plivofreeswitch_message_size', 160);
+
+  drupal_set_message(t('Campaign voice reached successfully!'), 'status');
+  $REST_API_URL = "http://$plivo_server:$plivo_port";
+  
+  // Plivo REST API version
+  $ApiVersion = 'v0.1';
+
+  // Instantiate a new Plivo Rest Client
+  $client = new PlivoRestClient($REST_API_URL, $plivo_AccountSid, $plivo_AuthToken, $ApiVersion);
+  
+  
+  // ========================================================================
+  # Define Channel Variable - http://wiki.freeswitch.org/wiki/Channel_Variables
+  //$extra_dial_string = "bridge_early_media=true,hangup_after_bridge=false";
+
+  # Initiate a new outbound call to user/1000 using a HTTP POST
+  $call_params = array(
+      'From' => '919191919191', # Caller Id
+      'To' => '1000', # User Number to Call
+      'Gateways' => "user/", # Gateway string to try dialing our separated by comma. First in list will be tried first
+      'GatewayCodecs' => "'PCMA,PCMU'", # Codec string as needed by FS for each gateway separated by comma
+      'GatewayTimeouts' => "60",      # Seconds to timeout in string for each gateway separated by comma
+      'GatewayRetries' => "1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
+      //'ExtraDialString' => $extra_dial_string,
+      'AnswerUrl' => "http://127.0.0.1/ictsms/plivohelper/examples/play.php",
+      'HangupUrl' => "http://127.0.0.1:5000/hangup/",
+      'RingUrl' => "http://127.0.0.1:5000/ringing/"
+  );
+
+  try {
+      // Initiate call
+      $response = $client->call($call_params);
+      print_r($response);
+      print_r('<br/><br/>');
+  } catch (Exception $e) {
+      echo $response;
+      echo 'Caught exception: ',  $e->getMessage(), "\n";
+      exit(0);
+  }
+
+  // check response for success or error
+  if($response->IsError)
+      echo "Error starting phone call: {$response->ErrorMessage}\n";
+  else
+      echo "Started call: {$response->Response->RequestUUID}\n";
+
+}
+
+
+?>

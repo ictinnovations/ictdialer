@@ -1,0 +1,14 @@
+; /******************************************************************
+; * Copyright © 2009 ICT Innovations.                               *
+; * Developed By: Falak Nawaz                                       *
+; *             : Nasir Iqbal                                       *
+; *             : Tahir Almas                                       *
+; * Website : http://www.ictinnovations.com/                        *
+; * Mail : info@ictinnovations.com                                  *
+; ******************************************************************/
+;
+; $Id: broadcast_ivr.info,v 1.0 2011/11/23 11:42:59 ictinnovations Exp $
+name = "IVR Management"
+description = "Manages IVRs for campaigns to broadcast"
+package = ICT Broadcast System
+core = "7.x"

@@ -1,0 +1,407 @@
+<?php
+/******************************************************************
+* Copyright © 2009 ICT Innovations.                               *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: document.module,v 1.0 2011/12/12 18:08:59 ictinnovations Exp $
+
+/**
+ * @file
+ * Provides support to add fax document and manage fax documents which can be used
+ * with broadcast module.
+ */
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Defines menu entries 
+ */
+function broadcast_document_menu() {
+  $items = array();
+
+  $items['broadcast/files'] = array(
+    'title'            => 'Manage Files',
+    'description'      => 'Manage files for Campaign',
+    'page callback'    => 'system_admin_menu_block_page',
+    'file'             => 'system.admin.inc',
+    'file path'        => drupal_get_path('module', 'system'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast campaign'),
+    'position'         => 'left',
+    'weight'           => 0,
+    );
+    
+    $items['broadcast/files/document'] = array(
+    'title'            => 'Fax Documents',
+    'description'      => 'Manage fax documents for campaigns',
+    'page callback'    => 'broadcast_voice_document_list',
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast document'),
+    'type'             => MENU_NORMAL_ITEM,
+    //'weight'           => -10,
+    );
+
+    $items['broadcast/files/document/list'] = array(
+    'title'            => 'List',
+    'description'      => 'Manage document for campaigns',
+    'page callback'    => 'broadcast_voice_document_list',
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast document'),
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => -10,
+  );
+
+  $items['broadcast/files/document/add'] = array(
+    'title'            => 'Upload Fax document',
+    'description'      => 'Add / Create new Recorings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_document_form'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast document admin'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+  
+  $items['broadcast/files/document/%broadcast_document/edit'] = array(
+    'title'            => 'Edit document',
+    'description'      => 'Edit / Change document',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_document_form', 3),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast document admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['broadcast/files/document/%broadcast_document/delete'] = array(
+    'title'            => 'Delete document',
+    'description'      => 'Delete document',
+    'page callback'    => 'broadcast_document_delete',
+    'page arguments'   => array(3),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast document admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  /*
+  $items['admin/broadcast/document'] = array(
+    'title'            => 'document Settings',
+    'description'      => 'Configure document Broadcasting behavior',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_document_admin_settings'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast document system admin'),
+    'type'             => MENU_NORMAL_ITEM,
+  );
+  */
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on document module.
+ */
+function broadcast_document_perm() {
+  return array(
+    'broadcast document',
+    'broadcast document admin',
+    'broadcast document group',
+    'broadcast document group admin',
+    'broadcast document system admin'
+  );
+}
+
+/**
+ * Page function for document List
+ *
+ * It will show a list of available documents in form of list
+ *
+ * @return
+ * page html
+*/
+function broadcast_voice_document_list() {
+
+  $header = array(
+    array('data' => t('document Name'),   'field' => 'name', 'sort' => 'asc'),
+    array('data' => t('Type'),            'field' => 'type'),
+    array('data' => t('Size'),            'field' => 'size'),
+    array('data' => t('Description'),     'field' => 'description'),
+    array('data' => t('Operations')),
+  );
+  
+  $query = db_select('broadcast_document', 'd')->extend('PagerDefault');
+  $query->fields('d', array('document_id', 'name', 'type', 'size', 'description'));
+  $query = broadcast_select_filter($query);
+  $result = $query->limit(10)         
+            ->extend('TableSort')
+            ->orderByHeader($header)
+            ->execute();
+
+  while ($document = $result->fetchAssoc()) {
+    $row_id = $document['document_id'];
+    $rows[$row_id][] = check_plain($document['name']);
+    $rows[$row_id][] = check_plain($document['type']);
+    $rows[$row_id][] = check_plain($document['size']. " bytes");
+    $rows[$row_id][] = check_plain($document['description']);
+    $rows[$row_id][] = _broadcast_document_list_links($document);
+  }
+  if (!isset($rows)) {
+    $rows[] = array(array('data' => t('No Fax documents have been added.'), 'colspan' => 5));
+  }
+
+  $output = theme('table', array('header'=>$header, 'rows'=>$rows));
+  $output .= theme('pager');
+
+  return $output;
+}
+
+/**
+ * Build the edit and delete links for a single document.
+ *
+ * @see broadcast_document_list()
+ */
+ 
+function _broadcast_document_list_links($document) {
+  $links['edit'] = array(
+    'title' => t('Edit'),
+    'href' => 'broadcast/files/document/' . $document['document_id'] . '/edit',
+    'html' => TRUE,
+  );
+  $links['delete'] = array(
+    'title' => t('Delete'),
+    'href' => 'broadcast/files/document/' . $document['document_id'] . '/delete',
+    'html' => TRUE,
+  );
+  return theme('links', array('links'=>$links));
+}
+
+
+/**
+ * Loader function for individual documents.
+ *
+ * As we have used '%broadcast_document' as a wildcard in our hook_menu()
+ *
+ * @param $document_id
+ *   An int containing the ID of a document.
+ * @return
+ *   A single document in array format, or FALSE if none matched the incoming ID.
+ */
+function broadcast_document_load($document_id) {
+  $sql    = "SELECT * FROM {broadcast_document} WHERE document_id = :document_id";
+  $sql    = broadcast_db_filter($sql);
+  $result = db_query($sql, array(':document_id'=>$document_id));
+  if ($document = $result->fetchAssoc()) {
+    return $document;
+  }
+  else {
+    drupal_set_message(t('Specified document does not exist! or you have not proper permissions!'), 'error');
+    return FALSE;
+  }
+}
+
+/**
+ * Build the document editing form.
+ *
+ * @ingroup forms
+ * @see broadcast_document_form_submit()
+ */
+function broadcast_document_form($form, &$form_state, $document = array()) {
+  // It's safe to use on both an empty array, and an incoming array with full or partial data.
+  $document += array(
+    'name'    => '',
+    'description'     => '',
+    'type'       => '',
+    'path'      => '',
+    'size'       => '',
+    'file_upload' => '',
+  );
+  // If we're editing an existing document, we'll add a value field to the form
+  // containing the document's unique ID.
+  if (!empty($document['document_id'])) {
+    $form['document_id'] = array(
+      '#type'        => 'value',
+      '#value'       => $document['document_id'],
+    );
+  }
+
+  $form['document'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Document Information'),
+  );
+
+  $form['document']['name'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Document Name'),
+    '#required'      => TRUE,
+    '#default_value' => $document['name'],
+  );
+
+  $form['document']['description'] = array(
+    '#type'          => 'textarea',
+    '#title'         => t('Description'),
+    '#default_value' => $document['description'],
+  );
+
+  $form['message'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Document'),
+  );
+  
+  // helper field for file upload
+  $form['#attributes'] = array('enctype' => "multipart/form-data");
+  $form['message']['file_upload'] = array(
+    '#type'          => 'file',
+    '#title'         => t('Upload File'),
+    '#default_value' => $document['file_upload'],
+  );
+  
+  $form['submit'] = array(
+    '#type'          => 'submit',
+    '#value'         => t('Submit'),
+  );
+
+  return $form;
+}
+
+function broadcast_document_form_validate($form, &$form_state) {
+  $existing_record = 0;
+  $document         = $form_state['values'];
+
+  if (isset($document['document_id'])) {
+    // we are editing an existing record
+    $existing_record = $document['document_id'];
+  }
+
+  if ($document['name'] == '') {
+    form_set_error('name', t('document name cannot be empty'));
+  }
+  
+  
+}
+
+/**
+ * Inserts a new document, or updates an existing one.
+ *
+ */
+function broadcast_document_form_submit($form, &$form_state) {
+  global $user;
+  $path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . "/broadcast/document";
+  $document = $form_state['values'];
+  // set source file path
+  $validators = array(
+    'file_validate_extensions' => array('tif', 'TIF'),
+  );
+  if($file = file_save_upload('file_upload', $validators)) {
+    // Do something with $file here.
+    $orgFile = '/tmp/'.$file->filename;
+    $size    = $file->filesize;
+    // set destination file path
+    $fixedFile = "$path/$document[name].tif";
+    $document['type'] = 'TIF';
+    // initiate a file copy
+    exec("cp '$orgFile' '$fixedFile'");
+    exec("chmod 666 '$fixedFile'");
+    
+    $document['path']   = $fixedFile;
+    $document['size'] = $size;
+    
+    if (!isset($document['created'])) {
+      $document['created'] = time();
+    }
+    if (!isset($document['created_by'])) {
+      $document['created_by'] = $user->uid;
+    }
+    // save the document
+    if (isset($document['document_id'])) {
+      drupal_write_record('broadcast_document', $document, 'document_id');
+    }
+    else {
+      drupal_write_record('broadcast_document', $document);
+    }
+    drupal_set_message(t('document saved successfully!'), 'status');
+    $form_state['redirect'] = 'broadcast/files/document/list';
+  } else
+  {
+    drupal_set_message(t('Cannot save document!'), 'error');
+  }
+}
+
+/**
+ * Deletes a document, given its unique ID.
+ *
+ * @param $document
+ *   An array of document containing the ID of a document
+ */
+function broadcast_document_delete($document) {
+  $sql = 'DELETE FROM {broadcast_document} WHERE document_id = :document_id';
+  if(db_query($sql, array(':document_id'=>$document['document_id']))) {
+    $filepath = $document['path'];
+    exec("rm -rf '$filepath'");
+    drupal_set_message(t('document deleted successfully!'), 'status');
+  } else {
+    drupal_set_message(t('Cannot delete specified document! or you have not proper permissions!'), 'error');
+  }
+  drupal_goto('broadcast/files/document/list');
+}
+
+function broadcast_document_option() {
+  $sql = "SELECT * FROM {broadcast_document}";
+  $sql = broadcast_db_filter($sql, '{broadcast_document}');
+  $result = db_query($sql);
+  $rows = array();
+  while ($document = $result->fetchAssoc()) {
+    $row_id = $document['document_id'];
+    $rows[$row_id] = check_plain($document['name']);
+  }
+  if (!isset($rows)) {
+    return FALSE;
+  }
+  return $rows;
+}
+
+
+/*
+function broadcast_document_admin_settings() {
+  $form['phone'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Phone Number Validation Rules')
+  );
+  $form['phone']['broadcast_document_phone_format_gsm'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("GSM Phone Number's Patterns"),
+    '#default_value' => variable_get('broadcast_document_phone_format_gsm', '923XXXXXXXXX'),
+    '#description'   => t('All Numbers in GSM Contacts will be validated against these patterns'),
+  );
+  $form['phone']['broadcast_document_phone_format_other'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Other Phone Number's Patterns"),
+    '#default_value' => variable_get('broadcast_document_phone_format_other', '92XX.'),
+    '#description'   => t('All Numbers in Other Contacts will be validated against these patterns'),
+  );
+  $form['phone']['broadcast_document_phone_duplicate_group'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('No duplicate Phone Number'),
+    '#description'   => t('In a group no phone number will be repeated'),
+    '#default_value' => variable_get('broadcast_document_phone_duplicate_group', '1'),
+    '#return_value'  => 1,
+  );
+  $form['email'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Email Validation Rules')
+  );
+  $form['email']['broadcast_document_email_duplicate_group'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('No duplicate Emails'),
+    '#description'   => t('In a group no email will be repeated'),
+    '#default_value' => variable_get('broadcast_document_email_duplicate_group', '1'),
+    '#return_value'  => 1,
+  );
+
+  return system_settings_form($form);
+}
+*/
