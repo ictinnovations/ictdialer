@@ -1,18 +1,19 @@
 #!/usr/bin/php -q
 <?php
 /******************************************************************
-* Copyright © 2009 ICT Innovations.                               *
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
 * Developed By: Nasir Iqbal                                       *
 *             : Tahir Almas                                       *
 * Modified By:  Falak Nawaz                                       *
 * Website : http://www.ictinnovations.com/                        *
-* Mail : info@ictinnovations.com                                  *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
 ******************************************************************/
 
 /**
  * ICT Broadcast System
  * 
- * Drupal 6
+ * Drupal 7
  *
  * @package   Broadcast
  * @author    Nasir Iqbal <nasir@ictinnovations.com>

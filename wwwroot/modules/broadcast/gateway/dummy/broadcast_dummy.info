@@ -1,10 +1,12 @@
-; /******************************************************************
-; * Copyright © 2009 ICT Innovations.                               *
-; * Developed By: Nasir Iqbal                                       *
-; *             : Tahir Almas                                       *
-; * Website : http://www.ictinnovations.com/                        *
-; * Mail : info@ictinnovations.com                                  *
-; ******************************************************************/
+;/******************************************************************
+;* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+;* License: GNU AGPL V 3.0                                         *
+;* Developed By: Nasir Iqbal                                       *
+;*             : Tahir Almas                                       *
+;* Modified By:  Falak Nawaz                                       *
+;* Website : http://www.ictinnovations.com/                        *
+;* Contact : support@ictinnovations.com, info@ictinnovations.com   *
+;******************************************************************/
 ;
 ; $Id: broadcast_dummy.info,v 1.0 2009/10/16 18:08:59 ictinnovations Exp $
 name = "Broadcast Dummy Gateway Module"

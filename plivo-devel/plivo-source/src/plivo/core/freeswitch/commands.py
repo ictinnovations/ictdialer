@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 # Initial code for this file derived from eventsocket project - (https://github.com/fiorix/eventsocket),
 # which is distributed under the Mozilla Public License Version 1.1
+# Modified by : Falak Nawaz 
+# ICT Innovations http://www.ictinnovations.com Pakistan
+# support@ictinnovations, ​info@ictinnovations.com 
+# Modification made: Added Fax capability 
 
 """
 FreeSWITCH Commands class

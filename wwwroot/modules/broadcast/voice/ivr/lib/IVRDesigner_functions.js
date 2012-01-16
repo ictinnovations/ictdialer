@@ -1,11 +1,13 @@
 /******************************************************************
-* Copyright © 2011 ICT Innovations Pakistan All Rights Reserved   *
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
 * Developed By: Falak Nawaz                                       *
 *             : Nasir Iqbal                                       *
 *             : Tahir Almas                                       *
 * Website : http://www.ictinnovations.com/                        *
-* Mail : info@ictinnovations.com                                  *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
 ******************************************************************/
+
 ///////////////////////////////////////////
 // EditHandlers for applications         //
 ///////////////////////////////////////////

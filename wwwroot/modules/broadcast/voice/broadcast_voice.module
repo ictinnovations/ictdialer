@@ -1,11 +1,12 @@
 <?php
 /******************************************************************
-* Copyright © 2009 ICT Innovations.                               *
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
 * Developed By: Falak Nawaz                                       *
 *             : Nasir Iqbal                                       *
 *             : Tahir Almas                                       *
 * Website : http://www.ictinnovations.com/                        *
-* Mail : info@ictinnovations.com                                  *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
 ******************************************************************/
 
 // $Id: broadcast_voice.module,v 1.0 2011/09/08 18:08:59 ictinnovations Exp $

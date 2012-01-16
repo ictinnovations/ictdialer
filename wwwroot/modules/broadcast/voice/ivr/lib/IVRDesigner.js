@@ -1,9 +1,11 @@
-
 /****************************************************************************
-* Developed by ICT Innovations                                              *
-* info@ictinnovations.com                                                   *
-*                                                                           *
-* Copyright (c) 2011 ICT Innovations http://www.ictinnovations.com          *
+* Copyright © 2012 ICT Innovations, All Rights Reserved                     *
+* License: GNU AGPL V 3.0                                                   *
+* Developed By: Falak Nawaz                                                 *
+*             : Nasir Iqbal                                                 *
+*             : Tahir Almas                                                 *
+* Website : http://www.ictinnovations.com/                                  *
+* Contact : support@ictinnovations.com, info@ictinnovations.com             *
 *                                                                           *
 * based on Original Work                                                    *
 * Copyright (c) 2011 Sagie Maoz, http://sagie.maoz.info/                    *
@@ -26,6 +28,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION     *
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.           *
 ****************************************************************************/
+
 Raphael.fn.connection = function (obj1, obj2, line, bg) {
     if (obj1.line && obj1.from && obj1.to) {
         line = obj1;
