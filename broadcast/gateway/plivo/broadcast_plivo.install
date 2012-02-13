@@ -1,0 +1,25 @@
+<?php
+/******************************************************************
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
+******************************************************************/
+
+// $Id: broadcast_plivo.install,v 1.0 2011/09/12 17:57:59 diggersf Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function broadcast_plivo_install() {
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function broadcast_plivo_uninstall() {
+}

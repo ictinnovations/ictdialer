@@ -1,0 +1,437 @@
+<?php
+/******************************************************************
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
+******************************************************************/
+
+// $Id: ictrecording.module,v 1.0 2011/09/08 18:08:59 ictinnovations Exp $
+
+/**
+ * @file
+ * Provides support to add recording and manage recording files which can be used
+ * with broadcast module.
+ */
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Defines menu entries 
+ */
+function broadcast_recording_menu() {
+  $items = array();
+
+  $items['broadcast/files'] = array(
+    'title'            => 'Manage Files',
+    'description'      => 'Manage files for Campaign',
+    'page callback'    => 'system_admin_menu_block_page',
+    'file'             => 'system.admin.inc',
+    'file path'        => drupal_get_path('module', 'system'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast campaign'),
+    'position'         => 'left',
+    'weight'           => 0,
+    );
+    
+    $items['broadcast/files/recording'] = array(
+    'title'            => 'Recording Files',
+    'description'      => 'Manage recording files for campaigns',
+    'page callback'    => 'broadcast_voice_recording_list',
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast recording'),
+    'type'             => MENU_NORMAL_ITEM,
+    //'weight'           => -10,
+    );
+
+    $items['broadcast/files/recording/list'] = array(
+    'title'            => 'List',
+    'description'      => 'Manage recording files for campaigns',
+    'page callback'    => 'broadcast_voice_recording_list',
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast recording'),
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => -10,
+  );
+
+  $items['broadcast/files/recording/add'] = array(
+    'title'            => 'Upload Recording File',
+    'description'      => 'Add / Create new Recorings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_recording_form'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast recording admin'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+  
+  $items['broadcast/files/recording/%broadcast_recording/edit'] = array(
+    'title'            => 'Edit Recording',
+    'description'      => 'Edit / Change Recording',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_recording_form', 3),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast recording admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['broadcast/files/recording/%broadcast_recording/delete'] = array(
+    'title'            => 'Delete Recording',
+    'description'      => 'Delete Recording',
+    'page callback'    => 'broadcast_recording_delete',
+    'page arguments'   => array(3),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast recording admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  /*
+  $items['admin/broadcast/recording'] = array(
+    'title'            => 'Recording Settings',
+    'description'      => 'Configure Recording Broadcasting behavior',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_recording_admin_settings'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast recording system admin'),
+    'type'             => MENU_NORMAL_ITEM,
+  );
+  */
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on recording module.
+ */
+function broadcast_recording_perm() {
+  return array(
+    'broadcast recording',
+    'broadcast recording admin',
+    'broadcast recording group',
+    'broadcast recording group admin',
+    'broadcast recording system admin'
+  );
+}
+
+/**
+ * Page function for recording List
+ *
+ * It will show a list of available recordings in form of list
+ *
+ * @return
+ * page html
+*/
+function broadcast_voice_recording_list() {
+
+  $header = array(
+    array('data' => t('Recording Name'),  'field' => 'name', 'sort' => 'asc'),
+    array('data' => t('Type'),            'field' => 'type'),
+    array('data' => t('Length'),          'field' => 'length'),
+    array('data' => t('Description'),     'field' => 'description'),
+    array('data' => t('Operations')),
+  );
+
+  $query = db_select('broadcast_recording', 'r')->extend('PagerDefault');
+  $query->fields('r', array('recording_id', 'name', 'type', 'length', 'description'));
+  $query = broadcast_select_filter($query);
+  $result = $query->limit(10)         
+            ->extend('TableSort')
+            ->orderByHeader($header)
+            ->execute();
+
+  while ($recording = $result->fetchAssoc()) {
+    $row_id = $recording['recording_id'];
+    $rows[$row_id][] = check_plain($recording['name']);
+    $rows[$row_id][] = check_plain($recording['type']);
+    $rows[$row_id][] = check_plain($recording['length']. " sec");
+    $rows[$row_id][] = check_plain($recording['description']);
+    $rows[$row_id][] = _broadcast_recording_list_links($recording);
+  }
+  if (!isset($rows)) {
+    $rows[] = array(array('data' => t('No recordings have been added.'), 'colspan' => 5));
+  }
+
+  $output = theme('table', array('header'=>$header, 'rows'=>$rows));
+  $output .= theme('pager');
+
+  return $output;
+}
+
+/**
+ * Build the edit and delete links for a single recording.
+ *
+ * @see broadcast_recording_list()
+ */
+ 
+function _broadcast_recording_list_links($recording) {
+  $links['edit'] = array(
+    'title' => t('Edit'),
+    'href' => 'broadcast/files/recording/' . $recording['recording_id'] . '/edit',
+    'html' => TRUE,
+  );
+  $links['delete'] = array(
+    'title' => t('Delete'),
+    'href' => 'broadcast/files/recording/' . $recording['recording_id'] . '/delete',
+    'html' => TRUE,
+  );
+  return theme('links', array('links'=>$links, 'attributes' => array('class' => array('links', 'inline'))));
+}
+
+
+/**
+ * Loader function for individual recordings.
+ *
+ * As we have used '%broadcast_recording' as a wildcard in our hook_menu()
+ *
+ * @param $recording_id
+ *   An int containing the ID of a recording.
+ * @return
+ *   A single recording in array format, or FALSE if none matched the incoming ID.
+ */
+function broadcast_recording_load($recording_id) {
+  $sql    = "SELECT * FROM {broadcast_recording} WHERE recording_id = :recording_id";
+  $sql    = broadcast_db_filter($sql);
+  $result = db_query($sql, array(':recording_id'=>$recording_id));
+  if ($recording = $result->fetchAssoc()) {
+    return $recording;
+  }
+  else {
+    drupal_set_message(t('Specified Recording does not exist! or you have not proper permissions!'), 'error');
+    return FALSE;
+  }
+}
+
+/**
+ * Build the recording editing form.
+ *
+ * @ingroup forms
+ * @see broadcast_recording_form_submit()
+ */
+function broadcast_recording_form($form, &$form_state, $recording = array()) {
+  // It's safe to use on both an empty array, and an incoming array with full or partial data.
+  $recording += array(
+    'name'    => '',
+    'description'     => '',
+    'type'       => '',
+    'path'      => '',
+    'length'       => '',
+    'file_upload' => ''
+  );
+  // If we're editing an existing recording, we'll add a value field to the form
+  // containing the recording's unique ID.
+  if (!empty($recording['recording_id'])) {
+    $form['recording_id'] = array(
+      '#type'        => 'value',
+      '#value'       => $recording['recording_id'],
+    );
+  }
+
+  $form['recording'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Recording'),
+  );
+
+  $form['recording']['name'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Recording Name'),
+    '#required'      => TRUE,
+    '#default_value' => $recording['name'],
+  );
+
+  $form['recording']['description'] = array(
+    '#type'          => 'textarea',
+    '#title'         => t('Description'),
+    '#default_value' => $recording['description'],
+  );
+
+  $form['message'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Recording Message'),
+  );
+  
+  // helper field for file upload
+  $form['#attributes'] = array('enctype' => "multipart/form-data");
+  $form['message']['file_upload'] = array(
+    '#type'          => 'file',
+    '#title'         => t('Upload File'),
+    '#default_value' => $recording['file_upload'],
+  );
+  
+  $form['submit'] = array(
+    '#type'          => 'submit',
+    '#value'         => t('Submit'),
+  );
+
+  return $form;
+}
+
+function broadcast_recording_form_validate($form, &$form_state) {
+  $existing_record = 0;
+  $recording         = $form_state['values'];
+
+  if (isset($recording['recording_id'])) {
+    // we are editing an existing record
+    $existing_record = $recording['recording_id'];
+  }
+
+  if ($recording['name'] == '') {
+    form_set_error('name', t('Recording name cannot be empty'));
+  }
+  
+  
+}
+
+/**
+ * Inserts a new recording, or updates an existing one.
+ *
+ */
+function broadcast_recording_form_submit($form, &$form_state) {
+  global $user;
+  $path = $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictidaler/sites/default/files/broadcast/recording');
+  //$path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . "/broadcast/recording";
+  $recording = $form_state['values'];
+  // set source file path
+  //$file = file_save_upload('file_upload');
+  $validators = array(
+    'file_validate_extensions' => array('wav', 'WAV'),
+  );
+  if($file = file_save_upload('file_upload', $validators)) {
+    $orgFile = '/tmp/'.$file->filename;
+    // set destination file path
+    $fixedFile = "$path/$recording[name].wav";
+    // initialize sox command for file copy
+    $soxOut = array();
+    exec(sys_which('sox', '/usr/bin') . ' --version', $soxOut);
+    $sox_version = array();
+    preg_match('/v(\d+\.\d+\.\d+)/',$soxOut[0], $sox_version);
+    if (version_compare($sox_version[1], '13.0.0', '<')) {
+      exec(sys_which('sox', '/usr/bin') . " '$orgFile' -w -r 8000 -c 1 -s '$fixedFile'");
+      exec(sys_which('sox', '/usr/bin') . " '$fixedFile' -e stat 2>&1 | sed -n 's#^Length (seconds):[^0-9]*\\([0-9.]*\)$#\\1#p'", $duration);
+    } else {
+      exec(sys_which('sox', '/usr/bin') . " '$orgFile' -2 -r 8000 -c 1 -s '$fixedFile'");
+      exec(sys_which('sox', '/usr/bin') . " '$fixedFile' -n stat 2>&1 | sed -n 's#^Length (seconds):[^0-9]*\\([0-9.]*\)$#\\1#p'", $duration);
+    }
+    exec("chmod 666 '$fixedFile'");
+    $recording['path']   = $fixedFile;
+    $recording['length'] = ceil($duration[0]);  
+    $recording['type'] = 'WAV';
+    
+    if (!isset($recording['created'])) {
+      $recording['created'] = time();
+    }
+    if (!isset($recording['created_by'])) {
+      $recording['created_by'] = $user->uid;
+    }
+
+    // save the recording
+    if (isset($recording['recording_id'])) {
+      drupal_write_record('broadcast_recording', $recording, 'recording_id');
+    }
+    else {
+      drupal_write_record('broadcast_recording', $recording);
+    }
+    drupal_set_message(t('Recording saved successfully!'), 'status');
+    $form_state['redirect'] = 'broadcast/files/recording/list';
+  } else {
+  drupal_set_message(t('Cannot upload specified file!'), 'error');
+  }
+}
+
+/**
+ * Deletes a recording, given its unique ID.
+ *
+ * @param $recording
+ *   An array of recording containing the ID of a recording
+ */
+function broadcast_recording_delete($recording) {
+  $sql = 'DELETE FROM {broadcast_recording} WHERE recording_id = :recording_id';
+  if(db_query($sql, array(':recording_id'=>$recording['recording_id']))) {
+    $filepath = $recording['path'];
+    exec("rm -rf '$filepath'");
+    drupal_set_message(t('Recording deleted successfully!'), 'status');
+  } else {
+    drupal_set_message(t('Cannot delete specified recording! or you have not proper permissions!'), 'error');
+  }
+  drupal_goto('broadcast/files/recording/list');
+}
+
+
+function sys_which($cmd, $search_path=NULL) {
+  global $_ENV, $path_lib;
+  $scpath = is_null($search_path) ? $_ENV['PATH'] : $search_path;
+
+  foreach(explode(':', $scpath) as $path) {
+    if(is_executable("$path/$cmd")) {
+      return "$path/$cmd";
+    }
+  }
+
+  if(is_null($search_path)) {
+    $possible_path  = '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/local/apache/bin:/usr/local/mysql/bin';
+    $possible_path .= ':' . real_name($path_lib);
+    return sys_which($cmd, $all_path);
+  }
+
+  return false;
+}
+
+function broadcast_recording_option() {
+  $sql = "SELECT * FROM {broadcast_recording}";
+  $sql = broadcast_db_filter($sql, '{broadcast_recording}');
+  $result = db_query($sql);
+  $rows = array();
+  while ($recording = $result->fetchAssoc()) {
+    $row_id = $recording['recording_id'];
+    $rows[$row_id] = check_plain($recording['name']);
+  }
+  if (!isset($rows)) {
+    return FALSE;
+  }
+  return $rows;
+}
+
+
+/*
+function broadcast_recording_admin_settings() {
+  $form['phone'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Phone Number Validation Rules')
+  );
+  $form['phone']['broadcast_recording_phone_format_gsm'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("GSM Phone Number's Patterns"),
+    '#default_value' => variable_get('broadcast_recording_phone_format_gsm', '923XXXXXXXXX'),
+    '#description'   => t('All Numbers in GSM Contacts will be validated against these patterns'),
+  );
+  $form['phone']['broadcast_recording_phone_format_other'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Other Phone Number's Patterns"),
+    '#default_value' => variable_get('broadcast_recording_phone_format_other', '92XX.'),
+    '#description'   => t('All Numbers in Other Contacts will be validated against these patterns'),
+  );
+  $form['phone']['broadcast_recording_phone_duplicate_group'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('No duplicate Phone Number'),
+    '#description'   => t('In a group no phone number will be repeated'),
+    '#default_value' => variable_get('broadcast_recording_phone_duplicate_group', '1'),
+    '#return_value'  => 1,
+  );
+  $form['email'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Email Validation Rules')
+  );
+  $form['email']['broadcast_recording_email_duplicate_group'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('No duplicate Emails'),
+    '#description'   => t('In a group no email will be repeated'),
+    '#default_value' => variable_get('broadcast_recording_email_duplicate_group', '1'),
+    '#return_value'  => 1,
+  );
+
+  return system_settings_form($form);
+}
+*/

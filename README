@@ -25,7 +25,7 @@ Following open source softwares are required for ICTDialer to function fully:
   * mysql-devel
 
 To install above requirements issue following commands at shell prompt: 
-yum -y install httpd mysql-server mysql mysql-devel yum -y install php php-common php-cli php-gd php-imap php-curl php-mysql yum -y install perl perl-DBD-mysql 
+yum -y install httpd mysql-server mysql mysql-devel yum -y install php php-common php-cli php-gd php-imap php-curl php-mysql yum -y install perl perl-DBD-mysql yum install php-xml yum install php-mbstring
 
 Before continuing to move to next phase, please make sure that MySQL and Apache is running: 
   # chkconfig httpd on 
@@ -102,22 +102,21 @@ Rename this folder to ictdialer and copy-paste it to /usr directory.
   1. Create a symbolic link for /usr/ictdialer in /var/www/html 
        ln -s /usr/ictdialer /var/www/html/ictdialer
   
-  2. Edit /usr/ictdialer/sites/default/settings.php 
-     and update $base_url replace 127.0.0.1 with your public IP or domain name. 
-     Like $base_url = 'http://DOMAIN.TLD/ictdialer'; 
-     and also set your database user and password in settings.php accordingly.
-     
-  3. Now visit http://DOMAIN.TLD/ictdialer 
+  2. Now visit http://DOMAIN.TLD/ictdialer 
      and follow the installation instructions for 
      ICTDialer (drupal based) front end installation.
      
-  4. Once you are done with installation, visit the website 
+  3. Once you are done with installation, visit the website 
      and login as site administrator with username and password 
      that you provided during installation.
      
-  5. Go to Modules menu and enable all modules in “ICTDialer System” Package.
+  4. Now copy the "Broadcast" folder and place it somewhere in 
+     your drupal installation (that you named ictdialer) 
+     preferably in modules/ folder or sites/all/modules/ folder
   
-  6. Now you'll see a Broadcast menu item in your Navigation 
+  4. Now comback to Web GUI and go to Modules menu and enable all modules in "ICTDialer System" Package.
+  
+  5. Now you'll see a Broadcast menu item in your Navigation 
      with submenus Campaigns, Contacts and Manage Files. 
      Upload your contact list and create campaign to broadcast your message.
 

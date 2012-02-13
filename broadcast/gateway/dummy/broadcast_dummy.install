@@ -1,0 +1,25 @@
+<?php
+/******************************************************************
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
+* Developed By: Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Modified By:  Falak Nawaz                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
+******************************************************************/
+
+// $Id: broadcast_dummy.install,v 1.3.2.2 2008/08/21 13:34:59 diggersf Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function broadcast_dummy_install() {
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function broadcast_dummy_uninstall() {
+}

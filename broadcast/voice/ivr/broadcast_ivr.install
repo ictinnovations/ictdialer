@@ -1,0 +1,79 @@
+<?php
+/******************************************************************
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
+******************************************************************/
+
+// $Id: broadcast_ivr.install,v 1.0 2011/11/23 11:43:59 ictinnovations Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function broadcast_ivr_install() {
+  //drupal_install_schema('broadcast_ivr');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function broadcast_ivr_schema() {
+  $schema['broadcast_ivr'] = array(
+    'fields' => array(
+      'ivr_id'          => array('type' => 'serial',  'not null' => TRUE),
+      'name'            => array('type' => 'text',    'not null' => TRUE),
+      'description'     => array('type' => 'text',    'not null' => FALSE),
+      'data'            => array('type' => 'text',    'not null' => TRUE),
+      'created'         => array('type' => 'int',     'not null' => FALSE, 'unsigned' => TRUE),
+      'created_by'      => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
+    ),
+    'primary key' => array('ivr_id'),
+  );
+  
+  $schema['broadcast_campaign_ivr'] = array(
+    'fields' => array(
+      'campaign_ivr_id' => array('type' => 'serial',  'not null' => TRUE),
+      'ivr_id'          => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
+      'campaign_id'     => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
+    ),
+    'primary key' => array('campaign_ivr_id'),
+  );
+  
+  $schema['broadcast_campaign_application'] = array(
+    'fields' => array(
+      'campaign_application_id' => array('type' => 'serial',  'not null' => TRUE),
+      'name'            => array('type' => 'text',    'not null' => TRUE),
+      'type'            => array('type' => 'text',    'not null' => TRUE),
+      'data'            => array('type' => 'text',    'not null' => TRUE),
+      'weight'          => array('type' => 'int',    'not null' => TRUE),
+      'campaign_id'     => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE), 
+    ),
+    'primary key' => array('campaign_application_id'),
+  );
+  
+  $schema['broadcast_campaign_action'] = array(
+    'fields' => array(
+      'campaign_action_id'    => array('type' => 'serial',  'not null' => TRUE),
+      'test_value'            => array('type' => 'text',     'not null' => TRUE),
+      'action'                => array('type' => 'int',     'not null' => TRUE),
+      'description'           => array('type' => 'text',     'not null' => TRUE),
+      'data'                  => array('type' => 'text',     'not null' => TRUE),
+      'is_default'            => array('type' => 'int',     'not null' => TRUE),
+      'campaign_application_id' => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
+    ),
+    'primary key' => array('campaign_action_id'),
+  );
+  
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function broadcast_ivr_uninstall() {
+  drupal_uninstall_schema('broadcast_ivr');
+}

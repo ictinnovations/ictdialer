@@ -1,0 +1,15 @@
+;/******************************************************************
+;* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+;* License: GNU AGPL V 3.0                                         *
+;* Developed By: Falak Nawaz                                       *
+;*             : Nasir Iqbal                                       *
+;*             : Tahir Almas                                       *
+;* Website : http://www.ictinnovations.com/                        *
+;* Contact : support@ictinnovations.com, info@ictinnovations.com   *
+;******************************************************************/
+;
+; $Id: broadcast_document.info,v 1.0 2011/12/12 14:46:59 ictinnovations Exp $
+name = "Fax document Management"
+description = "Manages fax documents for fax campaigns to broadcast"
+package = "ICTDialer System"
+core = "7.x"
