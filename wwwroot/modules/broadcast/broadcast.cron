@@ -1,1 +1,0 @@
-*/5 * * * * wget -O - -q -t 1 http://www.example.com/cron.php
