@@ -90,7 +90,6 @@ Plivo with Fax support
 
 ICTDialer Software Installation
 -------------------------------
-Download and extract ictdialer.tar.gz archive.
 Locate the folder "wwwroot" in the extracted ICTdialer directory. 
 Rename this folder to ictdialer and copy-paste it to /usr directory.
 
