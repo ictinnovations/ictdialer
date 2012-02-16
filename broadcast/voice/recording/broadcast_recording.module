@@ -291,7 +291,8 @@ function broadcast_recording_form_validate($form, &$form_state) {
  */
 function broadcast_recording_form_submit($form, &$form_state) {
   global $user;
-  $path = $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictidaler/sites/default/files/broadcast/recording');
+  $path = $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictdialer/sites/default/files/broadcast/recording');
+  file_prepare_directory($path, FILE_CREATE_DIRECTORY);
   //$path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . "/broadcast/recording";
   $recording = $form_state['values'];
   // set source file path

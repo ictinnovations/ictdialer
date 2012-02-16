@@ -292,6 +292,7 @@ function broadcast_document_form_validate($form, &$form_state) {
 function broadcast_document_form_submit($form, &$form_state) {
   global $user;
   $path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . "/broadcast/document";
+  file_prepare_directory($path, FILE_CREATE_DIRECTORY);
   $document = $form_state['values'];
   // set source file path
   $validators = array(

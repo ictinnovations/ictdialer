@@ -286,7 +286,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
     '#default_value' => $ivr['data']
   );
   
-  $module_path = drupal_get_path('module', 'broadcast_ivr');
+  $module_path = base_path() . drupal_get_path('module', 'broadcast_ivr');
   $form['ivr']['designer'] = array(
     '#type'          => 'markup',
     '#title'         => 'Designer',
