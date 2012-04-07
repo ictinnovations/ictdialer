@@ -101,6 +101,10 @@ ELEMENTS_DEFAULT_PARAMS = {
                 #url: SET IN ELEMENT BODY
                 'loop': 1
         },
+                'ReceiveFax': {
+                #url: SET IN ELEMENT BODY
+                'loop': 1
+        },
         'PreAnswer': {
         },
         'Record': {
@@ -1381,6 +1385,61 @@ class SendFax(Element):
         else:
             outbound_socket.log.error("Invalid TIFF File - Ignoring SendFax")
 
+
+class ReceiveFax(Element):
+    """ReceiveFax local tiff file or at a URL
+
+    url: url of tiff file
+    """
+    def __init__(self):
+        Element.__init__(self)
+        self.audio_directory = ''
+        #self.loop_times = 1
+        self.fax_file_path = ''
+        self.temp_fax_path = ''
+
+    def parse_element(self, element, uri=None):
+        Element.parse_element(self, element, uri)
+        
+        # Pull out the text within the element
+        fax_path = element.text.strip()
+
+        if not fax_path:
+            raise RESTFormatException("No File to fax is set!")
+
+        if not is_valid_url(fax_path):
+            self.fax_file_path = fax_path
+        else:
+            # set to temp path for prepare to process audio caching async
+            self.temp_fax_path = fax_path
+
+    def prepare(self, outbound_socket):
+        if not self.fax_file_path:
+            url = normalize_url_space(self.temp_fax_path)
+            self.fax_file_path = get_resource(outbound_socket, url)
+
+    def execute(self, outbound_socket):
+        if self.fax_file_path:
+            outbound_socket.log.debug("Faxing 1 times")
+            fax_path = self.fax_file_path
+            outbound_socket.set("fax_enable_t38=true")
+            res = outbound_socket.rxfax(fax_path)
+            if res.is_success():
+                event = outbound_socket.wait_for_action()
+                if event.is_empty():
+                    outbound_socket.log.warn("ReceiveFax Break (empty event)")
+                    return
+                outbound_socket.log.debug("ReceiveFax done (%s)" \
+                        % str(event['Application-Response']))
+            else:
+                outbound_socket.log.error("ReceiveFax Failed - %s" \
+                                % str(res.get_response()))
+            outbound_socket.log.info("ReceiveFax Finished")
+            return
+        else:
+            outbound_socket.log.error("Invalid TIFF File - Ignoring ReceiveFax")
+
+
 class PreAnswer(Element):
     """Answer the call in Early Media Mode and execute nested element
     """
@@ -1830,6 +1889,18 @@ class GetSpeech(Element):
                         # Infinite Loop, so ignore other children
                         if loop == MAX_LOOPS:
                             break
+                elif isinstance(child_instance, ReceiveFax):
+                    sound_file = child_instance.sound_file_path
+                    if sound_file:
+                        loop = child_instance.loop_times
+                        if loop == 0:
+                            loop = MAX_LOOPS  # Add a high number to ReceiveFax infinitely
+                        # ReceiveFax the file loop number of times
+                        for i in range(loop):
+                            self.sound_files.append(sound_file)
+                        # Infinite Loop, so ignore other children
+                        if loop == MAX_LOOPS:
+                            break                            
                 elif isinstance(child_instance, Wait):
                     pause_secs = child_instance.length
                     pause_str = 'file_string://silence_stream://%s'\

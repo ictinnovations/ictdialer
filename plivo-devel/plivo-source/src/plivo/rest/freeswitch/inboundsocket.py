@@ -1058,6 +1058,132 @@ class RESTInboundSocket(InboundEventSocket):
         return sched_id
 
 
+    # following function is copied version of play_on_call. 
+    # Just name is changed at the moment
+    def receive_fax_on_call(self, call_uuid="", sounds_list=[], legs="aleg", length=3600, schedule=0, mix=True, loop=False):
+        cmds = []
+        error_count = 0
+        bleg = None
+
+        # set flags
+        if loop:
+            aflags = "l"
+            bflags = "l"
+        else:
+            aflags = ""
+            bflags = ""
+        if mix:
+            aflags += "m"
+            bflags += "mr"
+        else:
+            bflags += "r"
+
+        if schedule <= 0:
+            name = "Call Play"
+        else:
+            name = "Call SchedulePlay"
+        if not call_uuid:
+            self.log.error("%s Failed -- Missing CallUUID" % name)
+            return False
+        if not sounds_list:
+            self.log.error("%s Failed -- Missing Sounds" % name)
+            return False
+        if not legs in ('aleg', 'bleg', 'both'):
+            self.log.error("%s Failed -- Invalid legs arg '%s'" % (name, str(legs)))
+            return False
+
+        # get sound files
+        sounds_to_play = []
+        for sound in sounds_list:
+            if not is_valid_url(sound):
+                if file_exists(sound):
+                    sounds_to_play.append(sound)
+                else:
+                    self.log.warn("%s -- File %s not found" % (name, sound))
+            else:
+                url = normalize_url_space(sound)
+                sound_file_path = get_resource(self, url)
+                if sound_file_path:
+                    sounds_to_play.append(sound_file_path)
+                else:
+                    self.log.warn("%s -- Url %s not found" % (name, url))
+        if not sounds_to_play:
+            self.log.error("%s Failed -- Sound files not found" % name)
+            return False
+
+        # build command
+        play_str = '!'.join(sounds_to_play)
+        play_aleg = 'file_string://%s' % play_str
+        play_bleg = 'file_string://silence_stream://1!%s' % play_str
+
+        # aleg case
+        if legs == 'aleg':
+            # add displace command
+            for displace in self._get_displace_media_list(call_uuid):
+                cmd = "uuid_displace %s stop %s" % (call_uuid, displace)
+                cmds.append(cmd)
+            cmd = "uuid_displace %s start %s %d %s" % (call_uuid, play_aleg, length, aflags)
+            cmds.append(cmd)
+        # bleg case
+        elif legs  == 'bleg':
+            # get bleg
+            bleg = self.get_var("bridge_uuid", uuid=call_uuid)
+            # add displace command
+            if bleg:
+                for displace in self._get_displace_media_list(call_uuid):
+                    cmd = "uuid_displace %s stop %s" % (call_uuid, displace)
+                    cmds.append(cmd)
+                cmd = "uuid_displace %s start %s %d %s" % (call_uuid, play_bleg, length, bflags)
+                cmds.append(cmd)
+            else:
+                self.log.error("%s Failed -- No BLeg found" % name)
+                return False
+        # both legs case
+        elif legs == 'both':
+            # get bleg
+            bleg = self.get_var("bridge_uuid", uuid=call_uuid)
+            # add displace commands
+            for displace in self._get_displace_media_list(call_uuid):
+                cmd = "uuid_displace %s stop %s" % (call_uuid, displace)
+                cmds.append(cmd)
+            cmd = "uuid_displace %s start %s %d %s" % (call_uuid, play_aleg, length, aflags)
+            cmds.append(cmd)
+            # get the bleg
+            if bleg:
+                cmd = "uuid_displace %s start %s %d %s" % (call_uuid, play_bleg, length, bflags)
+                cmds.append(cmd)
+            else:
+                self.log.warn("%s -- No BLeg found" % name)
+        else:
+            self.log.error("%s Failed -- Invalid Legs '%s'" % (name, legs))
+            return False
+
+        # case no schedule
+        if schedule <= 0:
+            for cmd in cmds:
+                res = self.api(cmd)
+                if not res.is_success():
+                    self.log.error("%s Failed '%s' -- %s" % (name, cmd, res.get_response()))
+                    error_count += 1
+            if error_count > 0:
+                return False
+            return True
+
+        # case schedule
+        sched_id = str(uuid.uuid1())
+        for cmd in cmds:
+            sched_cmd = "sched_api +%d %s %s" % (schedule, sched_id, cmd)
+            res = self.api(sched_cmd)
+            if res.is_success():
+                self.log.info("%s '%s' with SchedPlayId %s" % (name, sched_cmd, sched_id))
+            else:
+                self.log.error("%s Failed '%s' -- %s" % (name, sched_cmd, res.get_response()))
+                error_count += 1
+        if error_count > 0:
+            return False
+        return sched_id
+
+
     def play_stop_on_call(self, call_uuid=""):
         cmds = []
         error_count = 0

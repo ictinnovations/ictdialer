@@ -50,8 +50,10 @@ URLS = {
         '/' + PLIVO_VERSION + '/RecordStop/': (PlivoRestApi.record_stop, ['POST']),
         # API to play something on a single call
         '/' + PLIVO_VERSION + '/Play/': (PlivoRestApi.play, ['POST']),
-        # API to fax something on a single call
+        # API to send fax on a single call
         '/' + PLIVO_VERSION + '/SendFax/': (PlivoRestApi.send_fax, ['POST']),
+        # API to receive fax on a single call
+        '/' + PLIVO_VERSION + '/ReceiveFax/': (PlivoRestApi.receive_fax, ['POST']),
         # API to stop play something on a single call
         '/' + PLIVO_VERSION + '/PlayStop/': (PlivoRestApi.play_stop, ['POST']),
         # API to schedule playing something  on a single call

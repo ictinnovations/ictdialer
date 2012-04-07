@@ -196,6 +196,23 @@ class PlivoRestApi(object):
                         # Infinite Loop, so ignore other children
                         if loop == MAX_LOOPS:
                             break
+                # ReceiveFax element
+                elif element.tag == 'ReceiveFax':
+                    child_instance = elements.ReceiveFax()
+                    child_instance.parse_element(element)
+                    child_instance.prepare(self._rest_inbound_socket)
+                    sound_file = child_instance.sound_file_path
+                    if sound_file:
+                        sound_file = get_resource(self._rest_inbound_socket, sound_file)
+                        loop = child_instance.loop_times
+                        if loop == 0:
+                            loop = MAX_LOOPS  # Add a high number to ReceiveFax infinitely
+                        # ReceiveFax the file loop number of times
+                        for i in range(loop):
+                            sound_files.append(sound_file)
+                        # Infinite Loop, so ignore other children
+                        if loop == MAX_LOOPS:
+                            break
                 # Speak element
                 elif element.tag == 'Speak':
                     child_instance = elements.Speak()
@@ -1933,6 +1950,86 @@ class PlivoRestApi(object):
             result = True
             return self.send_response(Success=result, Message=msg)
         msg = "SendFax Request Failed"
+        return self.send_response(Success=result, Message=msg)
+        
+    @auth_protect
+    def receive_fax(self):
+        """Fax something to a Call or bridged leg or both legs.
+        Allow faxing a file to a Call via the REST API. To fax file,
+        make an HTTP POST request to the resource URI.
+
+        POST Parameters
+        ----------------
+
+        Required Parameters - You must POST the following parameters:
+
+        CallUUID: Unique Call ID to which the action should occur to.
+
+        Sounds: Comma separated list of tiff files to play.
+
+        Optional Parameters:
+
+        [Length]: number of seconds before terminating sounds.
+
+        [Legs]: 'aleg'|'bleg'|'both'. On which leg(s) to play something.
+                'aleg' means only play on the Call.
+                'bleg' means only play on the bridged leg of the Call.
+                'both' means play on the Call and the bridged leg of the Call.
+                Default is 'aleg' .
+
+        [Loop]: 'true'|'false'. Fax loop indefinitely (default 'false')
+
+        [Mix]: 'true'|'false'. Mix with current audio stream (default 'true')
+
+        """
+        self._rest_inbound_socket.log.debug("RESTAPI ReceiveFax with %s" \
+                                        % str(request.form.items()))
+        msg = ""
+        result = False
+
+        calluuid = get_post_param(request, 'CallUUID')
+        sounds = get_post_param(request, 'Sounds')
+        legs = get_post_param(request, 'Legs')
+        length = get_post_param(request, 'Length')
+        loop = get_post_param(request, 'Loop') == 'true'
+        mix = get_post_param(request, 'Mix')
+        if mix == 'false':
+            mix = False
+        else:
+            mix = True
+
+        if not calluuid:
+            msg = "CallUUID Parameter Missing"
+            return self.send_response(Success=result, Message=msg)
+        if not sounds:
+            msg = "Sounds Parameter Missing"
+            return self.send_response(Success=result, Message=msg)
+        if not legs:
+            legs = 'aleg'
+        if not length:
+            length = 3600
+        else:
+            try:
+                length = int(length)
+            except (ValueError, TypeError):
+                msg = "Length Parameter must be a positive integer"
+                return self.send_response(Success=result, Message=msg)
+            if length < 1:
+                msg = "Length Parameter must be a positive integer"
+                return self.send_response(Success=result, Message=msg)
+
+        sounds_list = sounds.split(',')
+        if not sounds_list:
+            msg = "Sounds Parameter is Invalid"
+            return self.send_response(Success=result, Message=msg)
+
+        # now do the job !
+        if self._rest_inbound_socket.receive_fax_on_call(calluuid, sounds_list, legs,
+                                        length=length, schedule=0, mix=mix, loop=loop):
+            msg = "ReceiveFax Request Executed"
+            result = True
+            return self.send_response(Success=result, Message=msg)
+        msg = "ReceiveFax Request Failed"
         return self.send_response(Success=result, Message=msg)
 
     @auth_protect
