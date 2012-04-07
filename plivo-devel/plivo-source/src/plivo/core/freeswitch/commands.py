@@ -414,6 +414,16 @@ class Commands(object):
         return self._protocol_sendmsg("txfax", filename, uuid, lock, loops)
 
 
+    def rxfax(self, filename, terminators=None, uuid="", lock=True, loops=1):
+        """Please refer to http://wiki.freeswitch.org/wiki/Mod_spandsp
+
+        >>> rxfax("/tmp/test.tif")
+
+        For Inbound connection, uuid argument is mandatory.
+        """
+        return self._protocol_sendmsg("rxfax", filename, uuid, lock, loops)
+
+
     def transfer(self, args, uuid="", lock=True):
         """Please refer to http://wiki.freeswitch.org/wiki/Misc._Dialplan_Tools_transfer
 
