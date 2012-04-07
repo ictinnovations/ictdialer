@@ -23,9 +23,10 @@ Following open source softwares are required for ICTDialer to function fully:
   * perl-DBD-mysql
   * libtiff
   * mysql-devel
+  * git
 
 To install above requirements issue following commands at shell prompt: 
-yum -y install httpd mysql-server mysql mysql-devel yum -y install php php-common php-cli php-gd php-imap php-curl php-mysql yum -y install perl perl-DBD-mysql yum install php-xml yum install php-mbstring
+yum -y install httpd mysql-server mysql mysql-devel yum -y install php php-common php-cli php-gd php-imap php-curl php-mysql yum -y install perl perl-DBD-mysql yum install php-xml yum install php-mbstring yum install git
 
 Before continuing to move to next phase, please make sure that MySQL and Apache is running: 
   # chkconfig httpd on 
