@@ -230,11 +230,32 @@ function broadcast_plivo_admin_settings() {
     '#description'   => t('password for Plivo Rest API'),
   );
   
-    $form['gateway']['broadcast_plivo_port'] = array(
+  $form['gateway']['broadcast_plivo_port'] = array(
     '#type'          => 'textfield',
     '#title'         => t("Server Port"),
     '#default_value' => variable_get('broadcast_plivo_port', '8088'),
     '#description'   => t('Port number for Plivo Rest API'),
+  );
+
+  $form['gateway']['broadcast_plivo_callerid'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Default Outgoing CallerID"),
+    '#default_value' => variable_get('broadcast_plivo_callerid', '1111111111'),
+    '#description'   => t('Default callerid for outgoing calls'),
+  );
+
+  $form['gateway']['broadcast_plivo_provider_trunk'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Provider Trunk"),
+    '#default_value' => variable_get('broadcast_plivo_provider_trunk', 'user'),
+    '#description'   => t('Name of the Provider Trunk configured in freeswitch that you want to use for outgoing calls.'),
+  );
+
+  $form['gateway']['broadcast_plivo_prefix'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t("Dial Prefix"),
+    '#default_value' => variable_get('broadcast_plivo_prefix', ''),
+    '#description'   => t('Dial prefix (if any) required by above Provider Trunk.'),
   );
 
   return system_settings_form($form);
@@ -294,19 +315,34 @@ function broadcast_plivo_test_form_submit($form, &$form_state) {
 }
 
 function broadcast_campaign_voice_test($number, $recording_id) {
-  
+  echo exec("echo '".print_r($recording_id, true)."' > /tmp/mytest.txt");
   $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
   $plivo_server     = variable_get('broadcast_plivo_server', '127.0.0.1');
   $plivo_port       = variable_get('broadcast_plivo_port', '8088');
   $plivo_AccountSid = variable_get('broadcast_plivo_accountid', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
   $plivo_AuthToken  = variable_get('broadcast_plivo_authenticationtoken', 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
+  $callerid       = variable_get('broadcast_plivo_callerid', '1111111111');
+  $provider_trunk = variable_get('broadcast_plivo_provider_trunk', 'user');
+  $prefix         = variable_get('broadcast_plivo_prefix', '');
+  if(isset($provider_trunk) && $provider_trunk != NULL) {
+    if($provider_trunk == 'user') {
+      $dial_string = "$provider_trunk/";
+    } else {
+      $dial_string = "sofia/gateway/$provider_trunk/";
+    }
+  }
+  if(isset($prefix) && $prefix != '') {
+    $dial_string = $dial_string . $prefix;
+  }
+  echo exec("echo trunk=$dial_string >> /tmp/mytest.txt");
+
   $REST_API_URL = "http://$plivo_server:$plivo_port";
   $ApiVersion = 'v0.1';
   $client = new PlivoRestClient($REST_API_URL, $plivo_AccountSid, $plivo_AuthToken, $ApiVersion);
   $call_params = array(
-      'From' => '919191919191', # Caller Id
+      'From' => $callerid, # Caller Id
       'To' => $number, # User Number to Call
-      'Gateways' => "user/", # Gateway string to try dialing our separated by comma. First in list will be tried first
+      'Gateways' => $dial_string, # Gateway string to try dialing our separated by comma. First in list will be tried first
       'GatewayCodecs' => "'PCMA,PCMU'", # Codec string as needed by FS for each gateway separated by comma
       'GatewayTimeouts' => "60",      # Seconds to timeout in string for each gateway separated by comma
       'GatewayRetries' => "1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
@@ -350,14 +386,30 @@ function broadcast_plivo_answer_call($client, $phone, $first_app_id, $parameters
   if ($app_actions = $result->fetchAssoc()) {
     $next_app_id = $app_actions['action'];
   }
+  
+  $callerid       = variable_get('broadcast_plivo_callerid', '1111111111');
+  $provider_trunk = variable_get('broadcast_plivo_provider_trunk', 'user');
+  $prefix         = variable_get('broadcast_plivo_prefix', '');
+  if(isset($provider_trunk) && $provider_trunk != NULL) {
+    if($provider_trunk == 'user') {
+      $dial_string = "$provider_trunk/";
+    } else {
+      $dial_string = "sofia/gateway/$provider_trunk/";
+    }
+  }
+  if(isset($prefix) && $prefix != '') {
+    $dial_string = $dial_string . $prefix;
+  }
+  echo exec("echo trunk=$dial_string > /tmp/mytest.txt");
+
+  
   // Define Channel Variable if any
   // and Initiate a new outbound call to $num["phone"] using a HTTP POST
   $extra_dial_string = "bridge_early_media=true,hangup_after_bridge=false";
-  $call_from        = variable_get('broadcast_plivo_source_number', '1111111111');
   $call_params = array(
-      'From' => $call_from, # Caller Id
+      'From' => $callerid, # Caller Id
       'To' => $phone,
-      'Gateways' => "user/", # Gateway string to try dialing our separated by comma. First in list will be tried first
+      'Gateways' => $dial_string, # Gateway string to try dialing our separated by comma. First in list will be tried first
       'GatewayCodecs' => "'PCMA,PCMU'", # Codec string as needed by FS for each gateway separated by comma
       'GatewayTimeouts' => "60",      # Seconds to timeout in string for each gateway separated by comma
       'GatewayRetries' => "1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
@@ -518,9 +570,11 @@ function broadcast_plivo_send_fax($app_id) {
 }
 
 function broadcast_plivo_test_call($rec_id) {
+  echo exec("echo '".print_r($rec_id, true)."' >> /tmp/mytest.txt");
   watchdog("Test Call", "rec_id: $rec_id" , array(), WATCHDOG_INFO);
   $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictidaler/sites/default/files/broadcast/recording');
-  $recording = broadcast_plivo_recording_load($rec_id);
+  //$recording = broadcast_plivo_recording_load($rec_id); // commented because recording is already loaded.
+  $recording = $rec_id;
   watchdog("Test Call", "rec_id: $rec_id" , array(), WATCHDOG_INFO);
   $path_recording = "$recording_dir/$recording[name].wav";
   $response = '<?xml version="1.0" encoding="UTF-8"?>
