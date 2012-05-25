@@ -19,6 +19,8 @@ Following open source softwares are required for ICTDialer to function fully:
   * php-gd
   * php-curl
   * php-imap
+  * php-dom
+  * php-mbstring
   * perl
   * perl-DBD-mysql
   * libtiff

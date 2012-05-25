@@ -219,14 +219,14 @@ function broadcast_plivo_admin_settings() {
   $form['gateway']['broadcast_plivo_accountid'] = array(
     '#type'          => 'textfield',
     '#title'         => t("Account ID"),
-    '#default_value' => variable_get('broadcast_plivo_accountid', 'test'),
+    '#default_value' => variable_get('broadcast_plivo_accountid', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'),
     '#description'   => t('username for Plivo Rest API'),
   );
 
   $form['gateway']['broadcast_plivo_authenticationtoken'] = array(
     '#type'          => 'textfield',
     '#title'         => t("Authentication Token"),
-    '#default_value' => variable_get('broadcast_plivo_authenticationtoken', 'test'),
+    '#default_value' => variable_get('broadcast_plivo_authenticationtoken', 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'),
     '#description'   => t('password for Plivo Rest API'),
   );
   
@@ -298,8 +298,8 @@ function broadcast_campaign_voice_test($number, $recording_id) {
   $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
   $plivo_server     = variable_get('broadcast_plivo_server', '127.0.0.1');
   $plivo_port       = variable_get('broadcast_plivo_port', '8088');
-  $plivo_AccountSid = variable_get('broadcast_plivo_accountid', 'test');
-  $plivo_AuthToken  = variable_get('broadcast_plivo_authenticationtoken', 'test');
+  $plivo_AccountSid = variable_get('broadcast_plivo_accountid', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+  $plivo_AuthToken  = variable_get('broadcast_plivo_authenticationtoken', 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
   $REST_API_URL = "http://$plivo_server:$plivo_port";
   $ApiVersion = 'v0.1';
   $client = new PlivoRestClient($REST_API_URL, $plivo_AccountSid, $plivo_AuthToken, $ApiVersion);
@@ -332,8 +332,8 @@ function broadcast_plivo_deliver($phone , $first_app_id, $parameters = array()) 
   $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
   $plivo_server     = variable_get('broadcast_plivo_server', '127.0.0.1');
   $plivo_port       = variable_get('broadcast_plivo_port', '8088');
-  $plivo_AccountSid = variable_get('broadcast_plivo_accountid', 'test');
-  $plivo_AuthToken  = variable_get('broadcast_plivo_authenticationtoken', 'test');
+  $plivo_AccountSid = variable_get('broadcast_plivo_accountid', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+  $plivo_AuthToken  = variable_get('broadcast_plivo_authenticationtoken', 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
   $REST_API_URL     = "http://$plivo_server:$plivo_port";
   $ApiVersion       = 'v0.1';
   $client = new PlivoRestClient($REST_API_URL, $plivo_AccountSid, $plivo_AuthToken, $ApiVersion);
