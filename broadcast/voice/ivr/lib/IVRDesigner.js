@@ -488,22 +488,22 @@ function onDraggableStop(event, ui, action, actionImg){
     applications[applications.length-1]["element"] = new Object();
     createApplication(newApp, actionImg, action, left, top);
     if(applications[applications.length-1].appType == "play_audio") {
-      $('#edit-app-id').val(applications.length-1);
+      $('input[name=app-id]').val(applications.length-1);
       $('#edit-recording-id').val(applications[applications.length-1].data.recording_id);
       play_audioProperties();
     }
     if(applications[applications.length-1].appType == "tts") {
-      $('#edit-app-id').val(applications.length-1);
+      $('input[name=app-id]').val(applications.length-1);
       $('#edit-tts').val(applications[applications.length-1].data.tts);
       ttsProperties();
     }
     if(applications[applications.length-1].appType == "transfer") {
-      $('#edit-app-id').val(applications.length-1);
+      $('input[name=app-id]').val(applications.length-1);
       $('#edit-extension-id').val(applications[applications.length-1].data.extension_id);
       transferProperties();
     }
     if(applications[applications.length-1].appType == "getdigit") {
-      $('#edit-app-id').val(applications.length-1);
+      $('input[name=app-id]').val(applications.length-1);
       $('#edit-getdigit-recording-id').val(applications[applications.length-1].data.getdigit_recording_id);
       getdigitProperties();
     }

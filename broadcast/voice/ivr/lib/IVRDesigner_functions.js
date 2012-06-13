@@ -15,22 +15,22 @@ function setEditHandler(editIcon) {
   editIcon.click(function() {
     //window.open ("","mywindow");
     if(applications[this.appIndex].appType == "play_audio") {
-      $('#edit-app-id').val(this.appIndex);
+      $('input[name=app-id]').val(this.appIndex);
       $('#edit-recording-id').val(applications[this.appIndex].data.recording_id);
       play_audioProperties();
     }
     if(applications[this.appIndex].appType == "tts") {
-      $('#edit-app-id').val(this.appIndex);
+      $('input[name=app-id]').val(this.appIndex);
       $('#edit-tts').val(applications[this.appIndex].data.tts);
       ttsProperties();
     }
     if(applications[this.appIndex].appType == "transfer") {
-      $('#edit-app-id').val(this.appIndex);
+      $('input[name=app-id]').val(this.appIndex);
       $('#edit-extension-id').val(applications[this.appIndex].data.extension_id);
       transferProperties();
     }
     if(applications[this.appIndex].appType == "getdigit") {
-      $('#edit-app-id').val(this.appIndex);
+      $('input[name=app-id]').val(this.appIndex);
       $('#edit-getdigit-recording-id').val(applications[this.appIndex].data.getdigit_recording_id);
       getdigitProperties();
     }
@@ -71,7 +71,7 @@ function play_audioProperties(){
 	});
 }
 function saveRecordingData() {
-  id = $('#edit-app-id').val();
+  id = $('input[name=app-id]').val();
   recording = $('#edit-recording-id').val();
   applications[id].data.recording_id = recording;
   // set tooltip
@@ -114,7 +114,7 @@ function ttsProperties(){
 	});
 }
 function saveTTSData() {
-  id = $('#edit-app-id').val();
+  id = $('input[name=app-id]').val();
   tts = $('#edit-tts').val();
   applications[id].data.tts = tts;
   // set tooltip
@@ -159,7 +159,7 @@ function transferProperties(){
 	});	
 }
 function saveTransferData() {
-  id = $('#edit-app-id').val();
+  id = $('input[name=app-id]').val();
   extension = $('#edit-extension-id').val();
   applications[id].data.extension_id = extension;
   // set tooltip
@@ -203,7 +203,7 @@ function getdigitProperties(){
 	});	
 }
 function saveGetdigitData() {
-  id = $('#edit-app-id').val();
+  id = $('input[name=app-id]').val();
   getdigit_recording = $('#edit-getdigit-recording-id').val();
   applications[id].data.getdigit_recording_id = getdigit_recording;
   // set tooltip

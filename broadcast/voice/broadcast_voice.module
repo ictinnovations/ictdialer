@@ -500,7 +500,8 @@ function writeIVRApplication($campaign_id, $ivr_id) {
     dialplan_action_next(null);
     for($out = 0; $out < count($app["nodes"]["output"]); $out++) {
       if($app["element"]["outPointer"][$out]["isAttached"]=="yes") {
-        dialplan_action_set($app["index"], $out, array('src_app' => $cur_app, 'test_value' => $test_val[$out]));
+        $test_value = isset($test_val[$out]) ? $test_val[$out] : '';
+        dialplan_action_set($app["index"], $out, array('src_app' => $cur_app, 'test_value' => $test_value));
       }
     }
     for($in = 0; $in < count($app["element"]["inPointer"]); $in++) {

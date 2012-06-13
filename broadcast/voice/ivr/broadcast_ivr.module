@@ -216,7 +216,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
     'path'      => '',
     'length'       => '',
     'data'      => '',
-    'app_id' => '',
+    'app-id' => '-1',
     'recording_id' => '',
     'tts' => '',
     'extension_id' => '',
@@ -263,16 +263,16 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
     );
   }
   
-  $form['app_id'] = array(
-      '#type'        => 'hidden',
-      '#value'       => $ivr['app_id'],
-  );
-  
   $form['ivr'] = array(
     '#type'          => 'fieldset',
     '#title'         => t('IVR'),
   );
 
+  $form['ivr']['app-id'] = array(
+      '#type'        => 'hidden',
+      '#value'       => $ivr['app-id'],
+  );
+  
   $form['ivr']['name'] = array(
     '#type'          => 'textfield',
     '#title'         => t('ivr Name'),

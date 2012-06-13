@@ -99,7 +99,7 @@ function broadcast_plivo_menu() {
     'type'             => MENU_CALLBACK,
   );
   
-  $items['plivo/test_call/%rec'] = array(
+  $items['plivo/test_call/%broadcast_plivo_recording'] = array(
     'title'            => 'Play test Message',
     'description'      => 'Plays recorded test message',
     'page callback'    => 'broadcast_plivo_test_call',
