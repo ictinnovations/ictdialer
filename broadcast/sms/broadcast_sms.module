@@ -36,14 +36,14 @@ function broadcast_sms_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on sms module.
  */
-function broadcast_sms_perm() {
+function broadcast_sms_permission() {
   return array(
-    'broadcast sms system admin'
+    'broadcast sms system admin' => array('title'=> 'broadcast sms system admin')
   );
 }
 

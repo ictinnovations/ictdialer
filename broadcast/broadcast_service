@@ -33,9 +33,6 @@ define('DRUPAL_ROOT', '/usr/ictdialer');
 require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
-//watchdog('camp', DRUPAL_ROOT, array(), WATCHDOG_ERROR);
-//exec("echo 'DRUPAL ROOT:".DRUPAL_ROOT."'>>./campaign.log");
-
 /* Setup signal handlers
 ************************/
 pcntl_signal(SIGTERM, "INT_handler"); // shutdown
@@ -127,14 +124,14 @@ for ($try_no = $repeat_start; $try_no <= $camp['repeat_total']; $try_no++) {
                                     $contact_record['contact_id'], 
                                     $deliver_result['campaign_log_id']);
 
-  		if ($result !== FALSE) {
-          $deliver_result['units']  = $result;
-    	  $deliver_result['status'] = 'delivered';
-  		} else {
-  		  $deliver_result['units']  = 0;
-    	  $deliver_result['status'] = 'failed';
-  		}
-  
+    		if ($result !== FALSE) {
+            $deliver_result['units']  = $result;
+      	  $deliver_result['status'] = 'pending';
+    		} else {
+    		  $deliver_result['units']  = 0;
+      	  $deliver_result['status'] = 'failed';
+    		}
+  		
         // set deliver status into campaign log
         drupal_write_record('broadcast_campaign_log', $deliver_result, 'campaign_log_id');
 

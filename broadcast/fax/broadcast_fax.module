@@ -34,14 +34,14 @@ function broadcast_fax_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on fax module.
  */
-function broadcast_fax_perm() {
+function broadcast_fax_permission() {
   return array(
-    'broadcast fax system admin'
+    'broadcast fax system admin' => array('title'=> 'broadcast fax system admin')
   );
 }
 
@@ -69,22 +69,6 @@ function broadcast_fax_campaign_message_load($campaign_id, $campaign) {
     }
   }
 }
-/*
-// used to load a document id for given campaign id
-function broadcast_fax_load($campaign_id) {  
-  $sql    = "SELECT * FROM {broadcast_campaign_document} WHERE campaign_id = %d";
-  $result = db_query($sql, $campaign_id);
-  if ($campaign_document = db_fetch_array($result)) {
-    $selecteddocument = array(
-      'document'  => $campaign_document['document_id'],
-    );  
-    return $selecteddocument;
-  } else {
-    drupal_set_message(t('Specified document does not exist! or you have not proper permissions!'), 'error');
-    return FALSE;
-  }
-}
-*/
 
 // used to load a first application id for given campaign id
 function broadcast_fax_load($campaign_id) {  
@@ -98,13 +82,15 @@ function broadcast_fax_load($campaign_id) {
   }
 }
 
-
+/**
+ * Hook for supported types.
+ * Displayed when Fax campaign option while creating new campaign
+ *
+ */
 function broadcast_fax_supported_types()
 {
   return array('fax'=> t('Fax Campaign'));
 }
-
-
 
 /**
  * Build the fax message editing form.
@@ -186,7 +172,6 @@ function broadcast_fax_campaign_message_submit($form, $form_state, $campaign) {
     drupal_write_record('broadcast_campaign_document', $aSelectedDoc);
     // then write applications and action of selected recording
     writeFaxApplication($campaign['campaign_id'], $fax['document']);
-    
   }
 }
 
@@ -197,7 +182,6 @@ function writeFaxApplication($campaign_id, $document_id) {
   $app_id  = dialplan_application_add($campaign_id, 'hangup');
   
 }
-
 
 /**
  * Delete a document link, according to given campaign ID.
@@ -221,7 +205,6 @@ function broadcast_fax_campaign_message_delete($campaign) {
     }
     $sql = 'DELETE FROM {broadcast_campaign_application} WHERE campaign_id = :campaign_id';
     db_query($sql, array(':campaign_id'=>$campaign['campaign_id'])); 
-    
   }
 }
 
@@ -249,7 +232,6 @@ function broadcast_fax_admin_settings() {
   return system_settings_form($form);
 }
 
-
 /********************************************************
 *             FUNCTION FOR BACKGROUND TASK              *
 ********************************************************/
@@ -272,7 +254,6 @@ function _broadcast_fax_get_gateways() {
 
   return $gateways;
 }
-
 
 /* Get, load, and test default fax gateway
 ******************************************/

@@ -86,34 +86,21 @@ function broadcast_document_menu() {
     'access arguments' => array('broadcast document admin'),
     'type'             => MENU_CALLBACK,
   );
-  /*
-  $items['admin/broadcast/document'] = array(
-    'title'            => 'document Settings',
-    'description'      => 'Configure document Broadcasting behavior',
-    'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('broadcast_document_admin_settings'),
-    'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast document system admin'),
-    'type'             => MENU_NORMAL_ITEM,
-  );
-  */
   
   return $items;
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on document module.
  */
-function broadcast_document_perm() {
+function broadcast_document_permission() {
   return array(
-    'broadcast document',
-    'broadcast document admin',
-    'broadcast document group',
-    'broadcast document group admin',
-    'broadcast document system admin'
+    'broadcast document'              => array('title'=> 'broadcast document'),
+    'broadcast document admin'        => array('title'=> 'broadcast document admin'),     
+    'broadcast document system admin' => array('title'=> 'broadcast document system admin')
   );
 }
 
@@ -366,44 +353,3 @@ function broadcast_document_option() {
   return $rows;
 }
 
-
-/*
-function broadcast_document_admin_settings() {
-  $form['phone'] = array(
-    '#type'  => 'fieldset',
-    '#title' => t('Phone Number Validation Rules')
-  );
-  $form['phone']['broadcast_document_phone_format_gsm'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t("GSM Phone Number's Patterns"),
-    '#default_value' => variable_get('broadcast_document_phone_format_gsm', '923XXXXXXXXX'),
-    '#description'   => t('All Numbers in GSM Contacts will be validated against these patterns'),
-  );
-  $form['phone']['broadcast_document_phone_format_other'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t("Other Phone Number's Patterns"),
-    '#default_value' => variable_get('broadcast_document_phone_format_other', '92XX.'),
-    '#description'   => t('All Numbers in Other Contacts will be validated against these patterns'),
-  );
-  $form['phone']['broadcast_document_phone_duplicate_group'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('No duplicate Phone Number'),
-    '#description'   => t('In a group no phone number will be repeated'),
-    '#default_value' => variable_get('broadcast_document_phone_duplicate_group', '1'),
-    '#return_value'  => 1,
-  );
-  $form['email'] = array(
-    '#type'  => 'fieldset',
-    '#title' => t('Email Validation Rules')
-  );
-  $form['email']['broadcast_document_email_duplicate_group'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('No duplicate Emails'),
-    '#description'   => t('In a group no email will be repeated'),
-    '#default_value' => variable_get('broadcast_document_email_duplicate_group', '1'),
-    '#return_value'  => 1,
-  );
-
-  return system_settings_form($form);
-}
-*/

@@ -49,11 +49,11 @@ function broadcast_plivo_menu() {
     'type'             => MENU_LOCAL_TASK,
   );
   
-  $items['plivo/app_controller/%broadcast_plivo_application'] = array(
+  $items['plivo/app_controller/%broadcast_plivo_application/%'] = array(
     'title'            => 'Run Applications',
     'description'      => 'Controls the applications and actions in the IVR',
     'page callback'    => 'broadcast_plivo_app_controller',
-    'page arguments'   => array(2, false),
+    'page arguments'   => array(2, 3),
     'access callback'  => 'broadcast_access',
     'access arguments' => array('gateway'),
     'type'             => MENU_CALLBACK,
@@ -99,6 +99,16 @@ function broadcast_plivo_menu() {
     'type'             => MENU_CALLBACK,
   );
   
+  $items['plivo/transfer/%broadcast_plivo_application'] = array(
+    'title'            => 'Transfer',
+    'description'      => 'Transfers call to sip uri',
+    'page callback'    => 'broadcast_plivo_transfer',
+    'page arguments'   => array(2),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('gateway'),
+    'type'             => MENU_CALLBACK,
+  );
+  
   $items['plivo/test_call/%broadcast_plivo_recording'] = array(
     'title'            => 'Play test Message',
     'description'      => 'Plays recorded test message',
@@ -119,7 +129,7 @@ function broadcast_plivo_menu() {
     'type'             => MENU_CALLBACK,
   );
   
-  /*
+  /* Commented: No need of play_menu URL
   $items['plivo/play_menu/%broadcast_plivo_application'] = array(
     'title'            => 'Plays Menu',
     'description'      => 'Based on the input digit, Plays the requested option',
@@ -134,14 +144,14 @@ function broadcast_plivo_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on sms module.
  */
-function broadcast_plivo_perm() {
+function broadcast_plivo_permission() {
   return array(
-    'broadcast plivo system admin'
+    'broadcast plivo system admin' => array('title'=> 'broadcast plivo system admin')
   );
 }
 /************************************************************************
@@ -169,6 +179,18 @@ function broadcast_plivo_document_load($document_id) {
   }
   else {
     drupal_set_message(t('Specified document does not exist! or you have not proper permissions!'), 'error');
+    return FALSE;
+  }
+}
+
+function broadcast_plivo_extension_load($extension_id) {
+  $sql    = "SELECT * FROM {broadcast_extension} WHERE extension_id = :extension_id";
+  $result = db_query($sql, array(':extension_id'=>$extension_id));
+  if ($extension = $result->fetchAssoc()) {
+    return $extension;
+  }
+  else {
+    drupal_set_message(t('Specified extension does not exist! or you have not proper permissions!'), 'error');
     return FALSE;
   }
 }
@@ -297,21 +319,6 @@ function broadcast_plivo_test_form($form, &$form_state, $campaign = array()) {
 function broadcast_plivo_test_form_submit($form, &$form_state) {
   $voice = $form_state['values'];
   broadcast_campaign_voice_test($voice['number'],$voice['recording']);
-  /*
-  if (!$result = broadcast_plivo_load('sms')) {
-    drupal_set_message(t('Unable to load gateway, message failed!'), 'error');
-    $form_state['redirect'] = 'admin/broadcast/gateway/plivo/test';
-  }
-  
-  if ($result && broadcast_plivo_deliver_voice($sms['number'], $sms['message'])) {
-    drupal_set_message(t('Message sent successfully!'), 'status');
-    $form_state['redirect'] = 'admin/broadcast/gateway/plivo/test';
-  } else {
-    drupal_set_message(t('Unable to send message, failed!'), 'error');
-    $form_state['redirect'] = 'admin/broadcast/gateway/plivo/test';
-  }
-  */
-  
 }
 
 function broadcast_campaign_voice_test($number, $recording_id) {
@@ -321,7 +328,7 @@ function broadcast_campaign_voice_test($number, $recording_id) {
   $plivo_port       = variable_get('broadcast_plivo_port', '8088');
   $plivo_AccountSid = variable_get('broadcast_plivo_accountid', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
   $plivo_AuthToken  = variable_get('broadcast_plivo_authenticationtoken', 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
-  $callerid       = variable_get('broadcast_plivo_callerid', '1111111111');
+  $caller_id       = variable_get('broadcast_plivo_callerid', '1111111111');
   $provider_trunk = variable_get('broadcast_plivo_provider_trunk', 'user');
   $prefix         = variable_get('broadcast_plivo_prefix', '');
   if(isset($provider_trunk) && $provider_trunk != NULL) {
@@ -340,15 +347,15 @@ function broadcast_campaign_voice_test($number, $recording_id) {
   $ApiVersion = 'v0.1';
   $client = new PlivoRestClient($REST_API_URL, $plivo_AccountSid, $plivo_AuthToken, $ApiVersion);
   $call_params = array(
-      'From' => $callerid, # Caller Id
-      'To' => $number, # User Number to Call
-      'Gateways' => $dial_string, # Gateway string to try dialing our separated by comma. First in list will be tried first
-      'GatewayCodecs' => "'PCMA,PCMU'", # Codec string as needed by FS for each gateway separated by comma
-      'GatewayTimeouts' => "60",      # Seconds to timeout in string for each gateway separated by comma
-      'GatewayRetries' => "1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
-      'AnswerUrl' => "$application_root?q=plivo/test_call/$recording_id",
-      'HangupUrl' => "$application_root/hangup/",  //  unused
-      'RingUrl' => "$application_root/ringing/"    //  unused 
+      'From'            => $caller_id,      # Caller Id
+      'To'              => $number,         # User Number to Call
+      'Gateways'        => $dial_string,    # Gateway string to try dialing our separated by comma. First in list will be tried first
+      'GatewayCodecs'   => "'PCMA,PCMU'",   # Codec string as needed by FS for each gateway separated by comma
+      'GatewayTimeouts' => "60",            # Seconds to timeout in string for each gateway separated by comma
+      'GatewayRetries'  => "1",             # Retry String for Gateways separated by comma, on how many times each gateway should be retried
+      'AnswerUrl'       => "$application_root?q=plivo/test_call/$recording_id",
+      'HangupUrl'       => "$application_root/hangup/",     //  unused
+      'RingUrl'         => "$application_root/ringing/"     //  unused 
   );
   try {
       $response = $client->call($call_params);
@@ -357,8 +364,6 @@ function broadcast_campaign_voice_test($number, $recording_id) {
   
   } catch (Exception $e) {
       watchdog("Plivo", "Error trace: " .$e->getMessage , array(), WATCHDOG_ERROR);
-      //echo $response;
-      //echo 'Caught exception: ',  $e->getMessage(), "\n";
       exit(0);
     }
 }
@@ -386,10 +391,22 @@ function broadcast_plivo_answer_call($client, $phone, $first_app_id, $parameters
   if ($app_actions = $result->fetchAssoc()) {
     $next_app_id = $app_actions['action'];
   }
+  $log_id = $parameters;
   
-  $callerid       = variable_get('broadcast_plivo_callerid', '1111111111');
-  $provider_trunk = variable_get('broadcast_plivo_provider_trunk', 'user');
-  $prefix         = variable_get('broadcast_plivo_prefix', '');
+  if(module_exists('broadcast_trunk')) {
+    $trunk = get_trunk_by_application_id($first_app_id);
+    watchdog("Plivo", "trunk name = $trunk[name]" , array(), WATCHDOG_INFO);
+    $provider_trunk = $trunk['name'];
+    $prefix         = $trunk['prefix'];
+    $call_duration  = $trunk['call_duration'];
+    $caller_id      = $trunk['caller_id'];
+  } else {
+    $provider_trunk = variable_get('broadcast_plivo_provider_trunk', 'user');
+    $prefix         = variable_get('broadcast_plivo_prefix', '');
+    $call_duration  = variable_get('broadcast_call_duration', '300');
+    $caller_id      = variable_get('broadcast_plivo_callerid', '1111111111');
+  }
+  
   if(isset($provider_trunk) && $provider_trunk != NULL) {
     if($provider_trunk == 'user') {
       $dial_string = "$provider_trunk/";
@@ -400,30 +417,29 @@ function broadcast_plivo_answer_call($client, $phone, $first_app_id, $parameters
   if(isset($prefix) && $prefix != '') {
     $dial_string = $dial_string . $prefix;
   }
-  echo exec("echo trunk=$dial_string > /tmp/mytest.txt");
-
+  echo exec("echo trunk=$dial_string >> /tmp/mytest.txt");
   
   // Define Channel Variable if any
   // and Initiate a new outbound call to $num["phone"] using a HTTP POST
   $extra_dial_string = "bridge_early_media=true,hangup_after_bridge=false";
   $call_params = array(
-      'From' => $callerid, # Caller Id
-      'To' => $phone,
-      'Gateways' => $dial_string, # Gateway string to try dialing our separated by comma. First in list will be tried first
-      'GatewayCodecs' => "'PCMA,PCMU'", # Codec string as needed by FS for each gateway separated by comma
-      'GatewayTimeouts' => "60",      # Seconds to timeout in string for each gateway separated by comma
-      'GatewayRetries' => "1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
-      'ExtraDialString' => $extra_dial_string,
-      'AnswerUrl' => "$application_root?q=plivo/app_controller/$first_app_id", 
-      'HangupUrl' => "http://127.0.0.1:5000/hangup/",
-      'RingUrl' => "http://127.0.0.1:5000/ringing/"
+      'From'              => $caller_id,        # Caller Id
+      'To'                => $phone,            # User Number to Call
+      'TimeLimit'         => $call_duration,    # Maximum Duration of the call
+      'Gateways'          => $dial_string,      # Gateway string to try dialing our separated by comma. First in list will be tried first
+      'GatewayCodecs'     => "'PCMA,PCMU'",     # Codec string as needed by FS for each gateway separated by comma
+      'GatewayTimeouts'   => "60",              # Seconds to timeout in string for each gateway separated by comma
+      'GatewayRetries'    => "1",               # Retry String for Gateways separated by comma, on how many times each gateway should be retried
+      'ExtraDialString'   => $extra_dial_string,
+      'AnswerUrl'         => "$application_root?q=plivo/app_controller/$first_app_id/$log_id", 
+      'HangupUrl'         => "$application_root?q=broadcast/campaign/call_status_update/$log_id",
+      'RingUrl'           => "http://127.0.0.1:5000/ringing/"  // unused
   );
   try {
       // Initiate call
       $response = $client->call($call_params);
       watchdog("Plivo", "Success: Call sent to $phone" , array(), WATCHDOG_INFO);
   } catch (Exception $e) {
-      //echo 'Caught exception: ',  $e->getMessage(), "\n";
       watchdog("Plivo", "Error trace: " .$e->getMessage , array(), WATCHDOG_ERROR);
       return FALSE;
   }
@@ -440,9 +456,11 @@ function broadcast_plivo_supported_services() {
 Functions for Background Tasks                            *
 **********************************************************/
 
-// Following function is called from [/ictsms/index.php?q=plivo/app_controller/$app_id] as REST request
-function broadcast_plivo_app_controller($app) {
+// Following function is called from [/ictsms/index.php?q=plivo/app_controller/$app_id/$log_id] as REST request
+function broadcast_plivo_app_controller($app, $log_id) {
   watchdog("In app controller", "$app[name]" , array(), WATCHDOG_INFO);
+  $sql = "UPDATE broadcast_campaign_log SET status='answered' WHERE campaign_log_id=$log_id";
+  $result = db_query($sql, array());
   $app_id = $app['campaign_application_id'];
   $app_actions = broadcast_plivo_action_load($app_id);
   $next_app_id = false;
@@ -467,20 +485,19 @@ function broadcast_plivo_app_controller($app) {
   }
   $next_app = broadcast_plivo_application_load($next_app_id);
   $function = 'broadcast_plivo_'.$next_app['name'];
-  $function($next_app['campaign_application_id']);
-
+  $function($next_app['campaign_application_id'], $log_id);
 }
 
-function broadcast_plivo_play_audio($app_id) {
+function broadcast_plivo_play_audio($app_id, $log_id) {
   $app = broadcast_plivo_application_load($app_id);
-  $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictidaler/sites/default/files/broadcast/recording');
+  $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictdialer/sites/default/files/broadcast/recording');
   $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
   
   // get app data
   $rec = unserialize($app['data']);
   $recording = broadcast_plivo_recording_load($rec['recording']);
   $path_recording = "$recording_dir/$recording[name].wav";
-  $url_action = "$application_root?q=plivo/app_controller/$app[campaign_application_id]";
+  $url_action = "$application_root?q=plivo/app_controller/$app[campaign_application_id]/$log_id";
   $response = '<?xml version="1.0" encoding="UTF-8"?>
           <Response>
           <Play>'.$path_recording.'</Play>
@@ -489,7 +506,7 @@ function broadcast_plivo_play_audio($app_id) {
   echo $response;
 }
 
-function broadcast_plivo_hangup($app_id) {
+function broadcast_plivo_hangup($app_id, $log_id) {
   $app = broadcast_plivo_application_load($app_id);
   // $data is empty for hangup
   $response = '<?xml version="1.0" encoding="UTF-8"?>
@@ -499,32 +516,32 @@ function broadcast_plivo_hangup($app_id) {
   echo $response;
 }
 
-function broadcast_plivo_tts($app_id) {
+function broadcast_plivo_tts($app_id, $log_id) {
   $app = broadcast_plivo_application_load($app_id);
   $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
   // get app data
   $data = unserialize($app['data']);
   $tts = $data['tts'];
-  $url_action = "$application_root?q=plivo/app_controller/$app[campaign_application_id]";
+  $url_action = "$application_root?q=plivo/app_controller/$app[campaign_application_id]/$log_id";
   $response = '<?xml version="1.0" encoding="UTF-8"?>
           <Response>
-          <Speak>'.$tts.'</Speak>
+          <Speak language="el" engine="flite">'.$tts.'</Speak>
           <Redirect>'.$url_action.'</Redirect>
           </Response>';
   echo $response;
 }
 
-function broadcast_plivo_getdigit($app_id) {
+function broadcast_plivo_getdigit($app_id, $log_id) {
   $app = broadcast_plivo_application_load($app_id);
   $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
-  $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictidaler/sites/default/files/broadcast/recording');
+  $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictdialer/sites/default/files/broadcast/recording');
   // get app data
   $rec = unserialize($app['data']);
   $recording = broadcast_plivo_recording_load($rec['recording']);
   $path_recording = "$recording_dir/$recording[name].wav";
   $response =  '<?xml version="1.0" encoding="UTF-8"?>
           <Response>
-              <GetDigits action="'.$application_root.'?q=plivo/app_controller/'.$app['campaign_application_id'].'" method="POST">
+              <GetDigits action="'.$application_root.'?q=plivo/app_controller/'.$app['campaign_application_id'].'/'.$log_id.'" method="POST">
                   <Play>'.$path_recording.'</Play>
               </GetDigits>
               <Speak>Input not received. Bye bye!</Speak>
@@ -532,26 +549,50 @@ function broadcast_plivo_getdigit($app_id) {
    echo $response;
 }
 
-function broadcast_plivo_play_menu($app_id) {
+function broadcast_plivo_play_menu($app_id, $log_id) {
   $app = broadcast_plivo_application_load($app_id);
-  broadcast_plivo_app_controller($app);
+  /**********************************/
+  /* Entry into campaign_log_result */
+  $type = 'play_menu';
+  $name = trim($_REQUEST['Digits']);
+  $data = trim($_REQUEST['Digits']);
+  $campaign_id = $app['campaign_id'];
+  broadcast_campaign_log_result($type, $name, $data, $app_id, $log_id, $campaign_id);
+  /**********************************/
+  broadcast_plivo_app_controller($app, $log_id);
 }
 
-function broadcast_plivo_record($app_id) {
-  watchdog("In app controller", "$app[name]" , array(), WATCHDOG_INFO);
-  $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
-  
+function broadcast_plivo_record($app_id, $log_id) {
+  watchdog("In record", "$app_id" , array(), WATCHDOG_INFO);
+  $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');  
   
   $app = broadcast_plivo_application_load($app_id);
   $response =  '<?xml version="1.0" encoding="UTF-8"?>
                 <Response>
-                <Record action="'.$application_root.'?q=plivo/app_controller/'.$app['campaign_application_id'].'" method="POST" playBeep="true"/>
+                <Record action="'.$application_root.'?q=plivo/app_controller/'.$app['campaign_application_id'].'/'.$log_id.'" method="POST" playBeep="true" finishOnKey="*#" maxLength="60"/>
                 <Say>I did not hear a recording.  Goodbye.</Say>
                 </Response>';
    echo $response;
 }
 
-function broadcast_plivo_send_fax($app_id) {
+function broadcast_plivo_transfer($app_id, $log_id) {
+  watchdog("In transfer", "$app_id" , array(), WATCHDOG_INFO);
+  $app = broadcast_plivo_application_load($app_id);
+  $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
+  // get app data
+  $data = unserialize($app['data']);
+  $transfer = broadcast_plivo_extension_load($data['extension']);
+  $url_action = "$application_root?q=plivo/app_controller/$app[campaign_application_id]";
+  $response = '<?xml version="1.0" encoding="UTF-8"?>
+               <Response>
+               <Dial>
+               <Number gateways="user/" gatewayCodecs="'."'PCMA,PCMU'".'">'.$transfer['name'].'</Number>
+               </Dial>
+               </Response>';
+  echo $response;
+}
+
+function broadcast_plivo_send_fax($app_id, $log_id) {
   $app = broadcast_plivo_application_load($app_id);
   $application_root = variable_get('broadcast_app_root', 'http://127.0.0.1/ictdialer/index.php');
   $fax_dir = variable_get('broadcast_fax_default_directory', '/usr/ictdialer/sites/default/files/broadcast/document');
@@ -560,7 +601,7 @@ function broadcast_plivo_send_fax($app_id) {
   $doc = unserialize($app['data']);
   $document = broadcast_plivo_document_load($doc['document']);
   $path_document = "$fax_dir/$document[name].tif";
-  $url_action = "$application_root?q=plivo/app_controller/$app[campaign_application_id]";
+  $url_action = "$application_root?q=plivo/app_controller/$app[campaign_application_id]/$log_id";
   $response = '<?xml version="1.0" encoding="UTF-8"?>
           <Response>
           <SendFax>'.$path_document.'</SendFax>
@@ -572,7 +613,7 @@ function broadcast_plivo_send_fax($app_id) {
 function broadcast_plivo_test_call($rec_id) {
   echo exec("echo '".print_r($rec_id, true)."' >> /tmp/mytest.txt");
   watchdog("Test Call", "rec_id: $rec_id" , array(), WATCHDOG_INFO);
-  $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictidaler/sites/default/files/broadcast/recording');
+  $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictdialer/sites/default/files/broadcast/recording');
   //$recording = broadcast_plivo_recording_load($rec_id); // commented because recording is already loaded.
   $recording = $rec_id;
   watchdog("Test Call", "rec_id: $rec_id" , array(), WATCHDOG_INFO);
@@ -583,7 +624,6 @@ function broadcast_plivo_test_call($rec_id) {
           </Response>';
   echo $response;
 }
-
 
 function broadcast_plivo_message_prepare($service, $message) {
   //watchdog('plivo gateway', t('@service message prepared'), array('@service' => $service), WATCHDOG_INFO);
@@ -598,6 +638,22 @@ function broadcast_plivo_load($service) {
 function broadcast_plivo_is_ready($service) {
   //watchdog('plivo gateway', t('gateway is ready for @service'), array('@service' => $service), WATCHDOG_INFO);
   return TRUE;
+}
+
+/***********************************
+*  Function for Campaign Reports   *
+************************************/
+function broadcast_campaign_log_result($type, $name, $data, $app_id, $log_id, $campaign_id) {
+/*watchdog("Campaign Reports", "type: $type" , array(), WATCHDOG_INFO);
+  watchdog("Campaign Reports", "name: $name" , array(), WATCHDOG_INFO);
+  watchdog("Campaign Reports", "data: $data" , array(), WATCHDOG_INFO);
+  watchdog("Campaign Reports", "app_id: $app_id" , array(), WATCHDOG_INFO);
+  watchdog("Campaign Reports", "log_id: $log_id" , array(), WATCHDOG_INFO);
+  watchdog("Campaign Reports", "campaign_id: $campaign_id" , array(), WATCHDOG_INFO);*/
+  $date = time();
+  $sql = "INSERT INTO {broadcast_campaign_log_result}(type, name, data, date_created, campaign_application_id, campaign_log_id, campaign_id) VALUES('$type','$name', '$data', $date, $app_id, $log_id, $campaign_id)";
+  db_query($sql, array());
+  
 }
 
 

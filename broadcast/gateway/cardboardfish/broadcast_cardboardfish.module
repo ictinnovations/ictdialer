@@ -56,14 +56,14 @@ function broadcast_cardboardfish_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on sms module.
  */
-function broadcast_cardboardfish_perm() {
+function broadcast_cardboardfish_permission() {
   return array(
-    'broadcast cardboardfish system admin'
+    'broadcast cardboardfish system admin' => array('title'=> 'broadcast cardboardfish system admin')
   );
 }
 

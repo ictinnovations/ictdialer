@@ -42,6 +42,9 @@ function broadcast_schema() {
       'start_at'       => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
       'stop_at'        => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
       'campaign_pid'   => array('type' => 'int',     'not null' => FALSE, 'unsigned' => TRUE),
+      'caller_id'      => array('type' => 'varchar', 'not null' => FALSE, 'length' => 128),
+      'trunk_id'       => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
+      'call_duration'  => array('type' => 'int',     'not null' => TRUE, 'unsigned' => TRUE),
       'created'        => array('type' => 'int',     'not null' => FALSE, 'unsigned' => TRUE),
       'created_by'     => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
     ),
@@ -59,6 +62,20 @@ function broadcast_schema() {
       'data'            => array('type' => 'varchar', 'not null' => TRUE, 'length' => 32, 'default' => ''),
     ),
     'primary key' => array('campaign_log_id'),
+  );
+
+  $schema['broadcast_campaign_log_result'] = array(
+    'fields' => array(
+      'campaign_log_result_id'  => array('type' => 'serial',  'not null' => TRUE,  'unsigned' => TRUE),
+      'type'                    => array('type' => 'varchar', 'not null' => TRUE,  'length'   => 64),
+      'name'                    => array('type' => 'varchar', 'not null' => TRUE,  'length'   => 64),
+      'data'                    => array('type' => 'varchar', 'not null' => TRUE,  'length'   => 64),
+      'date_created'            => array('type' => 'int',     'not null' => FALSE),
+      'campaign_application_id' => array('type' => 'int',     'not null' => FALSE),
+      'campaign_log_id'         => array('type' => 'int',     'not null' => FALSE),
+      'campaign_id'             => array('type' => 'int',     'not null' => FALSE),
+    ),
+    'primary key' => array('campaign_log_result_id'),
   );
 
   $schema['broadcast_campaign_contact'] = array(

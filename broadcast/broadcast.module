@@ -51,16 +51,6 @@ function broadcast_menu() {
     'weight'           => -10,
   );
 
-/*  $items['broadcast/campaign/'] = array(
-    'title'            => 'Campaigns',
-    'description'      => 'Manage Campaigns',
-    'page callback'    => 'broadcast_campaign_list',
-    'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast campaign'),
-    'type'             => MENU_NORMAL_ITEM,
-    'weight'           => -10,
-  ); */
-
   $items['broadcast/campaign/list'] = array(
     'title'            => 'List',
     'description'      => 'Manage Campaigns',
@@ -138,17 +128,19 @@ function broadcast_menu() {
     'access arguments' => array('broadcast campaign admin'),
     'type'             => MENU_CALLBACK,
   );
-/*  
-   $items['broadcast/files'] = array(
-    'title'            => 'Manage Files',
-    'description'      => 'Manage files for Campaign',
-    'page callback'    => 'broadcast_campaign_files',
-    'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast campaign'),
-    'type'             => MENU_NORMAL_ITEM,
-    'weight'           => 0,
+  
+  // ref: call hangup on plivo
+  $items['broadcast/campaign/call_status_update/%'] = array(
+    'title'            => 'Broadcast call status',
+    'description'      => 'Broadcast call status update after hangup',
+    'page callback'    => 'broadcast_call_status_update',
+    'page arguments'   => array(3),
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
   );
-*/
+
+
+  /******* Administration *******/
   $items['admin/broadcast'] = array(
     'title'            => 'Broadcast System',
     'description'      => 'Configure Broadcasting',
@@ -175,16 +167,16 @@ function broadcast_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on campaign module.
  */
-function broadcast_perm() {
+function broadcast_permission() {
   return array(
-    'broadcast campaign',
-    'broadcast campaign admin',
-    'broadcast campaign system admin'
+    'broadcast campaign'                => array('title'=> 'broadcast campaign'),
+    'broadcast campaign admin'          => array('title'=> 'broadcast campaign admin'),
+    'broadcast campaign system admin'   => array('title'=> 'broadcast campaign system admin')
   );
 }
 
@@ -215,7 +207,8 @@ function broadcast_campaign_list() {
   );
   
   $query = db_select('broadcast_campaign', 'c')->extend('PagerDefault');
-  $query->fields('c', array('campaign_id', 'name', 'campaign_type', 'status', 'contact_total'));
+  $query->fields('c', array('campaign_id', 'name', 'campaign_type', 'status', 'contact_total', 'start_at','created'));
+  $query->orderBy('created', 'DESC');
   $query = broadcast_select_filter($query);
   $result = $query
             ->limit(10)         
@@ -291,7 +284,7 @@ function _broadcast_campaign_list_links($campaign) {
   );
   $links['report'] = array(
     'title' => t('Log Report'),
-    'href' => 'broadcast/report/campaign/' . $campaign['campaign_id'],
+    'href' => 'broadcast/campaign/' . $campaign['campaign_id'] . '/report',
     'html' => TRUE,
   );
   return theme('links', array('links'=>$links,'attributes' => array('class' => array('links', 'inline'))));
@@ -353,14 +346,17 @@ function broadcast_campaign_type() {
 function broadcast_campaign_form($form, &$form_state, $campaign = array(), $campaign_type = 'sms') {
   // It's safe to use on both an empty array, and an incoming array with full or partial data.
   $campaign += array(
-    'name'           => '',
-    'contact_delay'  => 0,
-    'campaign_type'  => $campaign_type,
-    'start_at'       => 0,
-    'stop_at'        => 0,
-    'repeat_total'   => '',
-    'campaign_pid'   => '',
+    'name'            => '',
+    'contact_delay'   => 0,
+    'campaign_type'   => $campaign_type,
+    'start_at'        => 0,
+    'stop_at'         => 0,
+    'repeat_total'    => '',
+    'campaign_pid'    => '',
     'selected_group'  => array(''),
+    'call_duration'   => 300,
+    'trunk_id'        => -1,
+    'caller_id'       => variable_get('broadcast_plivo_callerid', '11111111'),
   );
 
   // If we're editing an existing campaign, we'll add a value field to the form
@@ -417,7 +413,37 @@ function broadcast_campaign_form($form, &$form_state, $campaign = array(), $camp
       '#multiple'        => TRUE,
     );
   }
+  
+  if(module_exists('broadcast_trunk')) {
+    $form['trunk'] = array(
+      '#type'          => 'fieldset',
+      '#title'         => t('Provider Trunks / Gateways'),
+    );
+    
+    $form['trunk']['trunk_id'] = array(
+      '#type'           => 'select',
+      '#title'          => t('Trunk'),
+      '#options'        => array(-1=>'- Select -') + broadcast_trunk_option(),
+      '#default_value'  => $campaign['trunk_id'],
+    );
 
+    $form['trunk']['call_duration'] = array(
+      '#type'           => 'textfield',
+      '#title'          => t('Max Call Duration'),
+      '#description'    => t('Schedule the call for hangup at a specified time (in sec) after the call is answered.'),
+      '#required'       => TRUE,
+      '#default_value'  => $campaign['call_duration'],
+    );
+
+    $form['trunk']['caller_id'] = array(
+      '#type'           => 'textfield',
+      '#title'          => t('Caller ID'),
+      '#description'    => t('Outgoing custom caller Id'),
+      '#required'       => TRUE,
+      '#default_value'  => $campaign['caller_id'],
+    );
+  }
+  
   $form['schedule'] = array(
     '#type'          => 'fieldset',
     '#title'         => t('Campaign Schedule'),
@@ -432,7 +458,7 @@ function broadcast_campaign_form($form, &$form_state, $campaign = array(), $camp
   );
 
   $js = "(function ($) {
-            Drupal.behaviors.broadcast = {
+            Drupal.behaviors.broadcast_schedule_start = {
               attach: function(){
                         $('#edit-start-at').change(function() {
                           if ($('#edit-start-at').val() == 0) {
@@ -466,7 +492,7 @@ function broadcast_campaign_form($form, &$form_state, $campaign = array(), $camp
   );
 
   $js = "(function ($) {
-            Drupal.behaviors.broadcast = {
+            Drupal.behaviors.broadcast_schedule_stop = {
               attach: function(){
                         $('#edit-stop-at').change(function() {
                           if ($('#edit-stop-at').val() == 0) {
@@ -524,11 +550,12 @@ function _broadcast_campaign_contact_option() {
 }
 
 function broadcast_campaign_form_validate($form, &$form_state) {
+  global $user;
   $existing_record = 0;
   $selected_groups = array();
   $contact_total   = 0;
   // validate message sms or voice
-  // NOTE: use hook here to validate sms and voice 
+  // NOTE: use hook here to validate sms and voice
   module_invoke_all('campaign_message_validate', $form, $form_state);
   
   // Calculate start time and assing it to start_at field
@@ -542,9 +569,10 @@ function broadcast_campaign_form_validate($form, &$form_state) {
 
       $user_start_time = gmmktime($hour + $meridiem, $minute, 0, $month, $day, $year);
       // apply system timezone
-      $form_state['values']['start_at'] = broadcast_user_time($user_start_time, FALSE);
+      //$form_state['values']['start_at'] = broadcast_user_time($user_start_time, FALSE);
+      $form_state['values']['start_at'] = $user_start_time;
   }
-
+  
   // Calculate stop time and assing it to stop_at field
   if ($form_state['values']['stop_at'] != 0) {
       $year     = $form_state['values']['stop_at_time']['year'];
@@ -556,7 +584,8 @@ function broadcast_campaign_form_validate($form, &$form_state) {
 
       $user_stop_time = gmmktime($hour + $meridiem, $minute, 0, $month, $day, $year);
       // apply system timezone
-      $form_state['values']['stop_at'] = broadcast_user_time($user_stop_time, FALSE);
+      //$form_state['values']['stop_at'] = broadcast_user_time($user_stop_time, FALSE);
+      $form_state['values']['stop_at'] = $user_stop_time;
   }
 
   // Drop not selected groups from selected_group field
@@ -569,7 +598,7 @@ function broadcast_campaign_form_validate($form, &$form_state) {
   if (count($selected_groups) > 0) {
     $form_state['values']['selected_group'] = $selected_groups;
   } else {
-    form_set_error('group', t('No group selected! Please select at least one group'));
+    form_set_error('group', t('No group selected! Please select at least one group.'));
   }
 
   // Calulate contact_total and assign it to contact_total field
@@ -582,6 +611,16 @@ function broadcast_campaign_form_validate($form, &$form_state) {
     $form_state['values']['contact_total'] = $contact_total;
   } else {
     $form_state['values']['contact_total'] = 0;
+  }
+  
+  // validate trunk
+  if(module_exists('broadcast_trunk')) {
+    if ($form_state['values']['trunk_id'] == -1) {
+      form_set_error('trunk_id', t('Trunk provider field is required.'));
+    }
+    if ($form_state['values']['call_duration'] <= 0) {
+      form_set_error('call_duration', t('Call duration must greater than 0 sec.'));
+    }
   }
 }
 
@@ -602,7 +641,7 @@ function broadcast_campaign_form_submit($form, &$form_state) {
   	  unset($form_state['values']['sms_id']);
     }*/
     $campaign = $form_state['values'];
-
+    
     if (!isset($campaign['created'])) {
       $campaign['created'] = time();
     }
@@ -614,7 +653,25 @@ function broadcast_campaign_form_submit($form, &$form_state) {
       $campaign['status'] = CAMPAIGN_NEW;
     } else {
       $campaign['status'] = CAMPAIGN_SCHEDULED;
+      // Adjust timezone setting.
+      $current_time = time();
+      $tz1 = new DateTimeZone(date_default_timezone_get());
+      $tz2 = new DateTimeZone('UTC');  
+      $dt1 = new DateTime("now", $tz1);
+      $dt2 = new DateTime("now", $tz2);
+      $offset = $tz1->getOffset($dt1) - $tz2->getOffset($dt2);
+      $campaign['start_at'] = $campaign['start_at'] - $offset;
     }
+    if($campaign['stop_at'] != 0) {
+      // Adjust timezone setting.
+      $current_time = time();
+      $tz1 = new DateTimeZone(date_default_timezone_get());
+      $tz2 = new DateTimeZone('UTC');  
+      $dt1 = new DateTime("now", $tz1);
+      $dt2 = new DateTime("now", $tz2);
+      $offset = $tz1->getOffset($dt1) - $tz2->getOffset($dt2);
+      $campaign['stop_at'] = $campaign['stop_at'] - $offset;
+    } 
     
     // save the campaign
     $is_new_campaign = false;
@@ -736,41 +793,16 @@ function broadcast_campaign_report_list($campaign) {
     array('data' => t('Contact'),      'field' => 'phone'),
     array('data' => t('Time'),     	   'field' => 'start_at'),
     array('data' => t('Status'),       'field' => 'status'),
-    array('data' => t('Cost (units)'), 'field' => 'units'),
+    //array('data' => t('Cost (units)'), 'field' => 'units'),
   );
-  /*
-  $value  = '';
-  $result = '';
-  $sql    = 'SELECT {broadcast_campaign_log}.*, ' .
-  		           '{broadcast_campaign}.name,' .
-  		           '{broadcast_contact}.phone ' .
-  		    'FROM ({broadcast_campaign_log} JOIN {broadcast_campaign} ' .
-  	       	          'ON {broadcast_campaign_log}.campaign_id = {broadcast_campaign}.campaign_id)' .
-  		          'JOIN {broadcast_contact} ' .
-  		              'ON {broadcast_campaign_log}.contact_id = {broadcast_contact}.contact_id';
-  if (user_access('ictsp report all')) {
-  	if ($uid !== false) {
-  	  $sql   = $sql . ' WHERE {broadcast_campaign}.created_by = %d';
-  	  $value = $uid;
-  	} else if ($campaign_id !== false) {
-  	  $sql   = $sql . ' WHERE {broadcast_campaign_log}.campaign_id = %d';
-  	  $value = $campaign_id;  
-  	}
-  } else {
-  	$sql = ictsp_db_filter($sql, '{broadcast_contact}.contact_id', 'broadcast_campaign');
-  	if ($campaign_id !== false) {
-  	  $sql   = $sql . ' AND {broadcast_campaign_log}.campaign_id = %d';
-  	  $value = $campaign_id;
-  	}
-  } */
   
   $query = db_select('broadcast_campaign_log', 'log')->extend('PagerDefault');
   $query->fields('log', array('campaign_log_id', 'start_at', 'status', 'units'));
   $query->join('broadcast_campaign', 'camp', 'log.campaign_id = camp.campaign_id');
-  $query->fields('camp', array('name'));
+  $query->fields('camp', array('name','campaign_id'));
   $query = broadcast_select_filter($query, 'camp');
   $query->join('broadcast_contact', 'cont', 'log.contact_id = cont.contact_id');
-  $query->fields('cont', array('phone'));
+  $query->fields('cont', array('phone','contact_id'));
   $query = broadcast_select_filter($query, 'cont');
   $query->condition('log.campaign_id', $campaign['campaign_id'],'=');
   
@@ -785,7 +817,7 @@ function broadcast_campaign_report_list($campaign) {
     $rows[$row_id][] = l(check_plain($cdrlog['phone']), 'broadcast/contact/'.$cdrlog['contact_id'].'/edit');
     $rows[$row_id][] = check_plain(format_date($cdrlog['start_at']));
     $rows[$row_id][] = check_plain($cdrlog['status']);
-    $rows[$row_id][] = check_plain($cdrlog['units']);
+    //$rows[$row_id][] = check_plain($cdrlog['units']);
   }
   if (!isset($rows)) {
     $rows[] = array(array('data' => t('No logs have been found.'), 'colspan' => 5));
@@ -797,24 +829,43 @@ function broadcast_campaign_report_list($campaign) {
   return $output;
 }
 
+/**
+*
+* Broadcast call status update after hangup
+*
+*/
+function broadcast_call_status_update($log_id) {
+  // Set call status
+  if($_REQUEST['HangupCause'] == 'NORMAL_CLEARING') {
+    $sql = "UPDATE broadcast_campaign_log SET status='completed' WHERE campaign_log_id=$log_id";
+  } else if($_REQUEST['HangupCause'] == 'NO_ANSWER') {
+    $sql = "UPDATE broadcast_campaign_log SET status='busy' WHERE campaign_log_id=$log_id";
+  } else {
+    $sql = "UPDATE broadcast_campaign_log SET status='unknown' WHERE campaign_log_id=$log_id";
+  }
+  $result = db_query($sql, array());
+
+}
 
 
 /********************************************************
 *                 SUPPORTIVE FUNCTIONS                  *
 ********************************************************/
-function broadcast_elements() {
+function broadcast_element_info() {
   $type['bschedule'] = array(
-    '#input'    => TRUE,
-    '#process' => array('bschedule_process'),
-    '#validate' => array('bschedule_validate'),
+    '#input'          => TRUE,
+    '#process'        => array('bschedule_process'),
+    '#validate'       => array('bschedule_validate'),
+    //'#theme'          => array('broadcast_theme'),
+    //'#theme_wrapper'  => array('theme_bschedule'),
   );
   return $type;
 }
 
-function bschedule_process($element, $edit, $form_state, $complete_form) {
+function bschedule_process($element, $form_state, &$complete_form) {
   if (!is_array($element['#value'])) {
     if ($element['#value'] === 0) {
-      $timestamp = time();
+      $timestamp = gmmktime();
     } else {
       $timestamp = $element['#value'];
     }
@@ -826,9 +877,8 @@ function bschedule_process($element, $edit, $form_state, $complete_form) {
       'hour'     => intval(format_date($timestamp, 'custom', 'h')),
       'minute'   => intval(format_date($timestamp, 'custom', 'i')),
       'meridiem' => format_date($timestamp, 'custom', 'a'),
-    );
+    ); 
   }
-
   $element['#tree'] = TRUE;
 
   foreach ($element['#value'] as $type => $value) {
@@ -890,14 +940,25 @@ function bschedule_validate($element) {
 function broadcast_theme($existing, $type, $theme, $path) {
   return array(
     'bschedule' => array(
-      'arguments' => array('element' => NULL),
+      'render element' => array('element' => NULL),
     ),
   );
+  /*return array(
+    'bschedule' => array(
+      'render element' => 'element',
+    ),
+  );*/
 }
-
-function theme_bschedule($element) {
-//die(print_r($element,true));
+/**
+ *
+ */
+function theme_bschedule($variables) {
+  $element = $variables['element'];
+  //print_r($element, true); exit();
   return theme('form_element', $element, '<div class="container-inline">'. $element['#children'] .'</div>');
+  //extract($variables);
+  //print_r($element, true); exit();
+  //return '<div class="container-inline">' . $element['#children'] . '</div>';  
 }
 
 /********************************************************
@@ -988,10 +1049,12 @@ function broadcast_campaign_service_stop($campaign_id) {
 function broadcast_cron() {
     // save current time and remove extra seconds from it if any
     $current_time = time();
-    $current_time = ($current_time - ($current_time % 60));
-
-    $query  = "SELECT campaign_id FROM {broadcast_campaign} WHERE start_at=:start_at AND status=:status";
-    $result = db_query($query, array(':start_at'=>$current_time, ':status'=>CAMPAIGN_SCHEDULED));
+    
+    //$current_time = ($current_time - ($current_time % 60));
+    //$current_time_1hr = $current_time - 60*60;
+    
+    $query  = "SELECT campaign_id FROM {broadcast_campaign} WHERE status=:status AND start_at <= :current_time";
+    $result = db_query($query, array(':status'=>CAMPAIGN_SCHEDULED, ':current_time'=>$current_time));
     if ($campaign_id = $result->fetchField()) {
       $query = "UPDATE {broadcast_campaign} SET status=:status WHERE campaign_id=:campaign_id";
       db_query($query, array(':status'=>CAMPAIGN_PENDING, ':campaign_id'=>$campaign_id));
@@ -1030,18 +1093,7 @@ function dialplan_application_add($campaign_id, $app, $data = array(), $new_weig
       'weight'      => $weight,
       'campaign_id' => $campaign_id,))
     ->execute();
-  
-  /*$app = array(
-    'name' => $app,
-    'type'  => '',
-    'data'  => $data_str,
-    'weight'  => $weight,
-    'campaign_id'  => $campaign_id,
-  );
-  drupal_write_record('broadcast_campaign_application', $app);
-  $app_id= db_last_insert_id('broadcast_campaign_application','broadcast_campaign_application_id');
-  */
-  
+    
   // if previous actionSet is not yet finalized, update it now
   dialplan_action_update('last_app', array('dst_app' => $app_id));
 
@@ -1073,19 +1125,6 @@ function dialplan_action_add($src_app = null, $dst_app = null, $test_value = '',
       'is_default'    => $default,
       'campaign_application_id'=>$src_app,))
     ->execute();
-  
-  /*
-  $action = array(
-    'action' => $dst_app,
-    'test_value'  => $test_value,
-    'description'  => $description,
-    'data'  => $data_str,
-    'is_default'  => $default,
-    'campaign_application_id'  => $src_app,
-  );
-  drupal_write_record('broadcast_campaign_action', $action);
-  $action_id= db_last_insert_id('broadcast_campaign_action','broadcast_campaign_action_id');
-  */
   
   return $action_id;
 }

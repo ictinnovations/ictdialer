@@ -9,7 +9,7 @@
 ;******************************************************************/
 ;
 ; $Id: broadcast_document.info,v 1.0 2011/12/12 14:46:59 ictinnovations Exp $
-name = "Fax document Management"
+name = "Broadcast Fax document Management"
 description = "Manages fax documents for fax campaigns to broadcast"
 package = "ICTDialer System"
 core = "7.x"

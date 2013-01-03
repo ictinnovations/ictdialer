@@ -56,14 +56,14 @@ function broadcast_kannel_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on sms module.
  */
-function broadcast_kannel_perm() {
+function broadcast_kannel_permission() {
   return array(
-    'broadcast kannel system admin'
+    'broadcast kannel system admin' => array('title'=> 'broadcast kannel system admin')
   );
 }
 

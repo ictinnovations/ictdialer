@@ -27,15 +27,6 @@
  */
 function broadcast_contact_menu() {
   $items = array();
-
-  /*$items['broadcast/contact'] = array(
-    'title'            => 'Contacts',
-    'description'      => 'Manage Contacts',
-    'page callback'    => 'broadcast_contact_list',
-    'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast contact'),
-    'type'             => MENU_NORMAL_ITEM,
-  );*/
   
   $items['broadcast/contact'] = array(
     'title'            => 'Contacts',
@@ -192,18 +183,18 @@ function broadcast_contact_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on contact module.
  */
-function broadcast_contact_perm() {
+function broadcast_contact_permission() {
   return array(
-    'broadcast contact',
-    'broadcast contact admin',
-    'broadcast contact group',
-    'broadcast contact group admin',
-    'broadcast contact system admin'
+    'broadcast contact'               => array('title'=> 'broadcast contact'),
+    'broadcast contact admin'         => array('title'=> 'broadcast contact admin'),
+    'broadcast contact group'         => array('title'=> 'broadcast contact group'),
+    'broadcast contact group admin'   => array('title'=> 'broadcast contact group admin'),
+    'broadcast contact system admin'  => array('title'=> 'broadcast contact system admin')
   );
 }
 
@@ -216,23 +207,6 @@ function broadcast_contact_perm() {
  * page html
 */
 function broadcast_contact_list($contact_group = FALSE) {
-  /*$sql     = "SELECT {broadcast_contact}.* FROM {broadcast_contact}";
-  $sql_var = 0;
-
-  if (is_array($contact_group)) {
-    $sql .= ' JOIN {broadcast_contact_link} ON
-      {broadcast_contact}.contact_id = {broadcast_contact_link}.contact_id
-      WHERE {broadcast_contact_link}.contact_group_id = :contact_group_id';
-    //$sql_var = $contact_group['contact_group_id'];
-    $sql = broadcast_db_filter($sql);
-  } else if ($contact_group == 'error') {
-    $sql .= ' LEFT JOIN {broadcast_contact_link} ON
-      {broadcast_contact}.contact_id = {broadcast_contact_link}.contact_id
-      WHERE {broadcast_contact_link}.contact_id IS NULL';
-    $sql = broadcast_db_filter($sql);
-  } else {
-    $sql = broadcast_db_filter($sql, '{broadcast_contact}');
-  }*/
 
   $header = array(
     array('data' => t('First Name'), 'field' => 'first_name', 'sort' => 'asc'),
@@ -421,13 +395,11 @@ function broadcast_contact_form($form, &$form_state, $contact = array()) {
     '#title'         => t('Groups'),
   );
 
-//  $headers = _broadcast_contact_group_header();
   $options = _broadcast_contact_group_option();
   if (!empty($options)) {
     $form['group']['selected_group'] = array(
       '#type'            => 'checkboxes',
       '#title'         => t('Related Groups'),
-//      '#header'          => $headers,
       '#options'         => $options,
       '#default_value'   => $contact['selected_group'],
       '#multiple'        => TRUE,
@@ -457,36 +429,6 @@ function _broadcast_contact_group_option() {
   }
   return $rows;
 }
-
-/* TODO: currently tableselect does not work
-function _broadcast_contact_group_header() {
-  $header = array(
-    'title'       => array('data' => t('Title'), 'field' => 'title', 'sort' => 'asc'),
-    'type'        => array('data' => t('Type'), 'field' => 'type'),
-    'description' => array('data' => t('Description'), 'field' => 'description'),
-  );
-  return $header;
-}
-
-function _broadcast_contact_group_option($header) {
-  $sql = "SELECT * FROM {broadcast_contact_group}";
-  $sql .= tablesort_sql($header);
-
-  $limit = 50;
-  $result = pager_query($sql, $limit);
-
-  $rows = array();
-  while ($contact_group = db_fetch_array($result)) {
-    $row_id = $contact_group['contact_group_id'];
-    $rows[$row_id] = check_plain($contact_group['title']);
-    $rows[$row_id] = check_plain(ucfirst($contact_group['type']));
-    $rows[$row_id] = check_plain($contact_group['description']);
-  }
-  if (!isset($rows)) {
-    $rows[] = array(array('data' => t('No contacts have been added.'), 'colspan' => 3));
-  }
-  return $rows;
-} */
 
 function broadcast_contact_form_validate($form, &$form_state) {
 
@@ -591,8 +533,8 @@ function broadcast_contact_phone_validate($number, $contact_group_type) {
     }
   }
   return false;
- */
- return $number;
+  */
+  return $number;
 }
 
 function _broadcast_contact_phone_validate_helper($pattern_input) {
@@ -665,6 +607,7 @@ function broadcast_contact_form_submit($form, &$form_state) {
   global $user;
 
   $contact = $form_state['values'];
+  $previous_groups = $form['group']['selected_group']['#default_value'];
 
   if (!isset($contact['created'])) {
     $contact['created'] = time();
@@ -725,8 +668,6 @@ function broadcast_contact_delete($contact) {
  * page html
 */
 function broadcast_contact_group_list() {
-  //$sql = "SELECT * FROM {broadcast_contact_group}";
-  //$sql = broadcast_db_filter($sql, '{broadcast_contact_group}');
   $header = array(
     array('data' => t('Title'),       'field' => 'title', 'sort' => 'asc'),
     array('data' => t('Type'),        'field' => 'type'),
@@ -742,7 +683,6 @@ function broadcast_contact_group_list() {
             ->orderByHeader($header)
             ->execute();
 
-  $rows = array();
   while ($contact_group = $result->fetchAssoc()) {
     $row_id = $contact_group['contact_group_id'];
     $rows[$row_id][] = check_plain($contact_group['title']);
@@ -877,7 +817,7 @@ function broadcast_contact_group_form_submit($form, &$form_state) {
   global $user;
 
   $contact_group = $form_state['values'];
-
+  
   if (!isset($contact_group['created'])) {
     $contact_group['created'] = time();
   }
@@ -922,32 +862,8 @@ function broadcast_contact_group_delete($contact_group) {
  */
 function broadcast_contact_import($form, &$form_state) {
 
-  $js = "
-$('#edit-source-type').change(function() {
-  if ($('#edit-source-type').val() == 'file') {
-    $('#edit-from-file-wrapper').show()
-    $('#edit-from-group-wrapper').hide()
-  } else {
-    $('#edit-from-file-wrapper').hide()
-    $('#edit-from-group-wrapper').show()
-  }
-});";
-  drupal_add_js($js, 'inline', 'footer');
-
-  $form['#attributes'] = array('enctype' => 'multipart/form-data');
-
-  $form['source_type'] = array(
-    '#type'     => 'select',
-    '#title'    => t('Type of Source'),
-    '#options'  => array(
-      'file'  => t('Upload contact via file'),
-      'group' => t('Copy Contacts from existing Groups'),
-    ),
-  );
-
   $form['from_file'] = array(
     '#type'       => 'fieldset',
-    '#attributes' => array('id' => 'edit-from-file-wrapper'),
     '#title'      => t('Import Contacts From'),
   );
 
@@ -956,29 +872,18 @@ $('#edit-source-type').change(function() {
     '#title'      => t("Upload Contact's File"),
   );
 
-  $options = _broadcast_contact_group_option();
-
-  $form['from_group'] = array(
-    '#type'       => 'fieldset',
-    '#attributes' => array(
-      'id'    => 'edit-from-group-wrapper',
-      'style' => 'display: none'
-    ),
-    '#title'      => t('Import Contacts From'),
-  );
-
-  $form['from_group']['source_group'] = array(
-    '#type'     => 'checkboxes',
-    '#title'    => t('Source Groups'),
-    '#options'  => $options,
-    '#multiple' => TRUE,
+  $module_path = base_path() . drupal_get_path('module', 'broadcast_contact');
+  $form['from_file']['example'] = array(
+    '#type'          => 'markup',
+    '#markup'        => t("Example File: <a href='$module_path/sample.csv'>sample.csv</a>"),
   );
 
   $form['into'] = array(
     '#type'       => 'fieldset',
     '#title'      => t('Import Contacts Into'),
   );
-
+  
+  $options = _broadcast_contact_group_option();
   $form['into']['target_group'] = array(
     '#type'     => 'select',
     '#title'    => t('Target Group'),
@@ -995,22 +900,17 @@ $('#edit-source-type').change(function() {
 
 function broadcast_contact_import_submit($form, &$form_state) {
   $import = $form_state['values'];
-
-  // Ensure we have the file uploaded
-  if ($import['source_type'] == 'file') {
-    $validators = array(
-      'file_validate_extensions' => array('csv', 'CSV'),
-    );
-    $file = file_save_upload('source_file', $validators);
-    $total_rows = broadcast_contact_import_file('/tmp/'.$file->filename, $import['target_group']);
-  } else {
-    $total_rows = broadcast_contact_import_group($import['source_group'], $import['target_group']);
-  }
-
+  $validators = array(
+    'file_validate_extensions' => array('csv', 'CSV'),
+  );
+  $file = file_save_upload('source_file', $validators);
+  $total_rows = broadcast_contact_import_file('/tmp/'.$file->filename, $import['target_group']);
   drupal_set_message(t('%count Contacts imported successfully!', array('%count' => $total_rows)), 'status');
   drupal_goto('broadcast/contact/group/' . $import['target_group'] . '/browse');
 }
 
+// TODO: Following function is not being used at the moment.
+//       Can be used for copying contacts from another group functionality.         
 function broadcast_contact_import_group($src_groups, $contact_group_id) {
   $total_rows    = 0;
   $contact_group = broadcast_contact_group_load($contact_group_id);
@@ -1036,18 +936,6 @@ function broadcast_contact_import_group($src_groups, $contact_group_id) {
 function broadcast_contact_import_file($input_file, $contact_group_id) {
   global $user;
   
-  /* TODO: currently excel files are not supported
-  $ext = end(explode('.', $diallist['diallistFile']['name']));
-  // Select whether we are using xls file or CSV
-  if (strtolower($ext) == 'xls') {
-      // in case of xls file first convert it to csv
-      $file_name="/tmp/TMPCSV2MYSQL.CSV";
-      $command = "xlhtml -csv -xp:0 ".$recFile['tmp_name']." > $file_name";
-      exec($command);
-  } else {
-      $file_name = $recFile['tmp_name'];
-  } */
-
   $total_rows    = 0;
   $contact_group = broadcast_contact_group_load($contact_group_id);
 
@@ -1189,3 +1077,4 @@ function broadcast_contact_admin_settings() {
 
   return system_settings_form($form);
 }
+
