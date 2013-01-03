@@ -1,0 +1,50 @@
+<?php
+/******************************************************************
+* Copyright © 2012 ICT Innovations.                               *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+//  $Id: extension.info,v 1.0 2012/02/29 10:40:49 ictinnovations Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function broadcast_extension_install() {
+
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function broadcast_extension_schema() {
+  $schema['broadcast_extension'] = array(
+    'fields' => array(
+      'extension_id'            => array('type' => 'serial',  'not null' => TRUE,  'unsigned' => TRUE),
+      'name'                    => array('type' => 'varchar', 'not null' => TRUE,  'length'   => 128),
+      'secret'                  => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 128),
+      'host'                    => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 128),
+      'forwarding'              => array('type' => 'int',     'not null' => FALSE),
+      'forward_to'              => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 64),
+      'forward_tech'            => array('type' => 'int',     'not null' => FALSE),      
+      'forward_user'            => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 64),
+      'forward_pass'            => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 64),
+      'forward_exten'           => array('type' => 'varchar', 'not null' => FALSE, 'length'   => 64),
+      'created'                 => array('type' => 'int',     'not null' => FALSE, 'unsigned' => TRUE),
+      'created_by'              => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
+    ),
+    'primary key' => array('extension_id'),
+  );
+  
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function broadcast_extension_uninstall() {
+
+}

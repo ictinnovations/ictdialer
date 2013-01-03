@@ -1,0 +1,14 @@
+; /******************************************************************
+; * Copyright © 2012 ICT Innovations.                               *
+; * Developed By: Falak Nawaz                                       *
+; *             : Nasir Iqbal                                       *
+; *             : Tahir Almas                                       *
+; * Website : http://www.ictinnovations.com/                        *
+; * Mail : info@ictinnovations.com                                  *
+; ******************************************************************/
+;
+; $Id: extension.info,v 1.0 2013/01/01 10:40:02 ictinnovations Exp $
+name = "Broadcast Extension Management"
+description = "Manages agent extensions"
+package = "ICTDialer System"
+core = "7.x"

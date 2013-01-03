@@ -1,0 +1,385 @@
+<?php
+/******************************************************************
+* Copyright © 2012 ICT Innovations, All Rights Reserved           *
+* License: GNU AGPL V 3.0                                         *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Contact : support@ictinnovations.com, info@ictinnovations.com   *
+******************************************************************/
+
+// $Id: broadcast_trunk.module,v 1.0 2012/02/29 10:42:58 ictinnovations Exp $
+
+/**
+ * @file
+ * Provides support to buy trunk through web portal.
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function broadcast_trunk_menu() {
+  $items = array();
+
+  $items['broadcast/trunk'] = array(
+    'title'            => 'Provider Trunks',
+    'description'      => 'Manage VOIP Providers / Trunks',
+    'page callback'    => 'broadcast_trunk_list',
+    'page arguments'   => array(false), // hide admin links
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast trunk'),
+    'type'             => MENU_NORMAL_ITEM,
+    'weight'           => 16,
+  );
+
+  $items['broadcast/trunk/list'] = array(
+    'title'            => 'List',
+    'description'      => 'Manage VOIP Providers / Trunks',
+    'page callback'    => 'broadcast_trunk_list',
+    'page arguments'   => array('false'), // hide admin links
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast trunk'),
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => 16,
+  );
+  
+  $items['broadcast/trunk/addnew'] = array(
+    'title'            => t('Create New Provider Trunk'),
+    'description'      => 'Create New Provider Trunk',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_trunk_form', array()),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast trunk admin'),
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 17,    
+  );
+  
+  $items['broadcast/trunk/%broadcast_trunk/edit'] = array(
+    'title'            => t('Edit Trunk'),
+    'description'      => 'Edit Trunk',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_trunk_form', 2),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast trunk admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['broadcast/trunk/%broadcast_trunk/delete'] = array(
+    'title'            => t('Remove Trunk'),
+    'description'      => 'Remove Trunk',
+    'page callback'    => 'broadcast_trunk_delete',
+    'page arguments'   => array(2),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast trunk admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['conf/trunk/setting'] = array(
+    'title'            => 'Settings',
+    'description'      => 'Manage trunk Settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_trunk_admin_settings'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast trunk system admin'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_permission().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on trunkx module.
+ */
+function broadcast_trunk_permission() {
+  return array(
+    'broadcast trunk' => array('title'=> 'broadcast trunk'),
+    'broadcast trunk admin' => array('title'=> 'broadcast trunk admin'),
+    'broadcast trunk system admin' => array('title'=> 'broadcast trunk system admin'),
+  );
+}
+
+/**
+ * Page function for trunk List
+ *
+ * It will show a list of available trunks in form of list
+ *
+ * @return
+ * page html
+*/
+function broadcast_trunk_list($admin_links = false) {
+  global $user;
+
+  $header = array(
+    array('data' => t('Name'),            'field' => 'name',  'sort' => 'asc'),
+    array('data' => t('Description'),     'field' => 'description'),
+    array('data' => t('Host'),            'field' => 'host'),
+    array('data' => t('Operations')),
+  );
+  
+  $query = db_select('broadcast_trunk', 't')->extend('PagerDefault');
+  $query->fields('t', array('broadcast_trunk_id', 'name', 'host', 'description', 'created'));
+  $query->orderBy('created', 'DESC');
+  $query->condition('t.created_by', $user->uid,'='); 
+  
+  $result = $query->limit(50)         
+            ->extend('TableSort')
+            ->orderByHeader($header)
+            ->execute();
+    
+  while ($trunk = $result->fetchAssoc()) {
+    $row_id = $trunk['broadcast_trunk_id'];
+    $rows[$row_id][] = check_plain($trunk['name']);
+    $rows[$row_id][] = check_plain($trunk['description']);
+    $rows[$row_id][] = check_plain($trunk['host']); 
+    $rows[$row_id][] = _broadcast_trunk_list_links($trunk);
+  }
+  if (!isset($rows)) {
+    $rows[] = array(array('data' => t('No trunks available'), 'colspan' => 6));
+  }
+  
+  $output = theme('table', array('header'=>$header, 'rows'=>$rows));
+  $output .= theme('pager');
+
+  return $output;
+}
+
+/**
+ * Build the Forward and Release links for a single trunk.
+ *
+ * @see trunk_list()
+ */
+function _broadcast_trunk_list_links($trunk) {
+  $links['edit'] = array(
+    'title' => t('Edit'),
+    'href' => 'broadcast/trunk/' . $trunk['broadcast_trunk_id'] . '/edit',
+    'html' => TRUE,
+  );
+  $links['delete'] = array(
+    'title' => t('Remove'),
+    'href' => 'broadcast/trunk/' . $trunk['broadcast_trunk_id'] . '/delete',
+    'html' => TRUE,
+  );
+  return theme('links', array('links'=>$links, 'attributes' => array('class' => array('links', 'inline'))));
+}
+
+/**
+ * Build the trunk form.
+ */
+function broadcast_trunk_form($form, &$form_state, $edit = array()) {
+  global $user;
+  
+  // It's safe to use on both an empty array, and an incoming array with full or partial data.
+  $edit += array(
+    'broadcast_trunk_id' => '',
+    'name'            => '',
+    'description'     => '',
+    'username'        => '',
+    'password'        => '',
+    'host'            => '',
+    'port'            => '',
+    'prefix'          => '',
+    'active'          => '',    
+  );
+
+  // If we're editing an existing, we'll add a value field to the form
+  // containing it's unique ID.
+  if (!empty($edit['broadcast_trunk_id'])) {
+    $form['broadcast_trunk_id'] = array(
+      '#type'          => 'value',
+      '#value'         => $edit['broadcast_trunk_id'],
+    );
+  }
+
+  $form['info'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Trunk Information'),
+  );
+
+  $form['info']['name'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Trunk Name'),
+    '#required'      => TRUE,
+    '#default_value' => $edit['name'],
+    '#description' => t('Trunk name must match with gateway name that you created in freeswitch.'),
+  );
+  
+  $form['info']['description'] = array(
+    '#type'          => 'textarea',
+    '#title'         => t('Trunk Description'),
+    '#default_value' => $edit['description'],
+  );
+  
+  $form['setting'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Trunk Settings (Optional)'),
+  );
+
+  $form['setting']['username'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Username'),
+    '#default_value' => $edit['username'],
+  );
+
+  $form['setting']['password'] = array(
+    '#type'          => 'password',
+    '#title'         => t('Password'),
+    '#default_value' => $edit['password'],
+  );
+
+  $form['setting']['host'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Host'),
+    '#default_value' => $edit['host'],
+  );
+
+  $form['setting']['port'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Port'),
+    '#default_value' => $edit['port'],
+  );
+
+  $form['setting']['prefix'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Add Prefix'),
+    '#default_value' => $edit['prefix'],
+  );
+
+  $form['buttons']['submit'] = array(
+    '#type'          => 'submit',
+    '#value'         => t('Submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Performs validation on trunk
+ */
+function broadcast_trunk_form_validate($form, &$form_state) {
+  $trunk = $form_state['values'];
+  if (!isset($trunk['broadcast_trunk_id'])) {
+    $query = 'SELECT * FROM {broadcast_trunk} WHERE name=:name';
+    $result = db_query($query, array(':name'=>$trunk['name']));
+    if($rec = $result->fetchAssoc()) {
+        form_set_error('name', t('Trunk name is already taken. Please choose another name.'));
+    }
+  }
+}
+
+
+/**
+ * Inserts a new trunk, or updates an existing one.
+ *
+ * @param $trunk
+ *   A trunk to be saved. If $trunk['trunk_id'] is set, the trunk will be updated.
+ *   Otherwise, a new trunk will be inserted into the database.
+ * @return
+ *   The saved trunk, with its ID set.
+ */
+function broadcast_trunk_form_submit($form, &$form_state) {
+  global $user;
+
+  $trunk = $form_state['values'];
+
+  if (!isset($trunk['created'])) {
+    $trunk['created'] = time();
+  }
+  if (!isset($trunk['created_by'])) {
+    $trunk['created_by'] = $user->uid;
+  }
+
+  // save new or update the trunk
+  if (isset($trunk['broadcast_trunk_id'])) {
+    drupal_write_record('broadcast_trunk', $trunk, 'broadcast_trunk_id');
+    drupal_set_message(t('Provider Trunk updated successfully!'), 'status');
+  } else {
+    drupal_write_record('broadcast_trunk', $trunk);
+    drupal_set_message(t('Provider Trunk created successfully!'), 'status');
+  }
+    
+  $form_state['redirect'] = 'broadcast/trunk/list';
+}
+
+
+/**
+ * Loader function for individual trunks.
+ */
+function broadcast_trunk_load($trunk_id) {
+  $sql    = "SELECT * FROM {broadcast_trunk} WHERE broadcast_trunk_id = :broadcast_trunk_id";
+  $result = db_query($sql, array(':broadcast_trunk_id' => $trunk_id));
+  if ($trunk = $result->fetchAssoc()) {
+    return $trunk;
+  } else {
+    drupal_set_message(t('Error loading specified trunk!'), 'error');
+    return FALSE;
+  }
+}
+
+/**
+ * Deletes a trunk, given its unique ID.
+ *
+ * @param $trunk
+ *   An array of trunk containing the ID of a trunk.
+ */
+function broadcast_trunk_delete($trunk) {
+  // Now remove trunk from broadcast_trunk table
+  $sql = 'DELETE FROM {broadcast_trunk} WHERE broadcast_trunk_id = :broadcast_trunk_id';
+  db_query($sql, array(':broadcast_trunk_id'=>$trunk['broadcast_trunk_id']));
+  drupal_set_message(t('Trunk deleted successfully!'), 'status');
+  drupal_goto('broadcast/trunk/list');
+}
+
+/**
+ * Loader function for all trunks.
+ */
+function broadcast_trunk_option() {
+  global $user;
+  $sql = "SELECT broadcast_trunk_id, name FROM {broadcast_trunk}  
+          WHERE created_by = :uid";
+  $result = db_query($sql, array(':uid'=>$user->uid));
+  $rows = array();
+  while ($trunk = $result->fetchAssoc()) {
+    $row_id = $trunk['broadcast_trunk_id'];
+    $rows[$row_id] = check_plain($trunk['name']);
+  }
+  if (!isset($rows)) {
+    return FALSE;
+  }
+  return $rows;
+}
+
+/**
+ * Loader function for active trunks.
+ */
+function get_trunk_active() {
+  $sql = "SELECT * FROM {broadcast_trunk} WHERE active=1 ORDER BY created DESC LIMIT 1";
+  $result = db_query($sql);
+  if ($trunk = $result->fetchAssoc()) {
+    return $trunk;
+  } else {
+    return FALSE;
+  }
+}
+
+/**
+ * Get trunk by campaign application id.
+ */
+function get_trunk_by_application_id($app_id) {
+  $sql = "SELECT {broadcast_trunk}.*, {broadcast_campaign}.call_duration, {broadcast_campaign}.caller_id FROM {broadcast_campaign} 
+          JOIN {broadcast_campaign_application}
+          ON {broadcast_campaign}.campaign_id = {broadcast_campaign_application}.campaign_id 
+          JOIN {broadcast_trunk}
+          ON {broadcast_campaign}.trunk_id = {broadcast_trunk}.broadcast_trunk_id
+          WHERE {broadcast_campaign_application}.campaign_application_id=:app_id";
+  $result = db_query($sql, array(':app_id'=>$app_id));
+  if ($trunk = $result->fetchAssoc()) {
+    return $trunk;
+  }
+  return FALSE;
+}
+
+

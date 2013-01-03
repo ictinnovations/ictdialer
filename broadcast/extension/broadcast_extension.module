@@ -1,0 +1,338 @@
+<?php
+/******************************************************************
+* Copyright © 2012 ICT Innovations.                               *
+* Developed By: Falak Nawaz                                       *
+*             : Nasir Iqbal                                       *
+*             : Tahir Almas                                       *
+* Website : http://www.ictinnovations.com/                        *
+* Mail : info@ictinnovations.com                                  *
+******************************************************************/
+
+// $Id: broadcast_extension.module,v 1.0 2012/02/29 10:42:58 ictinnovations Exp $
+
+/**
+ * @file
+ * Provides support to add agent extensions for call transfer in IVR.
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function broadcast_extension_menu() {
+  $items = array();
+
+  $items['broadcast/extension'] = array(
+    'title'            => 'Extensions',
+    'description'      => 'Manage Agents / Extensions',
+    'page callback'    => 'broadcast_extension_list',
+    'page arguments'   => array(false), 
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast extension'),
+    'type'             => MENU_NORMAL_ITEM,
+    'weight'           => 16,
+  );
+
+  $items['broadcast/extension/list'] = array(
+    'title'            => 'List',
+    'description'      => 'Manage Agents / Extensions',
+    'page callback'    => 'broadcast_extension_list',
+    'page arguments'   => array('false'),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast extension'),
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => 16,
+  );
+  
+  $items['broadcast/extension/addnew'] = array(
+    'title'            => t('Create New Extension'),
+    'description'      => 'Create New Extension',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_extension_form', array()),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast extension admin'),
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 17,    
+  );
+  
+  $items['broadcast/extension/%broadcast_extension/edit'] = array(
+    'title'            => t('Edit Extension'),
+    'description'      => 'Edit Extension',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('broadcast_extension_form', 2),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast extension admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['broadcast/extension/%broadcast_extension/delete'] = array(
+    'title'            => t('Remove Extension'),
+    'description'      => 'Remove extension',
+    'page callback'    => 'broadcast_extension_delete',
+    'page arguments'   => array(2),
+    'access callback'  => 'broadcast_access',
+    'access arguments' => array('broadcast extension admin'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_permission().
+ *
+ * Defines access permissions that may be assigned to roles and used to restrict
+ * access on extensionx module.
+ */
+function broadcast_extension_permission() {
+  return array(
+    'broadcast extension'               => array('title'=> 'broadcast extension'),
+    'broadcast extension admin'         => array('title'=> 'broadcast extension admin'),
+    'broadcast extension system admin'  => array('title'=> 'broadcast extension system admin'),
+  );
+}
+
+/**
+ * Page function for extension List
+ *
+ * It will show a list of available extensions in form of list
+ *
+ * @return
+ * page html
+*/
+function broadcast_extension_list($admin_links = false) {
+  global $user;
+
+  $header = array(
+    array('data' => t('Extension / Username'),  'field' => 'name',  'sort' => 'asc'),
+    array('data' => t('Secret'),                'field' => 'secret'),
+    array('data' => t('Assigned To'),           'field' => 'user_name'),
+    array('data' => t('Operations')),
+  );
+  
+  $query = db_select('broadcast_extension', 't')->extend('PagerDefault');
+  $query->fields('t', array('extension_id', 'name', 'secret', 'created_by'));
+  $query->join('users', 'u', 't.created_by = u.uid');
+  $query->addField('u', 'name', 'user_name');
+  if($user->uid != 1) {
+    $query->condition('t.created_by', $user->uid,'=');
+  }
+  //$query->orderBy('created', 'DESC');
+  
+  $result = $query->limit(50)  
+            ->extend('TableSort')
+            ->orderByHeader($header)
+            ->execute();
+    
+  while ($extension = $result->fetchAssoc()) {
+    $row_id = $extension['extension_id'];
+    $rows[$row_id][] = check_plain($extension['name']);
+    $rows[$row_id][] = check_plain($extension['secret']);
+    $rows[$row_id][] = check_plain($extension['user_name']); 
+    $rows[$row_id][] = _broadcast_extension_list_links($extension);
+  }
+  if (!isset($rows)) {
+    $rows[] = array(array('data' => t('No extensions available'), 'colspan' => 6));
+  }
+  
+  $output = theme('table', array('header'=>$header, 'rows'=>$rows));
+  $output .= theme('pager');
+
+  return $output;
+}
+
+/**
+ * Build the Forward and Release links for a single extension.
+ *
+ * @see extension_list()
+ */
+function _broadcast_extension_list_links($extension) {
+  $links['edit'] = array(
+    'title' => t('Edit'),
+    'href' => 'broadcast/extension/' . $extension['extension_id'] . '/edit',
+    'html' => TRUE,
+  );
+  $links['delete'] = array(
+    'title' => t('Remove'),
+    'href' => 'broadcast/extension/' . $extension['extension_id'] . '/delete',
+    'html' => TRUE,
+  );
+  return theme('links', array('links'=>$links, 'attributes' => array('class' => array('links', 'inline'))));
+}
+
+/**
+ * Build the extension form.
+ */
+function broadcast_extension_form($form, &$form_state, $edit = array()) {
+  global $user;
+  
+  // It's safe to use on both an empty array, and an incoming array with full or partial data.
+  $edit += array(
+    'extension_id' => '',
+    'name'            => '',
+    'description'     => '',
+    'username'        => '',
+    'secret'          => '',
+    'created_by'      => '',
+  );
+
+  // If we're editing an existing, we'll add a value field to the form
+  // containing it's unique ID.
+  if (!empty($edit['extension_id'])) {
+    $form['extension_id'] = array(
+      '#type'          => 'value',
+      '#value'         => $edit['extension_id'],
+    );
+  }
+
+  $form['info'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Extension Information'),
+  );
+
+  $form['info']['name'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Extension / Username'),
+    '#required'      => TRUE,
+    '#default_value' => $edit['name'],
+    '#description' => t('Requires an extension file to be created in Freeswitch. Username MUST match with extension name that you created in freeswitch.'),
+  );
+  
+  $form['info']['secret'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Secret / Password'),
+    '#default_value' => $edit['secret'],
+  );
+  
+  $form['info']['created_by'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Assign Extension'),
+    '#required'      => TRUE,
+    '#options'       => array(-1=>'- Select -') + broadcast_user_option(),
+    '#default_value' => $edit['created_by'],
+  );
+
+  $form['buttons']['submit'] = array(
+    '#type'          => 'submit',
+    '#value'         => t('Submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Performs validation on extension
+ */
+function broadcast_extension_form_validate($form, &$form_state) {
+  $extension = $form_state['values'];
+  if (!isset($extension['extension_id'])) {
+    $query = 'SELECT * FROM {broadcast_extension} WHERE name=:name';
+    $result = db_query($query, array(':name'=>$extension['name']));
+    if($rec = $result->fetchAssoc()) {
+        form_set_error('name', t('Extension name is already taken. Please choose another name.'));
+    }
+  }
+  if ($form_state['values']['created_by'] == -1) {
+      form_set_error('created_by', t('Assign Extension field is required.'));
+    }
+}
+
+
+/**
+ * Inserts a new extension, or updates an existing one.
+ *
+ * @param $extension
+ *   A extension to be saved. If $extension['extension_id'] is set, the extension will be updated.
+ *   Otherwise, a new extension will be inserted into the database.
+ * @return
+ *   The saved extension, with its ID set.
+ */
+function broadcast_extension_form_submit($form, &$form_state) {
+  global $user;
+
+  $extension = $form_state['values'];
+
+  if (!isset($extension['created'])) {
+    $extension['created'] = time();
+  }
+  if (!isset($extension['created_by'])) {
+    $extension['created_by'] = $user->uid;
+  }
+
+  // save new or update the extension
+  if (isset($extension['extension_id'])) {
+    drupal_write_record('broadcast_extension', $extension, 'extension_id');
+    drupal_set_message(t('Extension updated successfully!'), 'status');
+  } else {
+    drupal_write_record('broadcast_extension', $extension);
+    drupal_set_message(t('Extension created successfully!'), 'status');
+  }
+    
+  $form_state['redirect'] = 'broadcast/extension/list';
+}
+
+
+/**
+ * Loader function for individual extensions.
+ */
+function broadcast_extension_load($extension_id) {
+  $sql    = "SELECT * FROM {broadcast_extension} WHERE extension_id = :extension_id";
+  $result = db_query($sql, array(':extension_id' => $extension_id));
+  if ($extension = $result->fetchAssoc()) {
+    return $extension;
+  } else {
+    drupal_set_message(t('Error loading specified extension!'), 'error');
+    return FALSE;
+  }
+}
+
+/**
+ * Deletes a extension, given its unique ID.
+ *
+ * @param $extension
+ *   An array of extension containing the ID of a extension.
+ */
+function broadcast_extension_delete($extension) {
+  // Now remove extension from broadcast_extension table
+  $sql = 'DELETE FROM {broadcast_extension} WHERE extension_id = :extension_id';
+  db_query($sql, array(':extension_id'=>$extension['extension_id']));
+  drupal_set_message(t('Extension deleted successfully!'), 'status');
+  drupal_goto('broadcast/extension/list');
+}
+
+/**
+ * Loader function for all extensions.
+ */
+function broadcast_extension_option() {
+  global $user;
+  $sql = "SELECT extension_id, name FROM {broadcast_extension}  
+          WHERE created_by = :uid";
+  $result = db_query($sql, array(':uid'=>$user->uid));
+  $rows = array();
+  while ($extension = $result->fetchAssoc()) {
+    $row_id = $extension['extension_id'];
+    $rows[$row_id] = check_plain($extension['name']);
+  }
+  if (!isset($rows)) {
+    return FALSE;
+  }
+  return $rows;
+}
+
+/**
+ * Loader function for all users.
+ */
+function broadcast_user_option() {
+  $sql = "SELECT uid, name FROM {users} WHERE uid > 0";
+  $result = db_query($sql);
+  $rows = array();
+  while ($user = $result->fetchAssoc()) {
+    $row_id = $user['uid'];
+    $rows[$row_id] = check_plain($user['name']);
+  }
+  if (!isset($rows)) {
+    return FALSE;
+  }
+  return $rows;
+}
+
+
