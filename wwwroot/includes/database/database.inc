@@ -41,7 +41,7 @@
  * $result = db_query_range('SELECT n.nid, n.title, n.created
  *   FROM {node} n WHERE n.uid = :uid', 0, 10, array(':uid' => $uid));
  * foreach ($result as $record) {
- *   // Perform operations on $node->title, etc. here.
+ *   // Perform operations on $record->title, etc. here.
  * }
  * @endcode
  * Curly braces are used around "node" to provide table prefixing via
@@ -167,7 +167,7 @@
  * }
  * @endcode
  *
- * @link http://drupal.org/developing/api/database
+ * @link http://drupal.org/developing/api/database @endlink
  */
 
 
@@ -988,6 +988,9 @@ abstract class DatabaseConnection extends PDO {
    * @param $name
    *   Optional name of the savepoint.
    *
+   * @return DatabaseTransaction
+   *   A DatabaseTransaction object.
+   *
    * @see DatabaseTransaction
    */
   public function startTransaction($name = '') {
@@ -1016,9 +1019,9 @@ abstract class DatabaseConnection extends PDO {
       throw new DatabaseTransactionNoActiveException();
     }
     // A previous rollback to an earlier savepoint may mean that the savepoint
-    // in question has already been rolled back.
-    if (!in_array($savepoint_name, $this->transactionLayers)) {
-      return;
+    // in question has already been accidentally committed.
+    if (!isset($this->transactionLayers[$savepoint_name])) {
+      throw new DatabaseTransactionNoActiveException();
     }
 
     // We need to find the point we're rolling back to, all other savepoints
@@ -1096,8 +1099,12 @@ abstract class DatabaseConnection extends PDO {
     if (!$this->supportsTransactions()) {
       return;
     }
+    // The transaction has already been committed earlier. There is nothing we
+    // need to do. If this transaction was part of an earlier out-of-order
+    // rollback, an exception would already have been thrown by
+    // Database::rollback().
     if (!isset($this->transactionLayers[$name])) {
-      throw new DatabaseTransactionNoActiveException();
+      return;
     }
 
     // Mark this layer as committable.
@@ -1425,9 +1432,6 @@ abstract class Database {
 
   /**
    * Gets the connection object for the specified database key and target.
-   *
-   * Note: do not use the setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) on the
-   * returned object because of http://bugs.php.net/bug.php?id=43139.
    *
    * @param $target
    *   The database target name.
@@ -2668,7 +2672,7 @@ function db_condition($conjunction) {
 
 
 /**
- * @ingroup schemaapi
+ * @addtogroup schemaapi
  * @{
  */
 
@@ -2765,7 +2769,7 @@ function _db_create_keys_sql($spec) {
  * Renames a table.
  *
  * @param $table
- *   The table to be renamed.
+ *   The current name of the table to be renamed.
  * @param $new_name
  *   The new name for the table.
  */
@@ -2985,7 +2989,7 @@ function db_change_field($table, $field, $field_new, $spec, $keys_new = array())
 }
 
 /**
- * @} End of "ingroup schemaapi".
+ * @} End of "addtogroup schemaapi".
  */
 
 /**

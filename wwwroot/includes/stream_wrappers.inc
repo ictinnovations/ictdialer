@@ -317,7 +317,7 @@ abstract class DrupalLocalStreamWrapper implements DrupalStreamWrapperInterface 
     }
 
     $extension = '';
-    $file_parts = explode('.', basename($uri));
+    $file_parts = explode('.', drupal_basename($uri));
 
     // Remove the first part: a full filename should not match an extension.
     array_shift($file_parts);
@@ -377,7 +377,7 @@ abstract class DrupalLocalStreamWrapper implements DrupalStreamWrapperInterface 
     $realpath = realpath($path);
     if (!$realpath) {
       // This file does not yet exist.
-      $realpath = realpath(dirname($path)) . '/' . basename($path);
+      $realpath = realpath(dirname($path)) . '/' . drupal_basename($path);
     }
     $directory = realpath($this->getDirectoryPath());
     if (!$realpath || !$directory || strpos($realpath, $directory) !== 0) {
@@ -553,7 +553,7 @@ abstract class DrupalLocalStreamWrapper implements DrupalStreamWrapperInterface 
    * Support for unlink().
    *
    * @param $uri
-   *   A string containing the uri to the resource to delete.
+   *   A string containing the URI to the resource to delete.
    *
    * @return
    *   TRUE if resource was successfully deleted.
@@ -569,9 +569,9 @@ abstract class DrupalLocalStreamWrapper implements DrupalStreamWrapperInterface 
    * Support for rename().
    *
    * @param $from_uri,
-   *   The uri to the file to rename.
+   *   The URI to the file to rename.
    * @param $to_uri
-   *   The new uri for file.
+   *   The new URI for file.
    *
    * @return
    *   TRUE if file was successfully renamed.

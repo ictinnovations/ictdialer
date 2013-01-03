@@ -1,0 +1,122 @@
+; $Id: gamma.info,v 1.1.2.3 2010/08/15 17:01:38 himerus Exp $
+name        = Gamma
+description = Omega Sub-Theme starter kit
+screenshot = screenshot.png
+core       = 7.x
+base theme = omega
+
+stylesheets[all][] = css/text.css
+stylesheets[all][] = css/regions.css
+stylesheets[all][] = css/gamma.css
+stylesheets[all][] = css/dark.css
+
+scripts[] = js/gamma.js
+
+regions[sidebar_first] = sidebar first
+regions[sidebar_second] = sidebar second
+
+regions[header_first] = header first
+regions[header_second] = header second
+
+regions[preface_first] = preface first
+regions[preface_second] = preface second
+regions[preface_third] = preface third
+
+; Required core regions
+regions[page_top] = Page Top
+regions[page_bottom] = Page Bottom
+regions[content] = content
+
+regions[postscript_first] = postscript first
+regions[postscript_second] = postscript second
+regions[postscript_third] = postscript third
+regions[postscript_fourth] = postscript fourth
+
+regions[footer_first] = footer first
+regions[footer_second] = footer second
+
+; Set the default settings to be used in theme-settings.php
+settings[reset_css] = '1'
+settings[text_css] = ''
+settings[regions_css] = ''
+settings[defaults_css] = '1'
+settings[custom_css] = '1'
+settings[omega_render_search_box] = '1'
+settings[omega_search_default_text] = 'Search...'
+settings[configurable_separator] = ' | '
+settings[front_page_title_display] = 'title_slogan'
+settings[page_title_display_custom] = ''
+settings[other_page_title_display] = 'ptitle_stitle'
+settings[other_page_title_display_custom] = ''
+settings[omega_breadcrumb] = 'yes'
+settings[omega_breadcrumb_separator] = ' / '
+settings[omega_breadcrumb_home] = '1'
+settings[omega_breadcrumb_trailing] = '1'
+settings[omega_breadcrumb_title] = '1'
+settings[omega_general__active_tab] = 'edit-optional-css'
+settings[omega_default_container_width] = '12'
+settings[omega_fixed_fluid] = 'fixed'
+settings[omega_branding_wrapper_width] = '12'
+settings[omega_header_logo_width] = '5'
+settings[omega_header_menu_width] = '12'
+settings[omega_user_menu_width] = '7'
+settings[omega_header_wrapper_width] = '12'
+settings[omega_header_first_width] = '6'
+settings[omega_header_second_width] = '6'
+settings[omega_internal_nav_wrapper_width] = '12'
+settings[omega_breadcrumb_slogan_width] = '9'
+settings[omega_search_width] = '3'
+settings[omega_preface_wrapper_grids] = '12'
+settings[omega_preface_first_width] = '3'
+settings[omega_preface_first_prefix] = ''
+settings[omega_preface_first_suffix] = ''
+settings[omega_preface_second_width] = '3'
+settings[omega_preface_second_prefix] = ''
+settings[omega_preface_second_suffix] = ''
+settings[omega_preface_third_width] = '6'
+settings[omega_preface_third_prefix] = ''
+settings[omega_preface_third_suffix] = ''
+settings[omega_content_layout] = 'content_first_last'
+settings[omega_content_container_width] = '12'
+settings[omega_sidebar_first_width] = '4'
+settings[omega_content_main_width] = '8'
+settings[omega_sidebar_second_width] = '4'
+settings[omega_content_front_override] = '1'
+settings[omega_front_content_layout] = 'first_content_last'
+settings[omega_front_content_container_width] = '12'
+settings[omega_front_sidebar_first_width] = '4'
+settings[omega_front_content_main_width] = '8'
+settings[omega_front_sidebar_second_width] = '4'
+settings[sidebar_combine] = '1'
+settings[sidebar_contain_pages] = '*'
+settings[omega_postscript_container_width] = '12'
+settings[omega_postscript_first_width] = '4'
+settings[omega_postscript_first_prefix] = ''
+settings[omega_postscript_first_suffix] = ''
+settings[omega_postscript_second_width] = '4'
+settings[omega_postscript_second_prefix] = ''
+settings[omega_postscript_second_suffix] = ''
+settings[omega_postscript_third_width] = '4'
+settings[omega_postscript_third_prefix] = ''
+settings[omega_postscript_third_suffix] = ''
+settings[omega_postscript_fourth_width] = '12'
+settings[omega_postscript_fourth_prefix] = ''
+settings[omega_postscript_fourth_suffix] = ''
+settings[omega_footer_header_tag] = 'Still Want More?'
+settings[omega_footer_container_width] = '12'
+settings[omega_footer_first_width] = '9'
+settings[omega_footer_second_width] = '3'
+settings[omega_regions__active_tab] = 'edit-postscript'
+settings[debug_grid_toggle] = ''
+settings[debug_grid_toggle_state] = ''
+settings[debug_grid_roles][3] = '3'
+settings[debug_grid_roles][2] = '0'
+settings[omega_admin__active_tab] = 'edit-grid-overlay'
+settings[general_settings__active_tab] = 'edit-theme-settings'
+
+; Information added by drupal.org packaging script on 2010-11-11
+version = "7.x-1.0"
+core = "7.x"
+project = "omega"
+datestamp = "1289484946"
+

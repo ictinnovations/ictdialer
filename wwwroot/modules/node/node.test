@@ -6,9 +6,29 @@
  */
 
 /**
+ * Defines a base class for testing the Node module.
+ */
+class NodeWebTestCase extends DrupalWebTestCase {
+  function setUp() {
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    $modules[] = 'node';
+    parent::setUp($modules);
+
+    // Create Basic page and Article node types.
+    if ($this->profile != 'standard') {
+      $this->drupalCreateContentType(array('type' => 'page', 'name' => 'Basic page'));
+      $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+    }
+  }
+}
+
+/**
  * Test the node_load_multiple() function.
  */
-class NodeLoadMultipleUnitTest extends DrupalWebTestCase {
+class NodeLoadMultipleTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -675,7 +695,7 @@ class NodeBlockTestCase extends DrupalWebTestCase {
     $this->drupalLogin($admin_user);
   }
 
-  function testSearchFormBlock() {
+  function testSyndicateBlock() {
     // Set block title to confirm that the interface is available.
     $this->drupalPost('admin/structure/block/manage/node/syndicate/configure', array('title' => $this->randomName(8)), t('Save block'));
     $this->assertText(t('The block configuration has been saved.'), t('Block configuration set.'));
@@ -812,7 +832,11 @@ class NodeRSSContentTestCase extends DrupalWebTestCase {
     // viewing node.
     $this->drupalGet("node/$node->nid");
     $this->assertNoText($rss_only_content, t('Node content designed for RSS doesn\'t appear when viewing node.'));
-
+    
+    // Check that the node feed page does not try to interpret additional path
+    // components as arguments for node_feed() and returns default content.
+    $this->drupalGet('rss.xml/' . $this->randomName() . '/' . $this->randomName());
+    $this->assertText($rss_only_content, t('Ignore page arguments when delivering rss.xml.'));
   }
 }
 
@@ -821,7 +845,7 @@ class NodeRSSContentTestCase extends DrupalWebTestCase {
  * @todo Cover hook_node_access in a separate test class.
  * hook_node_access_records is covered in another test class.
  */
-class NodeAccessUnitTest extends DrupalWebTestCase {
+class NodeAccessTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Node access',
@@ -888,7 +912,7 @@ class NodeAccessUnitTest extends DrupalWebTestCase {
 /**
  * Test case to verify hook_node_access_records functionality.
  */
-class NodeAccessRecordsUnitTest extends DrupalWebTestCase {
+class NodeAccessRecordsTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Node access records',
@@ -2010,9 +2034,9 @@ class NodeQueryAlter extends DrupalWebTestCase {
 
     // Create user with simple node access permission. The 'node test view'
     // permission is implemented and granted by the node_access_test module.
-    $this->accessUser = $this->drupalCreateUser(array('access content', 'node test view'));
-    $this->noAccessUser = $this->drupalCreateUser(array('access content'));
-    $this->noAccessUser2 = $this->drupalCreateUser(array('access content'));
+    $this->accessUser = $this->drupalCreateUser(array('access content overview', 'access content', 'node test view'));
+    $this->noAccessUser = $this->drupalCreateUser(array('access content overview', 'access content'));
+    $this->noAccessUser2 = $this->drupalCreateUser(array('access content overview', 'access content'));
   }
 
   /**
@@ -2025,11 +2049,19 @@ class NodeQueryAlter extends DrupalWebTestCase {
     $this->assertText('Yes, 4 nodes', "4 nodes were found for access user");
     $this->assertNoText('Exception', "No database exception");
 
+    // Test the content overview page.
+    $this->drupalGet('admin/content');
+    $table_rows = $this->xpath('//tbody/tr');
+    $this->assertEqual(4, count($table_rows), "4 nodes were found for access user");
+
     // Verify that a user with no access permission cannot see nodes.
     $this->drupalLogin($this->noAccessUser);
     $this->drupalGet('node_access_test_page');
     $this->assertText('No nodes', "No nodes were found for no access user");
     $this->assertNoText('Exception', "No database exception");
+
+    $this->drupalGet('admin/content');
+    $this->assertText(t('No content available.'));
   }
 
   /**
@@ -2268,15 +2300,16 @@ class NodeTokenReplaceTestCase extends DrupalWebTestCase {
 
     // Generate and test sanitized tokens.
     $tests = array();
+    $langcode = entity_language('node', $node);
     $tests['[node:nid]'] = $node->nid;
     $tests['[node:vid]'] = $node->vid;
     $tests['[node:tnid]'] = $node->tnid;
     $tests['[node:type]'] = 'article';
     $tests['[node:type-name]'] = 'Article';
     $tests['[node:title]'] = check_plain($node->title);
-    $tests['[node:body]'] = _text_sanitize($instance, $node->language, $node->body[$node->language][0], 'value');
-    $tests['[node:summary]'] = _text_sanitize($instance, $node->language, $node->body[$node->language][0], 'summary');
-    $tests['[node:language]'] = check_plain($node->language);
+    $tests['[node:body]'] = _text_sanitize($instance, $langcode, $node->body[$langcode][0], 'value');
+    $tests['[node:summary]'] = _text_sanitize($instance, $langcode, $node->body[$langcode][0], 'summary');
+    $tests['[node:language]'] = check_plain($langcode);
     $tests['[node:url]'] = url('node/' . $node->nid, $url_options);
     $tests['[node:edit-url]'] = url('node/' . $node->nid . '/edit', $url_options);
     $tests['[node:author]'] = check_plain(format_username($account));
@@ -2295,14 +2328,325 @@ class NodeTokenReplaceTestCase extends DrupalWebTestCase {
 
     // Generate and test unsanitized tokens.
     $tests['[node:title]'] = $node->title;
-    $tests['[node:body]'] = $node->body[$node->language][0]['value'];
-    $tests['[node:summary]'] = $node->body[$node->language][0]['summary'];
-    $tests['[node:language]'] = $node->language;
+    $tests['[node:body]'] = $node->body[$langcode][0]['value'];
+    $tests['[node:summary]'] = $node->body[$langcode][0]['summary'];
+    $tests['[node:language]'] = $langcode;
     $tests['[node:author:name]'] = format_username($account);
 
     foreach ($tests as $input => $expected) {
       $output = token_replace($input, array('node' => $node), array('language' => $language, 'sanitize' => FALSE));
       $this->assertEqual($output, $expected, t('Unsanitized node token %token replaced.', array('%token' => $input)));
     }
+  }
+}
+
+/**
+ * Tests user permissions for node revisions.
+ */
+class NodeRevisionPermissionsTestCase extends DrupalWebTestCase {
+  protected $node_revisions = array();
+  protected $accounts = array();
+
+  // Map revision permission names to node revision access ops.
+  protected $map = array(
+    'view' => 'view revisions',
+    'update' => 'revert revisions',
+    'delete' => 'delete revisions',
+  );
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Node revision permissions',
+      'description' => 'Tests user permissions for node revision operations.',
+      'group' => 'Node',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+
+    // Create a node with several revisions.
+    $node = $this->drupalCreateNode();
+    $this->node_revisions[] = $node;
+
+    for ($i = 0; $i < 3; $i++) {
+      // Create a revision for the same nid and settings with a random log.
+      $revision = clone $node;
+      $revision->revision = 1;
+      $revision->log = $this->randomName(32);
+      node_save($revision);
+      $this->node_revisions[] = $revision;
+    }
+
+    // Create three users, one with each revision permission.
+    foreach ($this->map as $op => $permission) {
+      // Create the user.
+      $account = $this->drupalCreateUser(
+        array(
+          'access content',
+          'edit any page content',
+          'delete any page content',
+          $permission,
+        )
+      );
+      $account->op = $op;
+      $this->accounts[] = $account;
+    }
+
+    // Create an admin account (returns TRUE for all revision permissions).
+    $admin_account = $this->drupalCreateUser(array('access content', 'administer nodes'));
+    $admin_account->is_admin = TRUE;
+    $this->accounts['admin'] = $admin_account;
+
+    // Create a normal account (returns FALSE for all revision permissions).
+    $normal_account = $this->drupalCreateUser();
+    $normal_account->op = FALSE;
+    $this->accounts[] = $normal_account;
+  }
+
+  /**
+   * Tests the _node_revision_access() function.
+   */
+  function testNodeRevisionAccess() {
+    $revision = $this->node_revisions[1];
+
+    $parameters = array(
+      'op' => array_keys($this->map),
+      'account' => $this->accounts,
+    );
+
+    $permutations = $this->generatePermutations($parameters);
+    foreach ($permutations as $case) {
+      if (!empty($case['account']->is_admin) || $case['op'] == $case['account']->op) {
+        $this->assertTrue(_node_revision_access($revision, $case['op'], $case['account']), "{$this->map[$case['op']]} granted.");
+      }
+      else {
+        $this->assertFalse(_node_revision_access($revision, $case['op'], $case['account']), "{$this->map[$case['op']]} not granted.");
+      }
+    }
+
+    // Test that access is FALSE for a node administrator with an invalid $node
+    // or $op parameters.
+    $admin_account = $this->accounts['admin'];
+    $this->assertFalse(_node_revision_access(FALSE, 'view', $admin_account), '_node_revision_access() returns FALSE with an invalid node.');
+    $this->assertFalse(_node_revision_access($revision, 'invalid-op', $admin_account), '_node_revision_access() returns FALSE with an invalid op.');
+
+    // Test that the $account parameter defaults to the "logged in" user.
+    $original_user = $GLOBALS['user'];
+    $GLOBALS['user'] = $admin_account;
+    $this->assertTrue(_node_revision_access($revision, 'view'), '_node_revision_access() returns TRUE when used with global user.');
+    $GLOBALS['user'] = $original_user;
+  }
+}
+
+/**
+ * Tests pagination with a node access module enabled.
+ */
+class NodeAccessPagerTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Node access pagination',
+      'description' => 'Test access controlled node views have the right amount of comment pages.',
+      'group' => 'Node',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('node_access_test', 'comment', 'forum');
+    node_access_rebuild();
+    $this->web_user = $this->drupalCreateUser(array('access content', 'access comments', 'node test view'));
+  }
+
+  /**
+   * Tests the comment pager for nodes with multiple grants per realm.
+   */
+  public function testCommentPager() {
+    // Create a node.
+    $node = $this->drupalCreateNode();
+
+    // Create 60 comments.
+    for ($i = 0; $i < 60; $i++) {
+      $comment = new stdClass();
+      $comment->cid = 0;
+      $comment->pid = 0;
+      $comment->uid = $this->web_user->uid;
+      $comment->nid = $node->nid;
+      $comment->subject = $this->randomName();
+      $comment->comment_body = array(
+        LANGUAGE_NONE => array(
+          array('value' => $this->randomName()),
+        ),
+      );
+      comment_save($comment);
+    }
+
+    $this->drupalLogin($this->web_user);
+
+    // View the node page. With the default 50 comments per page there should
+    // be two pages (0, 1) but no third (2) page.
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertText($node->title);
+    $this->assertText(t('Comments'));
+    $this->assertRaw('page=1');
+    $this->assertNoRaw('page=2');
+  }
+
+  /**
+   * Tests the forum node pager for nodes with multiple grants per realm.
+   */
+  public function testForumPager() {
+    // Look up the forums vocabulary ID.
+    $vid = variable_get('forum_nav_vocabulary', 0);
+    $this->assertTrue($vid, 'Forum navigation vocabulary ID is set.');
+
+    // Look up the general discussion term.
+    $tree = taxonomy_get_tree($vid, 0, 1);
+    $tid = reset($tree)->tid;
+    $this->assertTrue($tid, 'General discussion term is found in the forum vocabulary.');
+
+    // Create 30 nodes.
+    for ($i = 0; $i < 30; $i++) {
+      $this->drupalCreateNode(array(
+        'nid' => NULL,
+        'type' => 'forum',
+        'taxonomy_forums' => array(
+          LANGUAGE_NONE => array(
+            array('tid' => $tid, 'vid' => $vid, 'vocabulary_machine_name' => 'forums'),
+          ),
+        ),
+      ));
+    }
+
+    // View the general discussion forum page. With the default 25 nodes per
+    // page there should be two pages for 30 nodes, no more.
+    $this->drupalLogin($this->web_user);
+    $this->drupalGet('forum/' . $tid);
+    $this->assertRaw('page=1');
+    $this->assertNoRaw('page=2');
+  }
+}
+
+
+/**
+ * Tests the interaction of the node access system with fields.
+ */
+class NodeAccessFieldTestCase extends NodeWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Node access and fields',
+      'description' => 'Tests the interaction of the node access system with fields.',
+      'group' => 'Node',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('node_access_test', 'field_ui');
+    node_access_rebuild();
+
+    // Create some users.
+    $this->admin_user = $this->drupalCreateUser(array('access content', 'bypass node access'));
+    $this->content_admin_user = $this->drupalCreateUser(array('access content', 'administer content types'));
+
+    // Add a custom field to the page content type.
+    $this->field_name = drupal_strtolower($this->randomName() . '_field_name');
+    $this->field = field_create_field(array('field_name' => $this->field_name, 'type' => 'text'));
+    $this->instance = field_create_instance(array(
+      'field_name' => $this->field_name,
+      'entity_type' => 'node',
+      'bundle' => 'page',
+    ));
+  }
+
+  /**
+   * Tests administering fields when node access is restricted.
+   */
+  function testNodeAccessAdministerField() {
+    // Create a page node.
+    $langcode = LANGUAGE_NONE;
+    $field_data = array();
+    $value = $field_data[$langcode][0]['value'] = $this->randomName();
+    $node = $this->drupalCreateNode(array($this->field_name => $field_data));
+
+    // Log in as the administrator and confirm that the field value is present.
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet("node/{$node->nid}");
+    $this->assertText($value, 'The saved field value is visible to an administrator.');
+
+    // Log in as the content admin and try to view the node.
+    $this->drupalLogin($this->content_admin_user);
+    $this->drupalGet("node/{$node->nid}");
+    $this->assertText('Access denied', 'Access is denied for the content admin.');
+
+    // Modify the field default as the content admin.
+    $edit = array();
+    $default = 'Sometimes words have two meanings';
+    $edit["{$this->field_name}[$langcode][0][value]"] = $default;
+    $this->drupalPost(
+      "admin/structure/types/manage/page/fields/{$this->field_name}",
+      $edit,
+      t('Save settings')
+    );
+
+    // Log in as the administrator.
+    $this->drupalLogin($this->admin_user);
+
+    // Confirm that the existing node still has the correct field value.
+    $this->drupalGet("node/{$node->nid}");
+    $this->assertText($value, 'The original field value is visible to an administrator.');
+
+    // Confirm that the new default value appears when creating a new node.
+    $this->drupalGet('node/add/page');
+    $this->assertRaw($default, 'The updated default value is displayed when creating a new node.');
+  }
+}
+
+/**
+ * Tests changing view modes for nodes.
+ */
+class NodeEntityViewModeAlterTest extends NodeWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Node entity view mode',
+      'description' => 'Test changing view mode.',
+      'group' => 'Node'
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('node_test'));
+  }
+
+  /**
+   * Create a "Basic page" node and verify its consistency in the database.
+   */
+  function testNodeViewModeChange() {
+    $web_user = $this->drupalCreateUser(array('create page content', 'edit own page content'));
+    $this->drupalLogin($web_user);
+
+    // Create a node.
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+    $edit["title"] = $this->randomName(8);
+    $edit["body[$langcode][0][value]"] = t('Data that should appear only in the body for the node.');
+    $edit["body[$langcode][0][summary]"] = t('Extra data that should appear only in the teaser for the node.');
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+
+    $node = $this->drupalGetNodeByTitle($edit["title"]);
+
+    // Set the flag to alter the view mode and view the node.
+    variable_set('node_test_change_view_mode', 'teaser');
+    $this->drupalGet('node/' . $node->nid);
+
+    // Check that teaser mode is viewed.
+    $this->assertText('Extra data that should appear only in the teaser for the node.', 'Teaser text present');
+    // Make sure body text is not present.
+    $this->assertNoText('Data that should appear only in the body for the node.', 'Body text not present');
+
+    // Test that the correct build mode has been set.
+    $build = node_view($node);
+    $this->assertEqual($build['#view_mode'], 'teaser', 'The view mode has correctly been set to teaser.');
   }
 }

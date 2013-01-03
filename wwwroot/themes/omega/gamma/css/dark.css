@@ -1,0 +1,450 @@
+/* $Id: dark.css,v 1.1.2.10 2010/08/25 07:43:39 himerus Exp $ */
+/**
+ * GAMMA CSS COLOR SCHEME GUIDE
+ * 
+ * The following colors are the primary colors used in the "dark" theme.
+ * Each color code will tell you what it's primary role is, and then
+ * can be used in search/replace to quickly outline a new color scheme.
+ * 
+ * Gamma "Dark" Scheme ##################################################
+ * 
+ * #454545  - Primary Dark Color
+ *            * Used everywhere (text colors, backgrounds, etc.)
+ * #8d8c8c  - Coordinating Dark Color
+ * #545454  - Third Dark Color
+ *            * Used for postscript background
+ *            * Used for unused background of the primary nav menu
+ * #EEE     - Primary Light Color *
+ *            * Used everywhere (text colors, backgrounds, etc.)
+ * #DDD     - Coordinating Light Color
+ * 
+ * #0073ba  - Default Drupal Blue (Druplicon)
+ * #00598e  - Dark Drupal Blue (Druplicon)
+ * #93c5e4  - Light Drupal Blue (Druplicon)
+ */
+
+/* Primary Region Colors */
+body {
+	background: #454545;
+}
+#gamma-header-wrapper {
+  background: #454545; 
+}
+#gamma-menu-wrapper {
+  background: #545454;
+}
+#gamma-outer-body-wrapper {
+  background: #FFF url('../i/body-bottom-bg-454545.png') repeat-x bottom center;
+}
+#gamma-body-wrapper {
+  background: transparent url('../i/body-top-bg-454545.png') repeat-x top center;
+}
+#gamma-inner-body-wrapper {
+  background: #EEE;
+}
+#gamma-footer-wrapper {
+  background: #454545;
+}
+#postscript-wrapper {
+  background: #545454;
+}
+#postscript-wrapper .block .content {
+  background: #EEE;
+}
+#postscript-wrapper .menu-block .content {
+  background: transparent;
+}
+
+/* Font & Element Colors */
+/* Default Link Colors (Drupal Blue) */
+a:link, a:visited {
+  color: #0073ba;
+}
+
+a:hover {
+  color: #00598e;
+}
+
+a:active, a.active {
+  color: #0073ba;
+}
+#footer-wrapper a:link, #footer-wrapper a:visited {
+  color: #EEE;
+}
+
+#footer-wrapper a:hover {
+  color: #DDD;
+}
+
+#footer-wrapper a:active, #footer-wrapper a.active {
+  color: #EEE;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: #454545;
+}
+/* Custom Link colors for "menu blocks" */
+.menu-block a:link, 
+.menu-block a:visited {
+  color: #545454;
+}
+
+.menu-block a:hover {
+  color: #454545;
+}
+
+.menu-block a:active, 
+.menu-block a.active {
+  color: #545454;
+}
+
+h1 {
+  color: #0073ba;
+}
+
+#site-name h1,
+#site-name a,
+#site-name a.active,
+#site-name a:visited {
+  color: #EEE;
+}
+
+h1,
+h1.page-title
+.node h2,
+.node h2 a {
+  color: #0073ba;
+}
+
+.node h2 a:hover {
+  color: #165d8f;
+}
+.comment h3,
+.comment h3 a {
+  color: #EEE;
+}
+.comment h3 {
+  background: #8d8c8c;
+}
+.comment:hover h3 {
+  background: #454545;
+}
+.comment-by-node-author h3 {
+  background: #0073ba;
+  color: #EEE;
+}
+
+.node-info,
+.comment-info {
+  background: #DDD;
+}
+
+.comment .content {
+  background: #FFF;
+}
+
+.comment h3 a:hover {
+  color: #DDD;
+}
+
+#footer-header h2 {
+  color: #EEE;
+}
+
+#footer-wrapper {
+	color: #DDD;
+}
+
+hr {
+  background: #454545;
+}
+
+
+dl dt {
+  background: #8D8C8C;
+  color: #EEE;
+  border: 1px solid #454545;
+	border-bottom: 0;
+}
+dl dt:hover {
+  background: #454545;
+}
+dl dd {
+  border: 1px solid #454545;
+}
+dl dt a,
+dl dt a:visited,
+dl dt a:link,
+dl dt a:hover {
+  color: #eee;
+}
+
+fieldset {
+  border:1px solid #DDD;
+}
+
+#user-menu span {
+  color: #8d8d8d; 
+}
+
+#user-menu ul li {
+  border-right: 1px solid #8d8d8d;
+}
+
+/* Primary Navigation & Dropdowns */
+
+/* Main setup for sub level menu items */
+#site-menu ul li ul,
+#site-menu ul li ul li ul,
+#site-menu ul li ul li ul li ul {
+  background: #EEE;
+}
+#site-menu ul li ul {
+  border: 1px solid #454545;
+  border-top: 0;
+}
+
+#site-menu ul li ul li ul,
+#site-menu ul li ul li ul li ul {
+  border-top: 1px solid #EEE;
+}
+#site-menu ul li ul li a {
+  background: #DDD url('../i/bullet-454545.png') no-repeat 6px 50%;
+  color: #454545;
+}
+    #site-menu ul li ul li ul li a {
+      background: #DDD url('../i/bullet-454545.png') no-repeat 32px 50%;
+    }
+    #site-menu ul li ul li ul li ul li a {
+      background: #DDD url('../i/bullet-454545.png') no-repeat 64px 50%;
+    }
+    
+#site-menu ul li ul li a:hover {
+  background-color: #EEE;
+}
+
+#site-menu ul li {
+  background: #8d8c8c;
+}
+
+#site-menu ul li.active,
+#site-menu ul li.active-trail {
+  background: #EEE;
+}
+
+#site-menu ul li a {
+  color: #EEE;
+}
+
+#site-menu ul li.active a,
+#site-menu ul li.active-trail a {
+  color: #454545;
+}
+
+/* End Primary Nav & Dropdowns */
+
+/* User Menu */
+#user-menu,
+#user-menu span,
+#user-menu li,
+#user-menu a {
+  color: #EEE;
+}
+
+/* Main Content Area menu blocks/lists */
+.menu-block ul.menu li a,
+.menu-block div.item-list ul li a {
+  background: #DDD url('../i/bullet-454545.png') no-repeat 6px 8px;
+}
+.menu-block .more-link a {
+  background: #DDD;
+}
+.menu-block .more-link a:hover {
+  background: #EEE;
+}
+  .menu-block ul.menu li ul li a,
+  .menu-block div.item-list ul li ul li a {
+    background: #DDD url('../i/bullet-454545.png') no-repeat 32px 8px;
+  }
+    .menu-block ul.menu li ul li ul li a,
+    .menu-block div.item-list ul li ul li ul li a {
+      background: #DDD url('../i/bullet-454545.png') no-repeat 64px 8px;
+    }
+    .menu-block ul.menu li a:hover,
+    .menu-block div.item-list ul li a:hover {
+      background-color: #EEE;
+    }
+
+/* Footer Region menu blocks/lists */
+#gamma-footer-wrapper .menu-block ul.menu li a,
+#gamma-footer-wrapper .menu-block div.item-list ul li a {
+  color: #EEE;
+  background: #5c5c5c url('../i/bullet-DDD.png') no-repeat 6px 8px;
+}
+#gamma-footer-wrapper .more-link a {
+	color: #EEE;
+}
+#gamma-footer-wrapper .menu-block .more-link a {
+	color: #EEE;
+  background: #5c5c5c;
+}
+#gamma-footer-wrapper .menu-block .more-link a:hover {
+  background: #545454;
+}
+  #gamma-footer-wrapper .menu-block ul.menu li ul li a,
+  #gamma-footer-wrapper .menu-block div.item-list ul li ul li a {
+    background: #5c5c5c url('../i/bullet-DDD.png') no-repeat 32px 8px;
+  }
+    #gamma-footer-wrapper .menu-block ul.menu li ul li ul li a,
+    #gamma-footer-wrapper .menu-block div.item-list ul li ul li ul li a {
+      background: #5c5c5c url('../i/bullet-DDD.png') no-repeat 64px 8px;
+    }
+#gamma-footer-wrapper .menu-block ul.menu li a:hover,
+#gamma-footer-wrapper .menu-block div.item-list ul li a:hover {
+  background-color: #545454;
+}
+
+/* Pagers #################################################### */
+.item-list .pager {
+  background:#EEE;
+  border:1px solid #CCC;
+}
+
+.pager li.pager-ellipsis,
+.pager li.pager-current,
+.pager li a {
+  color:#454545;
+}
+
+  .pager li { 
+    border-right:1px solid #ccc;
+  }
+
+  .pager li.pager-current {
+    background:#454545; 
+    color: #EEE;
+  }
+
+  .pager li.pager-first a,
+  .pager li.pager-previous a,
+  .pager li.pager-next a,
+  .pager li.pager-last a {
+    background:#DDD;
+  }
+
+  .pager li.pager-next {
+    border-left:1px solid #ccc;
+  }
+  .pager li a {
+    background: #DDD; 
+  }
+  .pager li a:hover {
+    background:#EEE;
+    color:#454545;
+  }
+
+/* Tables #################################################### */
+/** Tables In Main Styled Area */
+table {
+  background-color:#454545;
+}
+
+table.system-status-report th,
+table td,
+table th {
+  border:1px solid #454545;
+}
+
+table th {
+  background:#8D8C8C;
+  color: #EEE;
+}
+table th a,
+table th a.active {
+  color: #EEE;
+}
+table tr { background: #EEE}
+table tr.odd { background:#DDD; }
+table tr:hover { background: #CCC; }
+
+table td.active { background:#e4f0f8; }
+table tr.odd td.active { background:#ecf8fc; }
+
+table tr.selected td.active,
+table tr.selected td {
+  background:#ffc;
+  border-color:#eeb;
+}
+
+/** Tables In Footer Styled Area */
+#gamma-footer-wrapper table {
+  background: #8D8C8C;
+}
+
+#gamma-footer-wrapper table.system-status-report th,
+#gamma-footer-wrapper table td,
+#gamma-footer-wrapper table th {
+  border:1px solid #EEE;
+}
+
+/** Node Lists */
+.node .content ul li {
+  background: url('../i/bullet-454545.png') no-repeat left 4px;
+}
+
+/** Node Links */
+#main-content .node div.links ul.links a {
+  border: 1px solid #DDD;
+}
+#main-content .node div.links ul.links a:hover {
+  border: 1px solid #8d8c8c;
+}
+
+blockquote {
+  border: 3px solid #8d8c8c;
+  background: #DDD url('../i/quote-bg.png') no-repeat 5px 5px;
+}
+
+/* Term Display (node.tpl.php) */
+ul.field-items li {
+  border-right: 1px solid #454545;
+}
+
+/* From Code Filter Module */
+div.codeblock {
+  background-color: #DDD;
+}
+
+/* BLOCKS */
+.block {
+  border-bottom: 5px solid #454545;
+}
+
+#gamma-footer-wrapper .block {
+  border-bottom: 5px solid #DDD;
+}
+#footer-wrapper .block {
+  border-bottom: 0;
+}
+
+.block h2 {
+  background: #454545;
+  color: #EEE;
+}
+
+#gamma-footer-wrapper .block h2 {
+  background: #DDD;
+  color: #454545;
+}
+.node h2 {
+  background: transparent;
+  color: #454545;
+}
+.node .comment-wrapper h2.title {
+  background: #454545;
+  color: #EEE;
+}
+
+.node {
+  border-bottom: 5px solid #454545;
+}

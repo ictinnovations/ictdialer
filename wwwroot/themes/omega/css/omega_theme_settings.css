@@ -1,0 +1,44 @@
+/* Custom CSS for theme settings form(s) */
+.prefix_config {
+  display: inline-block;
+  margin-left: 25px;
+}
+.suffix_config {
+  display: inline-block;
+  margin-left: 25px;
+}
+.prefix_config .form-item, .suffix_config .form-item {
+	float: left;
+  display: inline-block;
+}
+
+.omega-accordion {
+	padding: 0;	
+	border: 1px solid #CCC;
+	border-top: 0;
+	font-size: 1em;
+	margin:0;
+}
+.omega-accordion a:hover, .omega-accordion a.expanded {
+	 background-color: #0074BD;
+	 color: #FFF;
+}
+.omega-accordion a {
+	padding: 4px 10px;
+	color: #0074BD;
+	display: block;
+	text-decoration: none;
+	background: #DDD url('../i/open.png') no-repeat 99% center;
+}
+
+.omega-accordion a.expanded {
+	background-image: none;
+}
+.omega-accordion-content fieldset {
+  margin: 0;
+  padding: 0;
+}
+.omega-accordion-content .fieldset-wrapper {
+  margin: 0;
+  padding: 0;
+}

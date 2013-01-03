@@ -120,6 +120,8 @@ function user_schema() {
     ),
   );
 
+  // The table name here is plural, despite Drupal table naming standards,
+  // because "user" is a reserved word in many databases.
   $schema['users'] = array(
     'description' => 'Stores user data.',
     'fields' => array(
@@ -234,6 +236,7 @@ function user_schema() {
       'access' => array('access'),
       'created' => array('created'),
       'mail' => array('mail'),
+      'picture' => array('picture'),
     ),
     'unique keys' => array(
       'name' => array('name'),
@@ -381,7 +384,7 @@ function user_update_dependencies() {
  *   An array of permissions names.
  * @param $module
  *   The name of the module defining the permissions.
- * @ingroup update-api-6.x-to-7.x
+ * @ingroup update_api
  */
 function _update_7000_user_role_grant_permissions($rid, array $permissions, $module) {
   // Grant new permissions for the role.
@@ -743,7 +746,7 @@ function user_update_7012(&$sandbox) {
         // Create a file object.
         $file = new stdClass();
         $file->uri      = $user->picture;
-        $file->filename = basename($file->uri);
+        $file->filename = drupal_basename($file->uri);
         $file->filemime = file_get_mimetype($file->uri);
         $file->uid      = $user->uid;
         $file->status   = FILE_STATUS_PERMANENT;
@@ -828,6 +831,15 @@ function user_update_7015() {
 }
 
 /**
+ * @} End of "addtogroup updates-6.x-to-7.x".
+ */
+
+/**
+ * @addtogroup updates-7.x-extra
+ * @{
+ */
+
+/**
  * Update the database to match the schema.
  */
 function user_update_7016() {
@@ -888,5 +900,14 @@ function user_update_7017() {
 }
 
 /**
- * @} End of "addtogroup updates-6.x-to-7.x"
+ * Ensure there is an index on {users}.picture.
+ */
+function user_update_7018() {
+  if (!db_index_exists('users', 'picture')) {
+    db_add_index('users', 'picture', array('picture'));
+  }
+}
+
+/**
+ * @} End of "addtogroup updates-7.x-extra".
  */

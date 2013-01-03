@@ -20,12 +20,12 @@ class EntityFieldQueryTestCase extends DrupalWebTestCase {
   }
 
   function setUp() {
-    parent::setUp(array('field_test'));
+    parent::setUp(array('node', 'field_test', 'entity_query_access_test', 'node_access_test'));
 
-    field_attach_create_bundle('test_entity_bundle_key', 'bundle1');
-    field_attach_create_bundle('test_entity_bundle_key', 'bundle2');
-    field_attach_create_bundle('test_entity', 'test_bundles');
-    field_attach_create_bundle('test_entity_bundle', 'test_entity_bundle');
+    field_test_create_bundle('bundle1');
+    field_test_create_bundle('bundle2');
+    field_test_create_bundle('test_bundle');
+    field_test_create_bundle('test_entity_bundle');
 
     $instances = array();
     $this->fields = array();
@@ -1084,7 +1084,6 @@ class EntityFieldQueryTestCase extends DrupalWebTestCase {
     $this->fields[0]['cardinality'] = 1;
     field_update_field($this->fields[0]);
     field_test_entity_info_translatable('test_entity', TRUE);
-    drupal_static_reset('field_available_languages');
 
     // Create more items with different languages.
     $entity = new stdClass();
@@ -1121,7 +1120,6 @@ class EntityFieldQueryTestCase extends DrupalWebTestCase {
     $this->fields[0]['translatable'] = TRUE;
     field_update_field($this->fields[0]);
     field_test_entity_info_translatable('test_entity', TRUE);
-    drupal_static_reset('field_available_languages');
 
     // Create more items with different languages.
     $entity = new stdClass();
@@ -1411,6 +1409,27 @@ class EntityFieldQueryTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Tests disabling the pager in EntityFieldQuery.
+   */
+  function testEntityFieldQueryDisablePager() {
+    // Test enabling a pager and then disabling it.
+    $query = new EntityFieldQuery();
+    $query
+      ->entityCondition('entity_type', 'test_entity_bundle_key')
+      ->propertyOrderBy('ftid', 'ASC')
+      ->pager(1)
+      ->pager(0);
+    $this->assertEntityFieldQuery($query, array(
+      array('test_entity_bundle_key', 1),
+      array('test_entity_bundle_key', 2),
+      array('test_entity_bundle_key', 3),
+      array('test_entity_bundle_key', 4),
+      array('test_entity_bundle_key', 5),
+      array('test_entity_bundle_key', 6),
+    ), 'All test entities are listed when the pager is enabled and then disabled.', TRUE);
+  }
+
+  /**
    * Tests the TableSort integration of EntityFieldQuery.
    */
   function testEntityFieldQueryTableSort() {
@@ -1588,6 +1607,26 @@ class EntityFieldQueryTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Tests EntityFieldQuery access on non-node entities.
+   */
+  function testEntityFieldQueryAccess() {
+    // Test as a user with ability to bypass node access.
+    $privileged_user = $this->drupalCreateUser(array('bypass node access', 'access content'));
+    $this->drupalLogin($privileged_user);
+    $this->drupalGet('entity-query-access/test/' . $this->fields[0]['field_name']);
+    $this->assertText('Found entity', 'Returned access response with entities.');
+    $this->drupalLogout();
+
+    // Test as a user that does not have ability to bypass node access or view
+    // all nodes.
+    $regular_user = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($regular_user);
+    $this->drupalGet('entity-query-access/test/' . $this->fields[0]['field_name']);
+    $this->assertText('Found entity', 'Returned access response with entities.');
+    $this->drupalLogout();
+  }
+
+  /**
    * Fetches the results of an EntityFieldQuery and compares.
    *
    * @param $query
@@ -1620,4 +1659,23 @@ class EntityFieldQueryTestCase extends DrupalWebTestCase {
       $this->fail('Exception thrown: '. $e->getMessage());
     }
   }
+
+  /**
+   * Tests EFQ table prefixing with multiple conditions and an altered join.
+   *
+   * @see field_test_query_efq_table_prefixing_test_alter()
+   */
+  function testTablePrefixing() {
+    $query = new EntityFieldQuery();
+    $query = $query
+      ->entityCondition('entity_type', 'test_entity')
+      ->entityCondition('bundle', 'test_bundle')
+      ->entityCondition('entity_id', '1')
+      ->addTag('efq_table_prefixing_test');
+
+    $expected = array(array('test_entity', 1));
+
+    $this->assertEntityFieldQuery($query, $expected, 'An EntityFieldQuery returns the expected results when altered with an additional join on the base table.');
+  }
+
 }

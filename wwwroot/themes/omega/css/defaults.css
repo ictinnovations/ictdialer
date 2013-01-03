@@ -1,0 +1,417 @@
+/* $Id: defaults.css,v 1.9.2.4 2010/08/25 07:43:39 himerus Exp $ */
+/**
+ * Omega, for Drupal 6.x
+ * Jake Strawn - http://himerus.com
+ * Project Page - http://drupal.org/project/omega
+ *
+ * The defaults.css file is the default set of default styles
+ * normally available with the Omega base theme.
+ * All of these styles are easily overwritten, but here to give
+ * a bit more "sexy" right out of the box.
+ *
+ *
+ * Omega CSS Table of Contents for defaults.css
+ *
+ * 1.) Generic Page Elements - pretty generic indeed.
+ * 2.) Content Tabs - styling for tabs. (view, edit, etc)
+ * 3.) Pager Navigation - Styling for pager navigation
+ * 4.) clear-block code - default drupal clear-block definitions
+ * 5.) Cleanup CSS - Primarily sizing & margins for default elements
+ * 6.)
+ * 7.)
+ */
+
+/** ################# 1.) Generic Page Elements ####################### */
+body {
+  background: #FFF;
+}
+/**
+ * Skip link
+ */
+#skip-link a:link,
+#skip-link a:visited {
+  font-weight: bold;
+  background: #fff;
+  padding: 0px 5px;
+  text-decoration: none;
+  font-size: 80%;
+  text-align: right;
+  top: -99em;
+  left: auto;
+  position: absolute;
+}
+
+#skip-link a:hover,
+#skip-link a:focus,
+#skip-link a:active  {
+  height: auto;
+  width: auto;
+  overflow: visible;
+  top:0;
+  left:0;
+  position: fixed;
+  z-index: 1000;
+}
+.description {
+  color: #594F36;
+  font-size: 0.9em;
+  line-height: 1em;
+  padding: 10px;
+}
+
+.admin-panel {
+  padding: 0;
+}
+
+.admin .body {
+  padding: 0;
+}
+
+fieldset {
+  border: 1px solid #EAD885;
+  margin: 15px 0;
+  padding: 10px;
+}
+
+fieldset.collapsed {
+
+}
+
+fieldset legend {
+  font-weight: bold;
+}
+
+fieldset.collapsible legend a {
+  font-weight: bold;
+}
+
+fieldset .form-text {
+  width: 100%;
+}
+
+.status {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.messages {
+  margin-top: 20px;
+  margin-bottom: 0;
+  background-color: #fff;
+  border: 1px solid #b8d3e5;
+}
+
+.messages,
+.status,
+.warning,
+.error {
+  padding: 10px;
+}
+
+.messages ul {
+  margin-left: 20px;
+}
+
+.new {
+  font-size: 1.5em;
+  color: #FF0000;
+  display: block;
+  text-align: right;
+}
+
+.indented {
+  margin-left: 30px;
+}
+
+.comment-preview {
+  padding: 20px;
+}
+
+.help {
+  font-size: 0.9em;
+  padding: 10px;
+  padding-bottom: 0;
+  background-color: #fff;
+  border: 1px solid #b8d3e5;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+.help p {
+  margin-bottom: 10px;
+}
+
+.preview {
+  background-color: #fcfce8;
+  border: 1px solid #e5e58f;
+}
+
+div.status {
+  color: #33a333;
+  border-color: #c7f2c8;
+}
+
+div.error, tr.error {
+  color: #a30000;
+  background-color: #FFCCCC;
+}
+
+.form-item input.error,
+.form-item textarea.error {
+  border: 1px solid #c52020;
+  color: #363636;
+}
+
+#branding img {
+  vertical-align: top;
+}
+
+#site-name {
+  font-size: 42px;
+  font-weight: normal;
+  font-family: Georgia, serif;
+  padding: 0;
+  margin: 0;
+  display: inline;
+  letter-spacing: -0.09em;
+  line-height: 85px;
+}
+
+#site-name a,
+#site-name a:hover,
+#site-name a:visited {
+  margin: 0;
+  padding: 0;
+  color: #000;
+  text-decoration: none;
+}
+
+#site-menu {
+  text-align: right;
+}
+
+#search-box {
+  text-align: right;
+  float: right;
+}
+
+#search-box label, #search-box .form-submit {
+  display: none;
+}
+
+#search-box .form-text {
+  font-size: 16px;
+  padding: 1px 3px;
+}
+
+.breadcrumb {
+  font-size: 1.2em;
+  padding: 0;
+}
+
+#slogan {
+  font-size: 18px;
+  font-family: Georgia;
+}
+
+#main {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.block p {
+  margin: 0;
+}
+#mission {
+  margin: 0 0 20px 0;
+  padding: 0;
+}
+#mission p {
+	margin: 0;
+  padding: 0;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.sidebar .block {
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+}
+
+.sidebar ul li {
+  list-style-position: outside;
+  margin: 0;
+}
+
+.node {
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #38322B;
+}
+
+.block .content {
+  padding: 0;
+}
+
+/** ################# 2.) Content Tabs ####################### */
+
+#content-tabs {
+  padding: 10px;
+  background-color: #f2f2f2;
+  border: 1px solid #ddd;
+  display: block;;
+  margin: 0 0 20px 0;
+  font-family: Georgia, serif;
+}
+
+#content-tabs ul.primary,
+#content-tabs ul.secondary {
+  margin: 0;
+  padding: 0 10px 0 0;
+  border: none;
+}
+
+#content-tabs ul.secondary {
+  margin-top: 5px;
+  text-transform: lowercase;
+}
+
+#content-tabs ul.primary li,
+#content-tabs ul.secondary li {
+  background: transparent;
+  border-style: none;
+  display: inline;
+  list-style: none;
+  margin: 0 10px 0 0;
+  padding: 0;
+}
+
+#content-tabs ul.primary li a:link,
+#content-tabs ul.primary li a:visited,
+#content-tabs ul.secondary li a:link,
+#content-tabs ul.secondary li a:visited {
+  background-color: transparent;
+  border: none;
+  color: #000;
+  font-size: 0.9em;
+  line-height: 1.2em;
+  font-weight: normal;
+  margin: 0;
+  padding: 0 0 6px 0;
+  text-decoration: none;
+}
+
+#content-tabs ul.secondary li a:link,
+#content-tabs ul.secondary li a:visited {
+  color: #000;
+  font-size: 0.9em;
+  line-height: 1.1em;
+}
+
+#content-tabs ul.primary li a.active:link,
+#content-tabs ul.primary li a.active:visited {
+  font-size: 1em;
+  border-bottom: 2px solid #000;
+  color: #000;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+
+#content-tabs ul.secondary li a.active:link,
+#content-tabs ul.secondary li a.active:visited {
+  border-bottom: 2px solid #000;
+  color: #000;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+
+#content-tabs ul.primary li a:hover,
+#content-tabs ul.secondary li a:hover {
+  border-bottom: 2px solid #999;
+  color: #888;
+  padding-bottom: 2px;
+}
+
+
+/** ################# 5.) Cleanup CSS ####################### */
+
+/* Fix the HORRIBLE styling of the default comment block */
+.block-comment .item-list,
+.block-comment .item-list ul,
+.block-comment .item-list li {
+  margin: 0;
+  padding: 0;
+}
+
+.block-comment .item-list li {
+	color: #999;
+  font-size: 11px;
+	list-style-type: none;
+	margin: 0 0 5px 0;
+}
+
+.block-comment li a {
+  font-size: 13px;
+}
+
+table {
+  width: 100%;
+}
+
+#main-content ul,
+#main-content ol {
+  margin-left: 1em;
+}
+
+/* Clean up Default Book Navigation */
+.book-navigation {
+  margin: 10px 0;
+  padding: 0;
+}
+
+.book-navigation ul.menu {
+	font-size: 1.5em;
+	border: 0;
+  margin: 0 0 20px 0;
+  padding: 0;
+}
+
+.book-navigation .page-links {
+	clear: both;
+  font-size: 0.9em;
+}
+
+/* Changing the main node links */
+#main-content ul.links {
+	font-size: 0.9em;
+  margin-left: 0;
+}
+
+#main-content ul.links li,
+#main-content ul.links li a {
+  padding-left: 0;
+}
+
+/* Custom styles for the theme implemented search box */
+#search-region {
+  text-align: right;
+}
+#search-region .form-submit {
+  display: none;
+}
+
+
+/* fixing clearfix issues with padding at bottom of page */
+
+.clearfix:after {
+visibility: hidden;
+display: block;
+font-size: 0;
+content: "";
+clear: both;
+height: 0;
+}

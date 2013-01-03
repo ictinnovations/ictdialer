@@ -8,7 +8,9 @@
 /**
  * Unit tests for the Theme API.
  */
-class ThemeUnitTest extends DrupalWebTestCase {
+class ThemeTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
   public static function getInfo() {
     return array(
       'name' => 'Theme API',
@@ -50,11 +52,19 @@ class ThemeUnitTest extends DrupalWebTestCase {
   }
 
   /**
-  * Preprocess functions for the base hook should run even for suggestion implementations.
-  */
+   * Ensures preprocess functions run even for suggestion implementations.
+   *
+   * The theme hook used by this test has its base preprocess function in a
+   * separate file, so this test also ensures that that file is correctly loaded
+   * when needed.
+   */
   function testPreprocessForSuggestions() {
-    $this->drupalGet('theme-test/suggestion');
-    $this->assertText('test_theme_breadcrumb__suggestion: 1', t('Theme hook suggestion ran with data available from a preprocess function for the base hook.'));
+    // Test with both an unprimed and primed theme registry.
+    drupal_theme_rebuild();
+    for ($i = 0; $i < 2; $i++) {
+      $this->drupalGet('theme-test/suggestion');
+      $this->assertText('Theme hook implementor=test_theme_theme_test__suggestion(). Foo=template_preprocess_theme_test', 'Theme hook suggestion ran with data available from a preprocess function for the base hook.');
+    }
   }
 
   /**
@@ -101,12 +111,56 @@ class ThemeUnitTest extends DrupalWebTestCase {
     $this->drupalGet('theme-test/suggestion');
     variable_set('preprocess_css', 0);
   }
+
+  /**
+   * Ensures the theme registry is rebuilt when modules are disabled/enabled.
+   */
+  function testRegistryRebuild() {
+    $this->assertIdentical(theme('theme_test_foo', array('foo' => 'a')), 'a', 'The theme registry contains theme_test_foo.');
+
+    module_disable(array('theme_test'), FALSE);
+    $this->assertIdentical(theme('theme_test_foo', array('foo' => 'b')), '', 'The theme registry does not contain theme_test_foo, because the module is disabled.');
+
+    module_enable(array('theme_test'), FALSE);
+    $this->assertIdentical(theme('theme_test_foo', array('foo' => 'c')), 'c', 'The theme registry contains theme_test_foo again after re-enabling the module.');
+  }
+
+  /**
+   * Test the list_themes() function.
+   */
+  function testListThemes() {
+    $themes = list_themes();
+    // Check if drupal_theme_access() retrieves enabled themes properly from list_themes().
+    $this->assertTrue(drupal_theme_access('test_theme'), t('Enabled theme detected'));
+    // Check if list_themes() returns disabled themes.
+    $this->assertTrue(array_key_exists('test_basetheme', $themes), t('Disabled theme detected'));
+    // Check for base theme and subtheme lists.
+    $base_theme_list = array('test_basetheme' => 'Theme test base theme');
+    $sub_theme_list = array('test_subtheme' => 'Theme test subtheme');
+    $this->assertIdentical($themes['test_basetheme']->sub_themes, $sub_theme_list, t('Base theme\'s object includes list of subthemes.'));
+    $this->assertIdentical($themes['test_subtheme']->base_themes, $base_theme_list, t('Subtheme\'s object includes list of base themes.'));
+    // Check for theme engine in subtheme.
+    $this->assertIdentical($themes['test_subtheme']->engine, 'phptemplate', t('Subtheme\'s object includes the theme engine.'));
+    // Check for theme engine prefix.
+    $this->assertIdentical($themes['test_basetheme']->prefix, 'phptemplate', t('Base theme\'s object includes the theme engine prefix.'));
+    $this->assertIdentical($themes['test_subtheme']->prefix, 'phptemplate', t('Subtheme\'s object includes the theme engine prefix.'));
+  }
+
+  /**
+   * Test the theme_get_setting() function.
+   */
+  function testThemeGetSetting() {
+    $GLOBALS['theme_key'] = 'test_theme';
+    $this->assertIdentical(theme_get_setting('theme_test_setting'), 'default value', t('theme_get_setting() uses the default theme automatically.'));
+    $this->assertNotEqual(theme_get_setting('subtheme_override', 'test_basetheme'), theme_get_setting('subtheme_override', 'test_subtheme'), t('Base theme\'s default settings values can be overridden by subtheme.'));
+    $this->assertIdentical(theme_get_setting('basetheme_only', 'test_subtheme'), 'base theme value', t('Base theme\'s default settings values are inherited by subtheme.'));
+  }
 }
 
 /**
  * Unit tests for theme_table().
  */
-class ThemeTableUnitTest extends DrupalWebTestCase {
+class ThemeTableTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Theme Table',
@@ -176,18 +230,19 @@ class ThemeItemListUnitTest extends DrupalWebTestCase {
   }
 
   /**
-   * Test nested list rendering.
+   * Test item list rendering.
    */
-  function testNestedList() {
-    $items = array('a', array('data' => 'b', 'children' => array('c', 'd')), 'e');
+  function testItemList() {
+    $items = array('a', array('data' => 'b', 'children' => array('c' => 'c', 'd' => 'd', 'e' => 'e')), 'f');
     $expected = '<div class="item-list"><ul><li class="first">a</li>
 <li>b<div class="item-list"><ul><li class="first">c</li>
-<li class="last">d</li>
-</ul></div></li>
+<li>d</li>
 <li class="last">e</li>
+</ul></div></li>
+<li class="last">f</li>
 </ul></div>';
     $output = theme('item_list', array('items' => $items));
-    $this->assertIdentical($expected, $output, 'Nested list is rendered correctly.');
+    $this->assertIdentical($expected, $output, 'Item list is rendered correctly.');
   }
 }
 
@@ -305,7 +360,7 @@ class ThemeLinksTest extends DrupalWebTestCase {
 /**
  * Functional test for initialization of the theme system in hook_init().
  */
-class ThemeHookInitUnitTest extends DrupalWebTestCase {
+class ThemeHookInitTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Theme initialization in hook_init()',
@@ -378,5 +433,56 @@ class ThemeHtmlTag extends DrupalUnitTestCase {
     // Test title tag generation
     $tag['element'] = array('#tag' => 'title', '#value' => 'title test');
     $this->assertEqual('<title>title test</title>'."\n", theme_html_tag($tag), t('Test title tag generation.'));
+  }
+}
+
+/**
+ * Tests for the ThemeRegistry class.
+ */
+class ThemeRegistryTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'ThemeRegistry',
+      'description' => 'Tests the behavior of the ThemeRegistry class',
+      'group' => 'Theme',
+    );
+  }
+  function setUp() {
+    parent::setUp('theme_test');
+  }
+
+  /**
+   * Tests the behavior of the theme registry class.
+   */
+  function testRaceCondition() {
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $cid = 'test_theme_registry';
+
+    // Directly instantiate the theme registry, this will cause a base cache
+    // entry to be written in __construct().
+    $registry = new ThemeRegistry($cid, 'cache');
+
+    $this->assertTrue(cache_get($cid), 'Cache entry was created.');
+
+    // Trigger a cache miss for an offset.
+    $this->assertTrue($registry['theme_test_template_test'], 'Offset was returned correctly from the theme registry.');
+    // This will cause the ThemeRegistry class to write an updated version of
+    // the cache entry when it is destroyed, usually at the end of the request.
+    // Before that happens, manually delete the cache entry we created earlier
+    // so that the new entry is written from scratch.
+    cache_clear_all($cid, 'cache');
+
+    // Destroy the class so that it triggers a cache write for the offset.
+    unset($registry);
+
+    $this->assertTrue(cache_get($cid), 'Cache entry was created.');
+
+    // Create a new instance of the class. Confirm that both the offset
+    // requested previously, and one that has not yet been requested are both
+    // available.
+    $registry = new ThemeRegistry($cid, 'cache');
+
+    $this->assertTrue($registry['theme_test_template_test'], 'Offset was returned correctly from the theme registry');
+    $this->assertTrue($registry['theme_test_template_test_2'], 'Offset was returned correctly from the theme registry');
   }
 }

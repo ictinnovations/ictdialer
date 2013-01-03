@@ -16,6 +16,10 @@ blockquote:before {
 blockquote:after {
   content: "\201C";
 }
+tr td,
+tr th {
+  text-align: right;
+}
 
 /* ------------------ List Styles ------------------ */
 
@@ -96,6 +100,7 @@ ul.tips {
   float: right;
 }
 .link-wrapper {
+  text-align: left;
   margin-right: 236px;
   margin-left: 0;
 }

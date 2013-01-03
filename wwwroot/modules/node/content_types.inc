@@ -78,8 +78,8 @@ function theme_node_admin_overview($variables) {
  * Form constructor for the node type editing form.
  *
  * @param $type
- *   (optional) The machine name of the node type when editing an existing node
- *   type.
+ *   (optional) An object representing the node type, when editing an existing
+ *   node type.
  *
  * @see node_type_form_validate()
  * @see node_type_form_submit()
@@ -437,7 +437,7 @@ function node_type_delete_confirm_submit($form, &$form_state) {
   variable_del('node_preview_' . $form_state['values']['type']);
   $t_args = array('%name' => $form_state['values']['name']);
   drupal_set_message(t('The content type %name has been deleted.', $t_args));
-  watchdog('menu', 'Deleted content type %name.', $t_args, WATCHDOG_NOTICE);
+  watchdog('node', 'Deleted content type %name.', $t_args, WATCHDOG_NOTICE);
 
   node_types_rebuild();
   menu_rebuild();

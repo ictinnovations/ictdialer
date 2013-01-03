@@ -1,0 +1,112 @@
+/* $Id: text.css,v 1.1.2.4 2010/08/14 22:40:08 himerus Exp $ */
+/**
+ * Omega, for Drupal 6.x
+ * Jake Strawn - http://himerus.com
+ * Project Page - http://drupal.org/project/omega
+ * 
+ * The text.css file should not contain any styles other than basic
+ * font manipulation. 
+ */
+ 
+/** ################# Custom CSS Styles ####################### */
+body {
+  font: 13px/1.5 Helvetica,Verdana,Arial,sans-serif;
+}
+
+a:link, a:visited {
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+a:active, a.active {
+  text-decoration: none;
+}
+
+hr {
+  margin: 0;
+  padding: 0;
+  border: none;
+  height: 1px;
+}
+
+h1, h2, h3, h4, h5, h6, dt {
+  letter-spacing: -0.05em;
+	font-family: 'Adobe Garamond Pro', Georgia, 'Times New Roman', serif;
+}
+
+h1 {
+	font-size: 36px;
+}
+
+h2 {
+  font-size: 28px;
+}
+
+/* make it a bit smaller for block headers */
+.block h2 {
+  font-size: 18px;
+  margin: 0;	
+}
+
+h3 {
+  font-size: 21px;
+}
+
+h4 {
+  font-size: 19px;
+}
+
+h5 {
+  font-size: 17px;
+}
+
+h6 {
+  font-size: 15px;
+}
+
+ol {
+  list-style: decimal;
+}
+
+ul {
+  list-style: square;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+p,
+dl,
+hr,
+ol,
+ul,
+pre,
+table,
+address,
+fieldset {
+  margin-bottom: 1em;
+}
+
+dt, .admin h3 {
+  font-size: 18px;
+  margin: 0;
+}
+
+dd {
+  padding-left: 10px;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+dl {
+  
+}

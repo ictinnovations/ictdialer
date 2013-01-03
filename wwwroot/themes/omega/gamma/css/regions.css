@@ -1,0 +1,133 @@
+/* $Id: regions.css,v 1.1.2.2 2010/08/14 22:40:08 himerus Exp $ */
+/**
+ * Omega, for Drupal 6.x
+ * Jake Strawn - http://himerus.com
+ * Project Page - http://drupal.org/project/omega
+ * 
+ * The regions.css file provides an overview of the available parent
+ * elements for the various regions of the page.tpl.php for easier 
+ * overriding at a glance.
+ *
+ *
+ * Omega CSS Table of Contents for regions.css
+ *
+ * 1.) Main Wrapper Regions
+ * 2.) Navigation & Header Regions
+ * 3.) Preface Regions
+ * 4.) Main Content Regions
+ * 5.) Sidebar Regions
+ * 6.) Postscript Regions
+ * 7.) Footer Regions
+ */ 
+ 
+/** ################# 1.) Main Wrapper Regions ####################### */
+
+#page {
+	
+}
+
+/** ################# 2.) Navigation & Header Regions ####################### */
+
+
+
+#internal-nav {
+	
+}
+
+#slogan-bcrumb {
+  
+}
+
+#branding {
+  
+}
+
+
+
+#header-first {
+	
+}
+
+#header-last {
+	
+}
+
+/** ################# 3.) Preface Regions ####################### */
+
+#preface-wrapper {
+	
+}
+
+#preface-first {
+	
+}
+
+#preface-middle {
+  
+}
+
+#preface-last {
+	
+}
+
+/** ################# 4.) Main Content Regions ####################### */
+#main-content-container {
+  
+}
+#main-wrapper {
+	
+}
+
+#mission {
+  
+}
+
+#content-tabs {
+	
+}
+
+#main-content {
+	
+}
+
+/** ################# 5.) Sidebar Regions ####################### */
+
+#sidebar-first {
+	
+}
+
+#sidebar-last {
+	
+}
+
+/** ################# 6.) Postscript Regions ####################### */
+
+#postscript-wrapper {
+  
+}
+
+#postscript-one {
+  
+}
+
+#postscript-two {
+  
+}
+
+#postscript-three {
+  
+}
+
+#postscript-four {
+  
+}
+
+/** ################# 7.) Footer Regions ####################### */
+
+#footer-first {
+  
+}
+
+#footer-last {
+  
+}

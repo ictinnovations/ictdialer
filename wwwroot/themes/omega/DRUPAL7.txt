@@ -1,0 +1,44 @@
+$Id: DRUPAL7.txt,v 1.1.2.2 2010/04/05 15:01:14 himerus Exp $
+##########################################################
+##### Omega Theme
+##########################################################
+Project Page:   http://drupal.org/project/omega
+Issue Queue:    http://drupal.org/project/issues/omega
+Usage Stats:    http://drupal.org/project/usage/omega
+Demo Page:      http://omega.himerus.com
+Maintainer(s):  Jake Strawn 
+                http://himerus.com
+                http://twitter.com/himerus
+##########################################################
+
+Drupal 7 Update/Upgrade Information
+===================================
+This document is intended to outline the changes in Drupal 7, and how this
+affects the Omega theme.
+
+Theme Changes
+=============
+1.  Content Regions
+    Removing content_top and content_bottom regions, replacing with
+    new content region. 
+    http://drupal.org/node/254940#content-region
+    
+2.  Theme Settings Changes
+    http://drupal.org/node/254940#theme-settings
+    http://drupal.org/node/563708
+    
+3.  theme() & hook_theme() Changes
+    http://drupal.org/node/254940#function-argument-variables
+
+
+
+
+
+
+Additional 960gs/Omega Resources
+================================
+Please see README.txt for more information
+
+Contributors
+============
+- himerus (Jake Strawn)

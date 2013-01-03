@@ -44,6 +44,9 @@ class FieldValidationException extends FieldException {
  *
  * Each field defines which storage backend it uses. The Drupal system variable
  * 'field_storage_default' identifies the storage backend used by default.
+ *
+ * See @link field Field API @endlink for information about the other parts of
+ * the Field API.
  */
 
 /**
@@ -62,7 +65,7 @@ define('FIELD_STORAGE_UPDATE', 'update');
 define('FIELD_STORAGE_INSERT', 'insert');
 
 /**
- * @} End of "defgroup field_storage"
+ * @} End of "defgroup field_storage".
  */
 
 /**
@@ -70,7 +73,7 @@ define('FIELD_STORAGE_INSERT', 'insert');
  * @{
  * Operate on Field API data attached to Drupal entities.
  *
- * Field Attach API functions load, store, display, generate Form API
+ * Field Attach API functions load, store, display, generate Field API
  * structures, and perform a variety of other functions for field data attached
  * to individual entities.
  *
@@ -117,6 +120,12 @@ define('FIELD_STORAGE_INSERT', 'insert');
  * The pre-operation hooks do not make the Field Storage API irrelevant. The
  * Field Storage API is essentially the "fallback mechanism" for any fields
  * that aren't being intercepted explicitly by pre-operation hooks.
+ *
+ * @link field_language Field Language API @endlink provides information about
+ * the structure of field objects.
+ *
+ * See @link field Field API @endlink for information about the other parts of
+ * the Field API.
  */
 
 /**
@@ -185,8 +194,10 @@ function _field_invoke($op, $entity_type, $entity, &$a = NULL, &$b = NULL, $opti
   // Iterate through the instances and collect results.
   $return = array();
   foreach ($instances as $instance) {
-    $field_name = $instance['field_name'];
-    $field = field_info_field($field_name);
+    // field_info_field() is not available for deleted fields, so use
+    // field_info_field_by_id().
+    $field = field_info_field_by_id($instance['field_id']);
+    $field_name = $field['field_name'];
     $function = $options['default'] ? 'field_default_' . $op : $field['module'] . '_field_' . $op;
     if (function_exists($function)) {
       // Determine the list of languages to iterate on.
@@ -694,7 +705,8 @@ function field_attach_load($entity_type, $entities, $age = FIELD_LOAD_CURRENT, $
     }
 
     // Invoke field-type module's hook_field_load().
-    _field_invoke_multiple('load', $entity_type, $queried_entities, $age, $options);
+    $null = NULL;
+    _field_invoke_multiple('load', $entity_type, $queried_entities, $age, $null, $options);
 
     // Invoke hook_field_attach_load(): let other modules act on loading the
     // entitiy.
@@ -1309,12 +1321,9 @@ function field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new) {
   field_cache_clear();
 
   // Update bundle settings.
-  $settings = variable_get('field_bundle_settings', array());
-  if (isset($settings[$entity_type][$bundle_old])) {
-    $settings[$entity_type][$bundle_new] = $settings[$entity_type][$bundle_old];
-    unset($settings[$entity_type][$bundle_old]);
-    variable_set('field_bundle_settings', $settings);
-  }
+  $settings = variable_get('field_bundle_settings_' . $entity_type . '__' . $bundle_old, array());
+  variable_set('field_bundle_settings_' . $entity_type . '__' . $bundle_new, $settings);
+  variable_del('field_bundle_settings_' . $entity_type . '__' . $bundle_old);
 
   // Let other modules act on renaming the bundle.
   module_invoke_all('field_attach_rename_bundle', $entity_type, $bundle_old, $bundle_new);
@@ -1348,11 +1357,7 @@ function field_attach_delete_bundle($entity_type, $bundle) {
   field_cache_clear();
 
   // Clear bundle display settings.
-  $settings = variable_get('field_bundle_settings', array());
-  if (isset($settings[$entity_type][$bundle])) {
-    unset($settings[$entity_type][$bundle]);
-    variable_set('field_bundle_settings', $settings);
-  }
+  variable_del('field_bundle_settings_' . $entity_type . '__' . $bundle);
 
   // Let other modules act on deleting the bundle.
   module_invoke_all('field_attach_delete_bundle', $entity_type, $bundle, $instances);
@@ -1360,5 +1365,5 @@ function field_attach_delete_bundle($entity_type, $bundle) {
 
 
 /**
- * @} End of "defgroup field_attach"
+ * @} End of "defgroup field_attach".
  */

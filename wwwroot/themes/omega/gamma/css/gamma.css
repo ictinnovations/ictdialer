@@ -1,0 +1,695 @@
+/* $Id: gamma.css,v 1.1.2.11 2010/11/11 14:14:14 himerus Exp $ */
+
+/* Default Elements */
+body, html {
+  margin: 0;
+  padding: 0;
+	font-size: 90%;
+}
+
+/* Primary Navigation & Dropdowns #################################################### */
+
+#gamma-menu-wrapper {
+	min-height: 36px;
+}
+/* Main setup for top level menu items */
+#site-menu ul {
+  font-family: 'Adobe Garamond Pro', Georgia, 'Times New Roman', serif;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  line-height: auto;
+  float: right;
+}
+/* Main setup for sub level menu items */
+#site-menu ul li ul,
+#site-menu ul li ul li ul,
+#site-menu ul li ul li ul li ul {
+  font-family: Helvetica,Verdana,Arial,sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 14px;
+  overflow: visible;
+  text-align: left;
+  height: 1px;
+  height: auto;
+  float: none;
+}
+#site-menu ul li ul {
+  display: none;
+  position: absolute;
+  z-index: 5;
+}
+
+#site-menu ul li ul li ul,
+#site-menu ul li ul li ul li ul {
+  display: block;
+  border: 0;
+}
+/* positioning for sub level menu items */
+#site-menu ul li ul li ul,
+#site-menu ul li ul li ul li ul {
+  position: relative;
+}
+
+#site-menu ul li {
+  display: block;
+  float: left;
+  clear: none;
+  margin-left: 1px;
+  font-size: 24px;
+  padding: 0;
+  overflow: hidden;
+}
+
+#site-menu ul li ul li,
+#site-menu ul li ul li ul li,
+#site-menu ul li ul li ul li ul li {
+  font-size: 14px;
+  margin: 0;
+  margin-top: 1px;
+  padding: 0;
+  display: block;
+  float: none;
+  clear: both;
+  list-style-type: none;
+  list-style-image: none;
+}
+#site-menu ul li ul li.first {
+  margin-top: 0;
+}
+#site-menu ul li ul li ul li:first,
+#site-menu ul li ul li ul li ul li:first {
+  margin-top: 1px;
+}
+#site-menu ul li a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  position: relative;
+}
+
+#site-menu ul li ul li a {
+  display: block;
+  padding: 8px 4px 8px 32px;
+}
+    #site-menu ul li ul li ul li a {
+      display: block;
+      padding: 8px 4px 8px 64px;
+    }
+    #site-menu ul li ul li ul li ul li a {
+      text-decoration: none;
+      display: block;
+      padding: 8px 4px 8px 96px;
+    }
+/* End Primary Nav & Dropdowns */
+
+/* Menu Blocks #################################################### */
+/* Main Content Area menu blocks/lists */
+.menu-block .item-list ul li {
+  display: block;
+}
+.menu-block ul.menu,
+.menu-block div.item-list ul {
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
+.menu-block ul.menu li,
+.menu-block div.item-list ul li {
+  margin: 0;
+  padding: 0;
+  width: auto;
+  margin-top: 1px;
+  list-style-type: none;
+  list-style-image: none;
+}
+.menu-block ul.menu li a,
+.menu-block div.item-list ul li a {
+  text-decoration: none;
+  display: block;
+  padding: 8px 4px 8px 32px;
+}
+.more-link {
+  text-transform: lowercase;
+}
+.menu-block .more-link a {
+  text-decoration: none;
+  display: block;
+  width: auto;
+  padding: 2px 4px;
+  margin-top: 1px;
+}
+  .menu-block ul.menu li ul li a,
+  .menu-block div.item-list ul li ul li a {
+    text-decoration: none;
+    display: block;
+    padding: 8px 4px 8px 64px;
+  }
+    .menu-block ul.menu li ul li ul li a,
+    .menu-block div.item-list ul li ul li ul li a {
+      text-decoration: none;
+      display: block;
+      padding: 8px 4px 8px 96px;
+    }
+
+#postscript-wrapper .block .content {
+  background: #EEE;
+  padding: 10px;
+}
+#postscript-wrapper .menu-block .content {
+  background: transparent;
+  padding: 0;
+}
+
+
+
+/* Footer Region menu blocks/lists */
+#gamma-footer-wrapper .menu-block ul.menu,
+#gamma-footer-wrapper .menu-block div.item-list ul {
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
+#gamma-footer-wrapper .menu-block ul.menu li,
+#gamma-footer-wrapper .menu-block div.item-list ul li {
+  margin: 0;
+  padding: 0;
+  margin-top: 1px;
+  list-style-type: none;
+  list-style-image: none;
+}
+#gamma-footer-wrapper .menu-block ul.menu li a,
+#gamma-footer-wrapper .menu-block div.item-list ul li a {
+  text-decoration: none;
+  display: block;
+  padding: 8px 4px 8px 32px;
+}
+#gamma-footer-wrapper .menu-block .more-link a {
+  text-decoration: none;
+  display: block;
+  padding: 2px 4px;
+}
+  #gamma-footer-wrapper .menu-block ul.menu li ul li a,
+  #gamma-footer-wrapper .menu-block div.item-list ul li ul li a {
+    text-decoration: none;
+    display: block;
+    padding: 8px 4px 8px 64px;
+  }
+    #gamma-footer-wrapper .menu-block ul.menu li ul li ul li a,
+    #gamma-footer-wrapper .menu-block div.item-list ul li ul li ul li a {
+      text-decoration: none;
+      display: block;
+      padding: 8px 4px 8px 96px;
+    }
+
+/* Rounded Corners #################################################### */
+/* Rounded Top Left corner for primary menu region*/
+#gamma-menu-wrapper {
+  border-radius: 15px 15px 0 0;
+  -moz-border-radius: 15px 15px 0 0;
+  -opera-border-radius: 15px 15px 0 0;
+  -webkit-border-radius: 15px 15px 0 0;
+}
+
+/* Rounded Top Right Corner of the top level menu items. */
+#site-menu > ul > li.last,
+#site-menu > ul > li.last > a {
+  border-radius: 0 15px 0 0;
+  -moz-border-radius: 0 15px 0 0;
+  -opera-border-radius: 0 15px 0 0;
+  -webkit-border-radius: 0 15px 0 0;
+}
+/* Rounded Bottom Left & Right corners for the last item in a dropdown */
+#site-menu > ul > li > ul,
+#site-menu > ul > li > ul > li.last,
+#site-menu > ul > li > ul > li.last a {
+  border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -opera-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+}
+
+/* Rounded Bottom Left & Right Corners for the primary body wrapper. */
+#gamma-inner-body-wrapper {
+  border-radius: 15px;
+  -moz-border-radius: 0 0 15px 15px;
+  -opera-border-radius: 0 0 15px 15px;
+  -webkit-border-radius: 0 0 15px 15px;
+}
+
+/* Rounded Corners (all) for the postscript wrapper zone. */
+#postscript-wrapper {
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+  -opera-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  margin-top: 20px;
+  background: #545454;
+}
+
+/* Rounded Top left & Right for block headers. */
+.block h2 {
+  border-radius: 8px;
+  -moz-border-radius: 8px 8px 0 0;
+  -opera-border-radius: 8px 8px 0 0;
+  -webkit-border-radius: 8px 8px 0 0;
+  min-height: 36px;
+  font-size: 24px;
+  padding: 6px 12px;
+  padding-bottom: 0;
+}
+
+/* Rounded Corners for the node links */
+#main-content .node div.links ul.links a {
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -opera-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  text-transform: lowercase;
+  margin-right: 5px;
+  text-decoration: none;
+}
+
+/* End Rounded Corners Configuration */
+
+.breadcrumb {
+	font-size: 11px;
+}
+#comment-form {
+	padding: 0 10px;
+}
+#block-comment-recent ul li span {
+  display: none;
+}
+.sidebar .block {
+	margin-bottom: 20px;
+}
+#main-content .block {
+	margin-bottom: 0px;
+}
+#gamma-footer-wrapper .block {
+  margin-bottom: 20px;
+}
+#footer-wrapper .block {
+  margin-bottom: 0;
+}
+
+/* Login Block Fixes so it doesn't look so freaking horrible */
+#block-user-login input.form-text,
+#block-user-login label,
+#block-user-login .form-actions,
+#block-user-login .form-item {
+	display: inline-block;
+	margin-top: 0;
+	margin-bottom: 0.5em;
+}
+#block-user-login label {
+	width: 6em;
+}
+#block-user-login .content {
+	padding: 10px;
+}
+#block-user-login div.item-list {
+	margin-top: 10px;
+}
+#block-user-login div.item-list ul {
+  text-align: center;
+	text-transform: lowercase;
+  font-size: 11px;
+}
+#block-user-login div.item-list ul li {
+  padding: 0 5px;
+}
+
+/* Pagers #################################################### */
+.item-list {
+  padding:0;
+  margin: 0;
+}
+.item-list .pager li,
+.item-list ul li {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+}
+.item-list .pager {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  text-align: left;
+}
+
+.pager li a { 
+  display: inline-block;
+}
+
+.pager li.pager-ellipsis,
+.pager li.pager-current,
+.pager li a {
+  padding:4px 10px;
+  text-decoration: none;
+}
+
+  .pager li.pager-current {
+    padding:4px 10px;
+    font-weight: bold; 
+  }
+
+  .pager li.pager-first a,
+  .pager li.pager-previous a,
+  .pager li.pager-next a,
+  .pager li.pager-last a {
+    width: 70px;
+    text-align:center;
+    padding: 4px 0;
+  }
+
+  .pager li.pager-next {
+    position: absolute;
+    top: 0;
+    right: 70px;
+  }
+  .pager li.pager-last,
+  .pager li.pager-next.last {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-right: 0;
+  }
+
+/* Tables #################################################### */
+/** Tables In Main Styled Area */
+table {
+  width:100%;
+  font-size:11px;
+  margin:0;
+}
+.node table {
+  margin: 10px 0;
+}
+table.system-status-report th,
+table td,
+table th {
+  vertical-align:middle;
+  padding:5px;
+}
+
+  table.system-status-report th { padding-left:30px; }
+
+table th {
+  font-size:9px;
+  text-transform:uppercase;
+}
+
+table th a.active:hover {
+  text-decoration: underline;
+}
+
+/** Tables In Footer Styled Area */
+#gamma-footer-wrapper table {
+  background: #8D8C8C;
+}
+
+
+
+
+
+
+
+
+
+
+
+/** Node Lists */
+.node .content ul li {
+  list-style-type: none;
+  line-height: 24px;
+  padding: 0 0 0 24px;
+}
+.node .content ol,
+.node .content ul {
+  padding-left: 1.5em;
+}
+.node .content ol li,
+.node .content ul li {
+  line-height: 24px;
+  padding: 0;
+}
+
+
+
+.node h2 {
+  padding: 0;
+}
+.node .comment-wrapper h2.title {
+  min-height: 36px;
+  font-size: 24px;
+  padding: 6px 12px;
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+/** Node Links */
+div.links {
+  margin-top: 10px;
+}
+#main-content .node ul.links {
+  margin-left: 0;
+}
+#main-content .node ul.links li a {
+  padding: 8px;
+}
+#main-content .node div.links ul.links,
+#main-content .node div.links ul.links li {
+  margin: 0;
+  padding: 0;
+}
+#main-content .node div.links ul.links li.node-readmore {
+	font-weight: bold;
+}
+
+blockquote {
+	display: block;
+	font-style: italic;
+	font-size: 11px;
+	margin-bottom: 10px;
+	padding: 10px 20px 10px 75px;
+}
+.node blockquote p {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+
+
+
+
+
+/* REGIONS SETUP & SPACINGS */
+#user-menu {
+	display: none;
+	text-align: right;
+}
+#user-menu .user-welcome {
+  margin-right: 35px;
+}
+#user-menu ul li {
+  margin: 0;
+}
+#main-content-container {
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+#gamma-outer-body-wrapper {
+  padding-bottom: 20px;
+}
+#gamma-footer-wrapper {
+  padding-top: 20px;
+}
+#postscript-wrapper {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+#postscript-four {
+	margin-top: 20px;
+}
+#footer-wrapper {
+	padding-top: 20px;
+}
+#main-content ul, #main-content ol {
+  margin-left:0;
+}
+code {
+	display: block;
+	font-size: 10px;
+}
+
+#branding a,
+#branding img {
+	margin: 0;
+}
+
+#user-menu ul li.last {
+  border-right: 0;
+}
+
+h1,
+h1.page-title
+.node h2,
+.node h2 a {
+  font-size: 36px;
+  line-height: 32px;
+  font-weight: normal;
+  text-decoration: none;
+  padding-bottom: 0;
+}
+#main-wrapper h1 {
+  margin-top: 0;
+}
+
+#footer-header h2 {
+  font-size: 32px;
+  font-weight: normal;
+  margin: 0;
+}
+
+.node p,
+.block p {
+	margin-bottom: 1em;
+}
+.block ul {
+  margin: 0;
+  padding: 0;
+}
+
+.comment h3,
+.comment h3 a {
+  font-size: 24px;
+  font-weight: normal;
+  text-decoration: none;
+}
+.comment h3 {
+  margin-bottom: 0;
+  padding: 5px 15px 0px 15px;
+}
+
+.comment .content {
+  padding: 15px;
+}
+
+#main-content .block {
+  border-bottom: 0;
+}
+
+#user-menu ul {
+  display: inline;
+}
+
+dl dt {
+  min-height: 36px;
+  font-size: 24px;
+  padding: 6px 12px;
+  padding-bottom: 0;
+}
+dl dd {
+  margin-bottom: 10px;
+  padding: 12px;
+}
+dl dt a,
+dl dt a.visited,
+dl dt a:hover {
+  display: block;
+}
+
+
+
+/* PRIMARY MENUS */
+ul.menu,
+li.leaf,
+li.collapsed {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+
+
+#internal-nav {
+	padding-top: 10px;
+}
+
+.item-list li.views-row {
+	display: block;
+}
+/* Node & Comment Styling */
+#main-content .node ul,
+#main-content .node ol {
+	margin-left: 0;
+}
+.comment {
+	margin-bottom: 10px;
+}
+.comment ul.links.inline {
+	display: block;
+	text-align: right;
+}
+/* Node INFO */
+.node-info,
+.comment-info {
+  padding: 0;
+  text-align: right;
+}
+.user-picture {
+	float: left;
+	clear: none;
+	margin: 0;
+	padding: 0;
+}
+.user-picture img {
+	text-decoration: none;
+	display: block;
+	margin: 0;
+  padding: 0;
+  height: auto;
+  line-height: 0.5em;
+}
+.submitted, 
+.terms {
+	margin: 2px 5px 0 10px;
+}
+
+.copyright {
+  font-size: 11px;
+}
+.copyright p {
+  margin: 0;
+}
+
+/* TERM DISPLAY */
+.field-type-taxonomy-term-reference field-items {
+	float: none;
+}
+.field-label-inline .field-label, 
+.field-label-inline .field-items,
+.node-info .field-label, 
+.node-info .field-items {
+	float: none;
+	display: inline;
+}
+#main-content ul.field-items {
+	margin-left: 0;
+	text-align: right;
+  list-style-type: none;
+  list-style-position: outside;
+}
+
+ul.field-items li {
+	padding: 0 5px;
+	display: inline;
+}
+ul.field-items li.last {
+  border-right: 0;
+}
+

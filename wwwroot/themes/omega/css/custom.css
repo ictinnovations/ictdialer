@@ -1,0 +1,42 @@
+/* $Id: custom.css,v 1.3.2.1 2010/06/10 18:10:34 himerus Exp $ */
+/**
+ * Omega, for Drupal 6.x
+ * Jake Strawn - http://himerus.com
+ * Project Page - http://drupal.org/project/omega
+ * 
+ * The custom.css provides overrides for module based CSS for various items.
+ * This is the last CSS to be included in the Omega base theme, unless using additional
+ * CSS in the sub theme level. 
+ *
+ * I prefer to keep this file light and ONLY module related, but in your sub theme, it could
+ * be a decent place for those final overrides you may need to do on any elements
+ *
+ * Omega CSS Table of Contents for custom.css
+ *
+ * 1.) Geshi Code Filter CSS
+ * 2.) Vertical Tabs CSS
+ * 3.) Block Layouts
+ * 4.) 
+ * 5.) 
+ * 6.) 
+ * 7.) 
+ */
+ 
+/** ################# Geshi Code Filter CSS ####################### */
+/**
+ * The main purpose for the Geshi Filter styles are for my personal use, and use in the demo version
+ * of the Omega theme to style up code snippets a bit more pretty.
+ */
+ 
+.geshifilter {
+	font-size: 9px;
+	margin: 0;
+  padding: 10px;
+  line-height: 1.2em;
+  border: 1px solid #CCC;
+  background: #EEE;
+}
+
+.block code, .block .geshifilter {
+  margin: 0;  
+}

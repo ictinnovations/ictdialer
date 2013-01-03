@@ -452,6 +452,58 @@ class UserLoginTestCase extends DrupalWebTestCase {
 }
 
 /**
+ * Tests resetting a user password.
+ */
+class UserPasswordResetTestCase extends DrupalWebTestCase {
+  protected $profile = 'standard';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Reset password',
+      'description' => 'Ensure that password reset methods work as expected.',
+      'group' => 'User',
+    );
+  }
+
+  /**
+   * Tests password reset functionality.
+   */
+  function testUserPasswordReset() {
+    // Create a user.
+    $account = $this->drupalCreateUser();
+    $this->drupalLogin($account);
+    $this->drupalLogout();
+    // Attempt to reset password.
+    $edit = array('name' => $account->name);
+    $this->drupalPost('user/password', $edit, t('E-mail new password'));
+    // Confirm the password reset.
+    $this->assertText(t('Further instructions have been sent to your e-mail address.'), 'Password reset instructions mailed message displayed.');
+  }
+
+  /**
+   * Attempts login using an expired password reset link.
+   */
+  function testUserPasswordResetExpired() {
+    // Set password reset timeout variable to 43200 seconds = 12 hours.
+    $timeout = 43200;
+    variable_set('user_password_reset_timeout', $timeout);
+
+    // Create a user.
+    $account = $this->drupalCreateUser();
+    $this->drupalLogin($account);
+    // Load real user object.
+    $account = user_load($account->uid, TRUE);
+    $this->drupalLogout();
+
+    // To attempt an expired password reset, create a password reset link as if
+    // its request time was 60 seconds older than the allowed limit of timeout.
+    $bogus_timestamp = REQUEST_TIME - variable_get('user_password_reset_timeout', 86400) - 60;
+    $this->drupalGet("user/reset/$account->uid/$bogus_timestamp/" . user_pass_rehash($account->pass, $bogus_timestamp, $account->login));
+    $this->assertText(t('You have tried to use a one-time login link that has expired. Please request a new one using the form below.'), 'Expired password reset request rejected.');
+  }
+}
+
+/**
  * Test cancelling a user.
  */
 class UserCancelTestCase extends DrupalWebTestCase {
@@ -1080,6 +1132,50 @@ class UserPictureTestCase extends DrupalWebTestCase {
     $this->assertEqual($pic_path, (string) $elements[0]['src'], t("User picture source is correct."));
   }
 
+  /**
+   * Tests deletion of user pictures.
+   */
+  function testDeletePicture() {
+    $this->drupalLogin($this->user);
+
+    $image = current($this->drupalGetTestFiles('image'));
+    $info = image_get_info($image->uri);
+
+    // Set new variables: valid dimensions, valid filesize (0 = no limit).
+    $test_dim = ($info['width'] + 10) . 'x' . ($info['height'] + 10);
+    variable_set('user_picture_dimensions', $test_dim);
+    variable_set('user_picture_file_size', 0);
+
+    // Save a new picture.
+    $edit = array('files[picture_upload]' => drupal_realpath($image->uri));
+    $this->drupalPost('user/' . $this->user->uid . '/edit', $edit, t('Save'));
+
+    // Load actual user data from database.
+    $account = user_load($this->user->uid, TRUE);
+    $pic_path = isset($account->picture) ? $account->picture->uri : NULL;
+
+    // Check if image is displayed in user's profile page.
+    $this->drupalGet('user');
+    $this->assertRaw(file_uri_target($pic_path), "Image is displayed in user's profile page");
+
+    // Check if file is located in proper directory.
+    $this->assertTrue(is_file($pic_path), 'File is located in proper directory');
+
+    $edit = array('picture_delete' => 1);
+    $this->drupalPost('user/' . $this->user->uid . '/edit', $edit, t('Save'));
+
+    // Load actual user data from database.
+    $account1 = user_load($this->user->uid, TRUE);
+    $this->assertNull($account1->picture, 'User object has no picture');
+
+    $file = file_load($account->picture->fid);
+    $this->assertFalse($file, 'File is removed from database');
+
+    // Clear out PHP's file stat cache so we see the current value.
+    clearstatcache();
+    $this->assertFalse(is_file($pic_path), 'File is removed from file system');
+  }
+
   function saveUserPicture($image) {
     $edit = array('files[picture_upload]' => drupal_realpath($image->uri));
     $this->drupalPost('user/' . $this->user->uid . '/edit', $edit, t('Save'));
@@ -1087,6 +1183,24 @@ class UserPictureTestCase extends DrupalWebTestCase {
     // Load actual user data from database.
     $account = user_load($this->user->uid, TRUE);
     return isset($account->picture) ? $account->picture->uri : NULL;
+  }
+
+  /**
+   * Tests the admin form validates user picture settings.
+   */
+  function testUserPictureAdminFormValidation() {
+    $this->drupalLogin($this->drupalCreateUser(array('administer users')));
+
+    // The default values are valid.
+    $this->drupalPost('admin/config/people/accounts', array(), t('Save configuration'));
+    $this->assertText(t('The configuration options have been saved.'), 'The default values are valid.');
+
+    // The form does not save with an invalid file size.
+    $edit = array(
+      'user_picture_file_size' => $this->randomName(),
+    );
+    $this->drupalPost('admin/config/people/accounts', $edit, t('Save configuration'));
+    $this->assertNoText(t('The configuration options have been saved.'), 'The form does not save with an invalid file size.');
   }
 }
 
@@ -1373,7 +1487,7 @@ class UserAutocompleteTestCase extends DrupalWebTestCase {
 
 
 /**
- * Test user-links in secondary menu.
+ * Tests user links in the secondary menu.
  */
 class UserAccountLinksUnitTests extends DrupalWebTestCase {
   public static function getInfo() {
@@ -1384,8 +1498,12 @@ class UserAccountLinksUnitTests extends DrupalWebTestCase {
     );
   }
 
+  function setUp() {
+    parent::setUp('menu');
+  }
+
   /**
-   * Test the user login block.
+   * Tests the secondary menu.
    */
   function testSecondaryMenu() {
     // Create a regular user.
@@ -1419,6 +1537,36 @@ class UserAccountLinksUnitTests extends DrupalWebTestCase {
     $element = $this->xpath('//ul[@id=:menu_id]', array(':menu_id' => 'secondary-menu-links'));
     $this->assertEqual(count($element), 0, 'No secondary-menu for logged-out users.');
   }
+
+  /**
+   * Tests disabling the 'My account' link.
+   */
+  function testDisabledAccountLink() {
+    // Create an admin user and log in.
+    $this->drupalLogin($this->drupalCreateUser(array('access administration pages', 'administer menu')));
+
+    // Verify that the 'My account' link is enabled.
+    $this->drupalGet('admin/structure/menu/manage/user-menu');
+    $this->assertFieldChecked('edit-mlid2-hidden', "The 'My account' link is enabled by default.");
+
+    // Disable the 'My account' link.
+    $edit = array(
+      'mlid:2[hidden]' => FALSE,
+    );
+    $this->drupalPost('admin/structure/menu/manage/user-menu', $edit, t('Save configuration'));
+
+    // Get the homepage.
+    $this->drupalGet('<front>');
+
+    // Verify that the 'My account' link does not appear when disabled.
+    $link = $this->xpath('//ul[@id=:menu_id]/li/a[contains(@href, :href) and text()=:text]', array(
+      ':menu_id' => 'secondary-menu-links',
+      ':href' => 'user',
+      ':text' => 'My account',
+    ));
+    $this->assertEqual(count($link), 0, 'My account link is not in the secondary menu.');
+  }
+
 }
 
 /**
@@ -1455,6 +1603,13 @@ class UserBlocksUnitTests extends DrupalWebTestCase {
     $this->drupalPost('filter/tips', $edit, t('Log in'));
     $this->assertNoText(t('User login'), t('Logged in.'));
     $this->assertPattern('!<title.*?' . t('Compose tips') . '.*?</title>!', t('Still on the same page after login for allowed page'));
+
+    // Check that the user login block is not vulnerable to information
+    // disclosure to third party sites.
+    $this->drupalLogout();
+    $this->drupalPost('http://example.com/', $edit, t('Log in'), array('external' => FALSE));
+    // Check that we remain on the site after login.
+    $this->assertEqual(url('user/' . $user->uid, array('absolute' => TRUE)), $this->getUrl(), t('Redirected to user profile page after login from the frontpage'));
   }
 
   /**
@@ -1510,7 +1665,7 @@ class UserBlocksUnitTests extends DrupalWebTestCase {
 }
 
 /**
- * Test case to test user_save() behaviour.
+ * Tests saving a user account.
  */
 class UserSaveTestCase extends DrupalWebTestCase {
 
@@ -1599,7 +1754,7 @@ class UserCreateTestCase extends DrupalWebTestCase {
 }
 
 /**
- * Test case to test user_save() behaviour.
+ * Tests editing a user account.
  */
 class UserEditTestCase extends DrupalWebTestCase {
 
@@ -1951,7 +2106,7 @@ class UserUserSearchTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
       'name' => 'User search',
-      'description' => 'Testing that only user with the right permission can see the email address in the user search.',
+      'description' => 'Tests the user search page and verifies that sensitive information is hidden from unauthorized users.',
       'group' => 'User',
     );
   }
@@ -1971,10 +2126,28 @@ class UserUserSearchTestCase extends DrupalWebTestCase {
     $edit = array('keys' => $keys);
     $this->drupalPost('search/user/', $edit, t('Search'));
     $this->assertText($keys);
+
+    // Create a blocked user.
+    $blocked_user = $this->drupalCreateUser();
+    $edit = array('status' => 0);
+    $blocked_user = user_save($blocked_user, $edit);
+
+    // Verify that users with "administer users" permissions can see blocked
+    // accounts in search results.
+    $edit = array('keys' => $blocked_user->name);
+    $this->drupalPost('search/user/', $edit, t('Search'));
+    $this->assertText($blocked_user->name, 'Blocked users are listed on the user search results for users with the "administer users" permission.');
+
+    // Verify that users without "administer users" permissions do not see
+    // blocked accounts in search results.
+    $this->drupalLogin($user1);
+    $edit = array('keys' => $blocked_user->name);
+    $this->drupalPost('search/user/', $edit, t('Search'));
+    $this->assertNoText($blocked_user->name, 'Blocked users are hidden from the user search results.');
+
     $this->drupalLogout();
   }
 }
-
 
 /**
  * Test role assignment.
@@ -2050,9 +2223,13 @@ class UserRolesAssignmentTestCase extends DrupalWebTestCase {
   /**
    * Check role on user object.
    *
-   * @param object $account User.
-   * @param integer $rid Role id.
-   * @param bool $is_assigned True if the role should present on the account.
+   * @param object $account
+   *   The user account to check.
+   * @param string $rid
+   *   The role ID to search for.
+   * @param bool $is_assigned
+   *   (optional) Whether to assert that $rid exists (TRUE) or not (FALSE).
+   *   Defaults to TRUE.
    */
   private function userLoadAndCheckRoleAssigned($account, $rid, $is_assigned = TRUE) {
     $account = user_load($account->uid, TRUE);

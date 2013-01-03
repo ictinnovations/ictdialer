@@ -32,7 +32,7 @@ Drupal.behaviors.autocomplete = {
 Drupal.autocompleteSubmit = function () {
   return $('#autocomplete').each(function () {
     this.owner.hidePopup();
-  }).size() == 0;
+  }).length == 0;
 };
 
 /**
@@ -41,7 +41,7 @@ Drupal.autocompleteSubmit = function () {
 Drupal.jsAC = function ($input, db) {
   var ac = this;
   this.input = $input[0];
-  this.ariaLive = $('#' + $input.attr('id') + '-autocomplete-aria-live');
+  this.ariaLive = $('#' + this.input.id + '-autocomplete-aria-live');
   this.db = db;
 
   $input
@@ -99,10 +99,12 @@ Drupal.jsAC.prototype.onkeyup = function (input, e) {
       return true;
 
     default: // All other keys.
-      if (input.value.length > 0)
+      if (input.value.length > 0 && !input.readOnly) {
         this.populatePopup();
-      else
+      }
+      else {
         this.hidePopup(e.keyCode);
+      }
       return true;
   }
 };
@@ -123,7 +125,7 @@ Drupal.jsAC.prototype.selectDown = function () {
   }
   else if (this.popup) {
     var lis = $('li', this.popup);
-    if (lis.size() > 0) {
+    if (lis.length > 0) {
       this.highlight(lis.get(0));
     }
   }
@@ -227,7 +229,7 @@ Drupal.jsAC.prototype.found = function (matches) {
 
   // Show popup with matches, if any.
   if (this.popup) {
-    if (ul.children().size()) {
+    if (ul.children().length) {
       $(this.popup).empty().append(ul).show();
       $(this.ariaLive).html(Drupal.t('Autocomplete popup'));
     }
@@ -287,10 +289,11 @@ Drupal.ACDB.prototype.search = function (searchString) {
   this.timer = setTimeout(function () {
     db.owner.setStatus('begin');
 
-    // Ajax GET request for autocompletion.
+    // Ajax GET request for autocompletion. We use Drupal.encodePath instead of
+    // encodeURIComponent to allow autocomplete search terms to contain slashes.
     $.ajax({
       type: 'GET',
-      url: db.uri + '/' + encodeURIComponent(searchString),
+      url: db.uri + '/' + Drupal.encodePath(searchString),
       dataType: 'json',
       success: function (matches) {
         if (typeof matches.status == 'undefined' || matches.status != 0) {

@@ -105,6 +105,7 @@ class DBLogTestCase extends DrupalWebTestCase {
       'severity'    => $severity,
       'link'        => NULL,
       'user'        => $this->big_user,
+      'uid'         => isset($this->big_user->uid) ? $this->big_user->uid : 0,
       'request_uri' => $base_root . request_uri(),
       'referer'     => $_SERVER['HTTP_REFERER'],
       'ip'          => ip_address(),
@@ -255,7 +256,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     // View dblog page-not-found report page.
     $this->drupalGet('admin/reports/page-not-found');
     $this->assertResponse(200);
-    // Check that full-length url displayed.
+    // Check that full-length URL displayed.
     $this->assertText($not_found_url, t('DBLog event was recorded: [page not found]'));
   }
 
@@ -387,6 +388,7 @@ class DBLogTestCase extends DrupalWebTestCase {
       'severity'    => WATCHDOG_NOTICE,
       'link'        => NULL,
       'user'        => $this->big_user,
+      'uid'         => isset($this->big_user->uid) ? $this->big_user->uid : 0,
       'request_uri' => $base_root . request_uri(),
       'referer'     => $_SERVER['HTTP_REFERER'],
       'ip'          => ip_address(),
@@ -422,7 +424,7 @@ class DBLogTestCase extends DrupalWebTestCase {
       $severity = WATCHDOG_EMERGENCY;
       for ($j = 0; $j < 3; $j++) {
         $types[] = $type = array(
-          'count' => mt_rand(1, 5),
+          'count' => $j + 1,
           'type' => $type_name,
           'severity' => $severity++,
         );
@@ -471,7 +473,7 @@ class DBLogTestCase extends DrupalWebTestCase {
       $count = $this->getTypeCount($types);
       $this->assertEqual(array_sum($count), $type['count'], 'Count matched');
     }
-    
+
     // Clear all logs and make sure the confirmation message is found.
     $this->drupalPost('admin/reports/dblog', array(), t('Clear log messages'));
     $this->assertText(t('Database log cleared.'), t('Confirmation message found'));

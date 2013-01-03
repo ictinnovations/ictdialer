@@ -190,6 +190,11 @@ function language_negotiation_get_switch_links($type, $path) {
   $links = FALSE;
   $negotiation = variable_get("language_negotiation_$type", array());
 
+  // Only get the languages if we have more than one.
+  if (count(language_list()) >= 2) {
+    $language = language_initialize($type);
+  }
+
   foreach ($negotiation as $id => $provider) {
     if (isset($provider['callbacks']['switcher'])) {
       if (isset($provider['file'])) {
@@ -198,6 +203,12 @@ function language_negotiation_get_switch_links($type, $path) {
 
       $callback = $provider['callbacks']['switcher'];
       $result = $callback($type, $path);
+
+      // Add support for WCAG 2.0's Language of Parts to add language identifiers.
+      // http://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html
+      foreach ($result as $langcode => $link) {
+        $result[$langcode]['attributes']['lang'] = $langcode;
+      }
 
       if (!empty($result)) {
         // Allow modules to provide translations for specific links.
@@ -349,7 +360,10 @@ function language_provider_invoke($provider_id, $provider = NULL) {
     $results[$provider_id] = isset($languages[$langcode]) ? $languages[$langcode] : FALSE;
   }
 
-  return $results[$provider_id];
+  // Since objects are resources we need to return a clone to prevent the
+  // provider cache to be unintentionally altered. The same providers might be
+  // used with different language types based on configuration.
+  return !empty($results[$provider_id]) ? clone($results[$provider_id]) : $results[$provider_id];
 }
 
 /**
@@ -380,15 +394,18 @@ function language_initialize($type) {
   // first valid language found.
   $negotiation = variable_get("language_negotiation_$type", array());
 
-  foreach ($negotiation as $id => $provider) {
-    $language = language_provider_invoke($id, $provider);
+  foreach ($negotiation as $provider_id => $provider) {
+    $language = language_provider_invoke($provider_id, $provider);
     if ($language) {
+      $language->provider = $provider_id;
       return $language;
     }
   }
 
   // If no other language was found use the default one.
-  return language_default();
+  $language = language_default();
+  $language->provider = LANGUAGE_NEGOTIATION_DEFAULT;
+  return $language;
 }
 
 /**
@@ -402,7 +419,7 @@ function language_from_default() {
 }
 
 /**
- * Split the given path into prefix and actual path.
+ * Splits the given path into prefix and actual path.
  *
  * Parse the given path and return the language object identified by the
  * prefix and the actual path.
@@ -434,10 +451,10 @@ function language_url_split_prefix($path, $languages) {
 }
 
 /**
- * Return the possible fallback languages ordered by language weight.
+ * Returns the possible fallback languages ordered by language weight.
  *
  * @param
- *   The language type.
+ *   (optional) The language type. Defaults to LANGUAGE_TYPE_CONTENT.
  *
  * @return
  *   An array of language codes.

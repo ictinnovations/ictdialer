@@ -1,0 +1,379 @@
+/*$Id: libra-style.css,v 1.1 2011/01/13 15:46:30 marianojofre Exp $*/
+
+/*HTML elements*/
+BODY
+{
+	/*font-family: Arial;*/
+	background: #cecece url(../images/bg.png) no-repeat top center;
+	font:12px/20px Tahoma,Helvetica,sans-serif;
+	color:#222;
+}
+P
+{
+	margin-top: 10px !important;
+	margin-bottom: 10px !important;
+}
+A:link, A:visited, A
+{
+	color: #3EB4FC;
+	text-decoration: none;
+}
+A:hover
+{
+	text-decoration: underline;
+}
+/*Header*/
+#site-name
+{
+	font-family: Arial;
+	font-size: 31px;
+	font-weight: bold;
+	letter-spacing: -1px;
+	line-height: normal;
+}
+#slogan
+{
+	font-family: Arial;
+	font-size: 14px;
+	color: #FFF;
+}
+#search-region
+{
+	top: 10px;
+}
+#search-region INPUT
+{
+	width: 200px;
+	font-family: Arial;
+	padding: 3px;
+	font-size: 14px;
+	color: #666;
+}
+#site-name A
+{
+	color: #FFF !important;
+}
+#site-menu
+{
+	text-align: left;
+	margin-top: 10px;
+	margin-left: 0;
+	padding-right: 0;
+	margin-right: 0;
+}
+
+/*Branding*/
+#branding
+{
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+
+IMG#logo
+{
+	margin-right: 15px;
+	margin-bottom: 5px;
+	float: left;
+}
+#site-header
+{
+	padding-top: 10px;
+}
+
+/*Navigation*/
+/*Main menu*/
+UL.main-menu LI
+{
+	float: left;
+	list-style-image: none;
+	list-style-type: none;
+	padding: 10px 20px;
+	background: url(../images/line-primary.gif) repeat-y right top;
+}
+UL.main-menu
+{
+	background: #FEFEFE url(../images/bg-primary.jpg) repeat-x left bottom;
+	overflow: hidden;
+	border: 1px solid #CCC;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+UL.main-menu LI A
+{
+	color: #666;
+	font-size: 14px;
+	font-weight: bold;
+}
+UL.main-menu LI A:hover
+{
+	color: #1285DA;
+	text-decoration: none;
+}
+LI A.active {
+	color: #3EB4FC;
+}
+/*Secondary menu*/
+UL.secondary-menu
+{
+	padding: 10px;
+	overflow: hidden;
+	font-size: 11px;
+	float: right;
+	margin-top: 10px;
+	margin-bottom: 0;
+}
+UL.secondary-menu LI
+{
+	float: left;
+	list-style-type: none;
+	list-style-image: none;
+	margin-left: 10px;
+}
+UL.secondary-menu LI A
+{
+	background: #333333;
+	padding: 6px 10px;
+	color: #FFFFFF;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+UL.secondary-menu LI A:hover
+{
+	background: #cecece;
+	color: #333333;
+	text-decoration: none;
+}
+
+#main-content-container
+{
+	background: #FFF;
+	padding-top: 20px;
+}
+
+
+/*Breadcrumb*/
+#internal-nav
+{
+	background: #FFF;
+}
+.breadcrumb
+{
+	font-size: 12px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+/*Sidebar*/
+.sidebar .block H2
+{
+	background: #FFF url(../images/bg-block-title.jpg) repeat-x left bottom;
+	font-family: Arial;
+	text-transform: uppercase;
+	font-size: 14px;
+	color: #32B0FA;
+	border-bottom: 1px solid #CCC;
+	padding: 5px 10px;
+}
+.sidebar .block
+{
+
+	/*border: 1px solid #CCC;*/
+/*	border: 3px solid lightGrey;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+	*/
+	
+	background-color: #F1F1F1;
+padding: 10px;
+border-style: solid;
+border-width: 1px;
+border-color: #CCC;
+background-color: #F1F1F1;
+-webkit-border-top-right-radius: 10px;
+-webkit-border-bottom-left-radius: 10px;
+-moz-border-radius-topright: 10px;
+-moz-border-radius-bottomleft: 10px;
+border-top-right-radius: 10px;
+border-bottom-left-radius: 10px;
+
+}
+.sidebar .block .content
+{
+	padding: 10px;
+}
+
+/*Headings*/
+H1, H2, H3, H4, H5, H6
+{
+	font-family: Arial;
+}
+
+H1.title
+{
+	font-family: Arial;
+	font-size: 30px;
+}
+/*Preface*/
+#preface-wrapper H2
+{
+	font-size: 14px;
+	background: #ABDEFD;
+	color: #FFF;
+	text-transform: uppercase;
+	padding: 2px 10px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+#preface-wrapper
+{
+	background: #60C0FA;
+	margin-bottom: 15px;
+	color: #FFF;
+	padding-top: 15px;
+	padding-bottom: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+}
+/*Main content*/
+#main-content-container
+{
+	border-top: 10px solid #D8F0FE;
+}
+#content-tabs
+{
+	background-color:#FFF;
+	border: none;
+}
+
+/*Postscript*/
+#postscript-wrapper
+{
+	color: #FFF;
+	background: #5BF;
+	padding-bottom: 10px;
+	padding-top: 15px;
+}
+#postscript-wrapper H2
+{
+	background: #29F;
+	font-size: 14px;
+	text-transform: uppercase;
+	padding: 2px 10px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+/*Node Teasers*/
+.block H2
+{
+	font-size: 26px;
+}
+.node
+{
+	border-bottom: 1px solid #CCC;
+}
+/*Node basic elements*/
+.submitted
+{
+	color: #666;
+	font-size: 11px;
+	margin-bottom: 5px;
+}
+/*Tags*/
+.field-name-field-tags DIV.field-item
+{
+	float: left;
+	margin-right: 10px;
+	background: #EEEEEE url(../images/tags.png) no-repeat 5px center;
+	padding: 5px 10px 5px 20px;
+	font-size: 11px;
+	border: 1px solid #CCC;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+.field-name-field-tags DIV.field-item A
+{
+	color: #000;
+}
+/*Footer*/
+#footer-wrapper
+{
+	background: #000 url(../images/bg-footer.jpg) repeat;
+	border-top: 10px solid #E6E6E6;
+	padding-top: 20px;
+	overflow: hidden;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #CCC;
+	-moz-border-radius-bottomleft: 12px;
+	-moz-border-radius-bottomright: 12px;
+}
+#footer-wrapper H2
+{
+	font-size: 14px;
+	text-transform: uppercase;
+	color:#C8D0E7;
+    font-family:sans-serif;
+}
+#footer-wrapper p
+{
+	color: #FFF;
+	background: #000;
+}
+#footer-wrapper div
+{
+	color: #FFF;
+	background: #000;
+}
+#footer-wrapper td
+{
+	color: #FFF;
+	background: #000;
+}
+#footer-wrapper li, #footer-wrapper li.leaf
+{
+	list-style-type: none;
+	list-style-image: none;
+}
+
+/*Grid*/
+.container-12 .grid-12, .container-16 .grid-16
+{
+	width: 960px;
+}
+
+ul.main-menu li {
+	color:#990000;
+}
+
+/* Table */
+table {
+border: 0;
+border-spacing: 0;
+font-size: 0.957em;
+margin: 10px 0;
+width: 100%;
+}
+thead {
+display: table-header-group;
+vertical-align: middle;
+border-color: inherit;
+}
+table tr th {
+background: #757575;
+background: rgba(0, 0, 0, 0.51);
+border-bottom-style: none;
+}
+table tr th, table tr th a:link, table tr th a:hover, table tr th a:visited {
+color: white;
+font-weight: bold;
+}
+tr td, tr th {
+padding: 4px 9px;
+border: 1px solid white;
+text-align: left;
+}

@@ -290,6 +290,20 @@ class SearchPageText extends DrupalWebTestCase {
     $this->drupalGet('search/node/' . $arg);
     $input = $this->xpath("//input[@id='edit-keys' and @value='{$arg}']");
     $this->assertFalse(empty($input), 'Search keys with a / are correctly set as the default value in the search box.');
+
+    // Test a search input exceeding the limit of AND/OR combinations to test
+    // the Denial-of-Service protection.
+    $limit = variable_get('search_and_or_limit', 7);
+    $keys = array();
+    for ($i = 0; $i < $limit + 1; $i++) {
+      $keys[] = $this->randomName(3);
+      if ($i % 2 == 0) {
+        $keys[] = 'OR';
+      }
+    }
+    $edit['keys'] = implode(' ', $keys);
+    $this->drupalPost('search/node', $edit, t('Search'));
+    $this->assertRaw(t('Your search used too many AND/OR expressions. Only the first @count terms were included in this search.', array('@count' => $limit)));
   }
 }
 
@@ -1447,6 +1461,17 @@ class SearchConfigSettingsForm extends DrupalWebTestCase {
     $this->assertText(t('The index will be rebuilt'));
     $this->drupalGet('admin/config/search/settings');
     $this->assertText(t('There is 1 item left to index.'));
+
+    // Test that the form saves with the default values.
+    $this->drupalPost('admin/config/search/settings', array(), t('Save configuration'));
+    $this->assertText(t('The configuration options have been saved.'), 'Form saves with the default values.');
+
+    // Test that the form does not save with an invalid word length.
+    $edit = array(
+      'minimum_word_size' => $this->randomName(3),
+    );
+    $this->drupalPost('admin/config/search/settings', $edit, t('Save configuration'));
+    $this->assertNoText(t('The configuration options have been saved.'), 'Form does not save with an invalid word length.');
   }
 
   /**
@@ -1585,6 +1610,12 @@ class SearchExcerptTestCase extends DrupalUnitTestCase {
     $result = preg_replace('| +|', ' ', search_excerpt('nothing', $entities));
     $this->assertFalse(strpos($result, '&'), 'Entities are not present in excerpt');
     $this->assertTrue(strpos($result, 'í') > 0, 'Entities are converted in excerpt');
+
+    // The node body that will produce this rendered $text is:
+    // 123456789 HTMLTest +123456789+&lsquo;  +&lsquo;  +&lsquo;  +&lsquo;  +12345678  &nbsp;&nbsp;  +&lsquo;  +&lsquo;  +&lsquo;   &lsquo;
+    $text = "<div class=\"field field-name-body field-type-text-with-summary field-label-hidden\"><div class=\"field-items\"><div class=\"field-item even\" property=\"content:encoded\"><p>123456789 HTMLTest +123456789+‘  +‘  +‘  +‘  +12345678      +‘  +‘  +‘   ‘</p>\n</div></div></div> ";
+    $result = search_excerpt('HTMLTest', $text);
+    $this->assertFalse(empty($result),  'Rendered Multi-byte HTML encodings are not corrupted in search excerpts');
   }
 
   /**
@@ -1619,6 +1650,21 @@ class SearchExcerptTestCase extends DrupalUnitTestCase {
 
     $result = preg_replace('| +|', ' ', search_excerpt('"abc def"', $text));
     $this->assertTrue(strpos($result, '<strong>abc,def</strong>') !== FALSE, 'Phrase with keyword simplified into two separate words is highlighted with simplified match');
+
+    // Test phrases with characters which are being truncated.
+    $result = preg_replace('| +|', ' ', search_excerpt('"ipsum _"', $text));
+    $this->assertTrue(strpos($result, '<strong>ipsum </strong>') !== FALSE, 'Only valid part of the phrase is highlighted and invalid part containing "_" is ignored.');
+
+    $result = preg_replace('| +|', ' ', search_excerpt('"ipsum 0000"', $text));
+    $this->assertTrue(strpos($result, '<strong>ipsum </strong>') !== FALSE, 'Only valid part of the phrase is highlighted and invalid part "0000" is ignored.');
+
+    // Test combination of the valid keyword and keyword containing only
+    // characters which are being truncated during simplification.
+    $result = preg_replace('| +|', ' ', search_excerpt('ipsum _', $text));
+    $this->assertTrue(strpos($result, '<strong>ipsum</strong>') !== FALSE, 'Only valid keyword is highlighted and invalid keyword "_" is ignored.');
+
+    $result = preg_replace('| +|', ' ', search_excerpt('ipsum 0000', $text));
+    $this->assertTrue(strpos($result, '<strong>ipsum</strong>') !== FALSE, 'Only valid keyword is highlighted and invalid keyword "0000" is ignored.');
   }
 }
 

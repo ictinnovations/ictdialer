@@ -1,0 +1,56 @@
+/* $Id: debug.css,v 1.1.2.2 2010/06/07 23:46:33 himerus Exp $ */
+#omega-debug {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	background: #000;
+	color: #FFF;
+	padding: 5px 10px;
+}
+#omega-debug hr {
+	height: 1px;
+	border-top: 1px dashed #FFF;
+	background: none;
+}
+#omega-debug a {
+	display: block;
+	text-decoration: none;
+	color: #FFF;
+}
+body.show-grid .container-16 {
+  background-image: url(../i/debug/16_col.png);
+}
+body.show-grid .container-12 {
+  background-image: url(../i/debug/12_col.png);
+}
+body.show-grid .container-24 {
+  background-image: url(../i/debug/24_col.png);
+}
+
+body.grid-hover .grid-1:hover,
+body.grid-hover .grid-2:hover,
+body.grid-hover .grid-3:hover,
+body.grid-hover .grid-4:hover,
+body.grid-hover .grid-5:hover,
+body.grid-hover .grid-6:hover,
+body.grid-hover .grid-7:hover,
+body.grid-hover .grid-8:hover,
+body.grid-hover .grid-9:hover,
+body.grid-hover .grid-10:hover,
+body.grid-hover .grid-11:hover,
+body.grid-hover .grid-12:hover,
+body.grid-hover .grid-13:hover,
+body.grid-hover .grid-14:hover,
+body.grid-hover .grid-15:hover,
+body.grid-hover .grid-16:hover,
+body.grid-hover .grid-17:hover,
+body.grid-hover .grid-18:hover,
+body.grid-hover .grid-19:hover,
+body.grid-hover .grid-20:hover,
+body.grid-hover .grid-21:hover,
+body.grid-hover .grid-22:hover,
+body.grid-hover .grid-23:hover,
+body.grid-hover .grid-24:hover {
+  background-color: rgba(0, 115, 186, .2);
+  outline: 1px dashed #0073ba;
+}

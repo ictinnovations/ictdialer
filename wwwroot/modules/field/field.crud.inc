@@ -15,6 +15,9 @@
  *
  * The Field CRUD API uses
  * @link field Field API data structures @endlink.
+ *
+ * See @link field Field API @endlink for information about the other parts of
+ * the Field API.
  */
 
 /**
@@ -42,10 +45,11 @@
  *       system variable.
  *     - settings: each omitted setting is given the default value specified in
  *       hook_field_storage_info().
+ *
  * @return
  *   The $field array with the id property filled in.
- * @throw
- *   FieldException
+ *
+ * @throws FieldException
  *
  * See: @link field Field API data structures @endlink.
  */
@@ -442,8 +446,8 @@ function field_delete_field($field_name) {
  *
  * @return
  *   The $instance array with the id property filled in.
- * @throw
- *   FieldException
+ *
+ * @throws FieldException
  *
  * See: @link field Field API data structures @endlink.
  */
@@ -510,8 +514,7 @@ function field_create_instance($instance) {
  *   properties specified in $instance overwrite the existing values for
  *   the instance.
  *
- * @throw
- *   FieldException
+ * @throws FieldException
  *
  * @see field_create_instance()
  */
@@ -824,16 +827,20 @@ function field_delete_instance($instance, $field_cleanup = TRUE) {
  *     ),
  *   );
  * @endcode
+ *
+ * See @link field Field API @endlink for information about the other parts of
+ * the Field API.
  */
 
 /**
  * Purges a batch of deleted Field API data, instances, or fields.
  *
- * This function will purge deleted field data on up to a specified maximum
- * number of entities and then return. If a deleted field instance with no
- * remaining data records is found, the instance itself will be purged.
- * If a deleted field with no remaining field instances is found, the field
- * itself will be purged.
+ * This function will purge deleted field data in batches. The batch size
+ * is defined as an argument to the function, and once each batch is finished,
+ * it continues with the next batch until all have completed. If a deleted field
+ * instance with no remaining data records is found, the instance itself will
+ * be purged. If a deleted field with no remaining field instances is found, the
+ * field itself will be purged.
  *
  * @param $batch_size
  *   The maximum number of field data records to purge before returning.

@@ -253,14 +253,14 @@ function simpletest_script_init($server_software) {
   if (!empty($args['php'])) {
     $php = $args['php'];
   }
-  elseif (!empty($_ENV['_'])) {
+  elseif ($php_env = getenv('_')) {
     // '_' is an environment variable set by the shell. It contains the command that was executed.
-    $php = $_ENV['_'];
+    $php = $php_env;
   }
-  elseif (!empty($_ENV['SUDO_COMMAND'])) {
+  elseif ($sudo = getenv('SUDO_COMMAND')) {
     // 'SUDO_COMMAND' is an environment variable set by the sudo program.
     // Extract only the PHP interpreter, not the rest of the command.
-    list($php, ) = explode(' ', $_ENV['SUDO_COMMAND'], 2);
+    list($php, ) = explode(' ', $sudo, 2);
   }
   else {
     simpletest_script_print_error('Unable to automatically determine the path to the PHP interpreter. Supply the --php command line argument.');
@@ -268,14 +268,14 @@ function simpletest_script_init($server_software) {
     exit();
   }
 
-  // Get url from arguments.
+  // Get URL from arguments.
   if (!empty($args['url'])) {
     $parsed_url = parse_url($args['url']);
     $host = $parsed_url['host'] . (isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '');
     $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 
     // If the passed URL schema is 'https' then setup the $_SERVER variables
-    // properly so that testing will run under https.
+    // properly so that testing will run under HTTPS.
     if ($parsed_url['scheme'] == 'https') {
       $_SERVER['HTTPS'] = 'on';
     }
@@ -585,9 +585,8 @@ function simpletest_script_reporter_display_results() {
 
   if ($args['verbose']) {
     // Report results.
-    echo "Detailed test results:\n";
-    echo "----------------------\n";
-    echo "\n";
+    echo "Detailed test results\n";
+    echo "---------------------\n";
 
     $results = db_query("SELECT * FROM {simpletest} WHERE test_id = :test_id ORDER BY test_class, message_id", array(':test_id' => $test_id));
     $test_class = '';
@@ -597,6 +596,10 @@ function simpletest_script_reporter_display_results() {
           // Display test class every time results are for new test class.
           echo "\n\n---- $result->test_class ----\n\n\n";
           $test_class = $result->test_class;
+
+          // Print table header.
+          echo "Status    Group      Filename          Line Function                            \n";
+          echo "--------------------------------------------------------------------------------\n";
         }
 
         simpletest_script_format_result($result);
@@ -614,8 +617,8 @@ function simpletest_script_reporter_display_results() {
 function simpletest_script_format_result($result) {
   global $results_map, $color;
 
-  $summary = sprintf("%-10.10s %-10.10s %-30.30s %-5.5s %-20.20s\n",
-    $results_map[$result->status], $result->message_group, basename($result->file), $result->line, $result->caller);
+  $summary = sprintf("%-9.9s %-10.10s %-17.17s %4.4s %-35.35s\n",
+    $results_map[$result->status], $result->message_group, basename($result->file), $result->line, $result->function);
 
   simpletest_script_print($summary, simpletest_script_color_code($result->status));
 

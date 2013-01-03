@@ -99,7 +99,14 @@ function _menu_overview_tree_form($tree) {
       $mlid = 'mlid:' . $item['mlid'];
       $form[$mlid]['#item'] = $item;
       $form[$mlid]['#attributes'] = $item['hidden'] ? array('class' => array('menu-disabled')) : array('class' => array('menu-enabled'));
-      $form[$mlid]['title']['#markup'] = l($item['title'], $item['href'], $item['localized_options']) . ($item['hidden'] ? ' (' . t('disabled') . ')' : '');
+      $form[$mlid]['title']['#markup'] = l($item['title'], $item['href'], $item['localized_options']);
+      if ($item['hidden']) {
+        $form[$mlid]['title']['#markup'] .= ' (' . t('disabled') . ')';
+      }
+      elseif ($item['link_path'] == 'user' && $item['module'] == 'system') {
+        $form[$mlid]['title']['#markup'] .= ' (' . t('logged in users only') . ')';
+      }
+
       $form[$mlid]['hidden'] = array(
         '#type' => 'checkbox',
         '#title' => t('Enable @title menu link', array('@title' => $item['title'])),
@@ -259,6 +266,16 @@ function menu_edit_item($form, &$form_state, $type, $item, $menu) {
   if ($type == 'add' || empty($item)) {
     // This is an add form, initialize the menu link.
     $item = array('link_title' => '', 'mlid' => 0, 'plid' => 0, 'menu_name' => $menu['menu_name'], 'weight' => 0, 'link_path' => '', 'options' => array(), 'module' => 'menu', 'expanded' => 0, 'hidden' => 0, 'has_children' => 0);
+  }
+  else {
+    // Get the human-readable menu title from the given menu name.
+    $titles = menu_get_menus();
+    $current_title = $titles[$item['menu_name']];
+
+    // Get the current breadcrumb and add a link to that menu's overview page.
+    $breadcrumb = menu_get_active_breadcrumb();
+    $breadcrumb[] = l($current_title, 'admin/structure/menu/manage/' . $item['menu_name']);
+    drupal_set_breadcrumb($breadcrumb);
   }
   $form['actions'] = array('#type' => 'actions');
   $form['link_title'] = array(
@@ -453,7 +470,6 @@ function menu_edit_menu($form, &$form_state, $type, $menu = array()) {
     '#machine_name' => array(
       'exists' => 'menu_edit_menu_name_exists',
       'source' => array('title'),
-      'label' => t('URL path'),
       'replace_pattern' => '[^a-z0-9-]+',
       'replace' => '-',
     ),
