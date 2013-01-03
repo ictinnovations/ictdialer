@@ -146,7 +146,8 @@ function setImageHandler(appImage) {
       if(applications[this.appIndex].appType!="play_audio" 
          && applications[this.appIndex].appType!="transfer"
          && applications[this.appIndex].appType!="tts" 
-         && applications[this.appIndex].appType!="getdigit" ) {
+         && applications[this.appIndex].appType!="getdigit" 
+         && applications[this.appIndex].appType!="play_menu" ) {
         applications[this.appIndex].element.editIcon.attr({'opacity': 0});
       } else {
         applications[this.appIndex].element.editIcon.attr({'opacity': 1});
@@ -193,6 +194,7 @@ function setControls(app, appType) {
        || appType!= "transfer"  
        || appType!= "tts"       
        || appType!= "getdigit"  
+       || appType!= "play_menu"  
       
       ){ 
         setEditHandler(app.element.editIcon);
@@ -507,6 +509,14 @@ function onDraggableStop(event, ui, action, actionImg){
       $('#edit-getdigit-recording-id').val(applications[applications.length-1].data.getdigit_recording_id);
       getdigitProperties();
     }
+    if(applications[applications.length-1].appType == "play_menu") {
+      $('input[name=app-id]').val(applications.length-1);
+      $('#edit-play-menu1').val(applications[applications.length-1].data.play_menu1);
+      $('#edit-play-menu2').val(applications[applications.length-1].data.play_menu2);
+      $('#edit-play-menu3').val(applications[applications.length-1].data.play_menu3);
+      $('#edit-play-menu4').val(applications[applications.length-1].data.play_menu4);
+      play_menuProperties();
+    }
   }
   //else {
   //  alert('Please drop application in the drawing area');
@@ -673,6 +683,10 @@ function getData(app, appType) {
   }
   if(appType == "getdigit") {
     var objData = { getdigit_recording_id: ""};
+    app["data"] = objData;
+  }
+  if(appType == "play_menu") {
+    var objData = { play_menu1: "", play_menu2: "", play_menu3: "", play_menu4: ""};
     app["data"] = objData;
   }
 }
@@ -847,6 +861,16 @@ function serializeArray() {
     if(apps[i].appType == "getdigit") {
       var objData = {
         getdigit_recording_id: apps[i].data.getdigit_recording_id,
+      }
+      serApps[i].data = objData;
+    }
+    // for play_menu
+    if(apps[i].appType == "play_menu") {
+      var objData = {
+        play_menu1: apps[i].data.play_menu1,
+        play_menu2: apps[i].data.play_menu2,
+        play_menu3: apps[i].data.play_menu3,
+        play_menu4: apps[i].data.play_menu4,
       }
       serApps[i].data = objData;
     }
@@ -1176,6 +1200,15 @@ function ivr_load_data() {
         var objData = { getdigit_recording_id: ""};
         applications[i]["data"] = objData;
         applications[i].data.getdigit_recording_id = apps[i].data.getdigit_recording_id;
+      }
+      // for play_menu
+      if(applications[i].appType == "play_menu") {
+        var objData = { play_menu1: "", play_menu2: "", play_menu3: "", play_menu4: ""};
+        applications[i]["data"] = objData;
+        applications[i].data.play_menu1 = apps[i].data.play_menu1;
+        applications[i].data.play_menu2 = apps[i].data.play_menu2;
+        applications[i].data.play_menu3 = apps[i].data.play_menu3;
+        applications[i].data.play_menu4 = apps[i].data.play_menu4;
       }
       //end restoring data
       //////////////////////////////////////////////////////////////

@@ -82,8 +82,8 @@
 }  
 .mask {
   position:absolute;
-  left:0;
-  top:0;
+  left: -290px;
+  top: -390px;
   z-index:9000;
   background-color:#000;
   display:transparent;
@@ -104,8 +104,8 @@
   /*background:url(images/notice.png) repeat 0 0 transparent; */
   /*background-color: rgb(0,108,64); */
   width:400px; 
-  height:250px;
-  padding:50px 0 20px 50px;
+  height:320px;
+  padding:20px 0 20px 50px;
   background-color:#6698FF;
   border-top-left-radius: 5% 5%;
   border-bottom-right-radius: 5% 5%;

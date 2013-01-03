@@ -34,6 +34,14 @@ function setEditHandler(editIcon) {
       $('#edit-getdigit-recording-id').val(applications[this.appIndex].data.getdigit_recording_id);
       getdigitProperties();
     }
+    if(applications[this.appIndex].appType == "play_menu") {
+      $('input[name=app-id]').val(this.appIndex);
+      $('#edit-play-menu1').val(applications[this.appIndex].data.play_menu1);
+      $('#edit-play-menu2').val(applications[this.appIndex].data.play_menu2);
+      $('#edit-play-menu3').val(applications[this.appIndex].data.play_menu3);
+      $('#edit-play-menu4').val(applications[this.appIndex].data.play_menu4);
+      play_menuProperties();
+    }
   });
 }
 
@@ -53,8 +61,10 @@ function play_audioProperties(){
 	var winH = $(window).height();
 	var winW = $(window).width();
 	//Set the popup window to center regardless of the scroll
-	$('#dialog_pa').css("top", (($(window).height() - $('#dialog_pa').outerHeight()) / 2) + $(window).scrollTop() + "px");
-  $('#dialog_pa').css("left", (($(window).width() - $('#dialog_pa').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	//$('#dialog_pa').css("top", (($(window).height() - $('#dialog_pa').outerHeight()) / 2) + $(window).scrollTop() + "px");
+  //$('#dialog_pa').css("left", (($(window).width() - $('#dialog_pa').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	$('#dialog_pa').css("top", "100px");
+  $('#dialog_pa').css("left", "100px");
 	//transition effect
 	$('#dialog_pa').fadeIn(2000); 	
 	//if close button is clicked
@@ -96,8 +106,10 @@ function ttsProperties(){
 	var winH = $(window).height();
 	var winW = $(window).width();
 	//Set the popup window to center regardless of the scroll
-	$('#dialog_tts').css("top", (($(window).height() - $('#dialog_tts').outerHeight()) / 2) + $(window).scrollTop() + "px");
-  $('#dialog_tts').css("left", (($(window).width() - $('#dialog_tts').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	//$('#dialog_tts').css("top", (($(window).height() - $('#dialog_tts').outerHeight()) / 2) + $(window).scrollTop() + "px");
+  //$('#dialog_tts').css("left", (($(window).width() - $('#dialog_tts').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	$('#dialog_tts').css("top", "100px");
+  $('#dialog_tts').css("left", "100px");
 	//transition effect
 	$('#dialog_tts').fadeIn(2000); 	
 	//if close button is clicked
@@ -141,8 +153,10 @@ function transferProperties(){
 	var winH = $(window).height();
 	var winW = $(window).width();
 	//Set the popup window to center regardless of the scroll
-	$('#dialog_transfer').css("top", (($(window).height() - $('#dialog_transfer').outerHeight()) / 2) + $(window).scrollTop() + "px");
-  $('#dialog_transfer').css("left", (($(window).width() - $('#dialog_transfer').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	//$('#dialog_transfer').css("top", (($(window).height() - $('#dialog_transfer').outerHeight()) / 2) + $(window).scrollTop() + "px");
+  //$('#dialog_transfer').css("left", (($(window).width() - $('#dialog_transfer').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	$('#dialog_transfer').css("top", "100px");
+  $('#dialog_transfer').css("left", "100px");
 	//transition effect
 	$('#dialog_transfer').fadeIn(2000); 
 	//if close button is clicked
@@ -185,8 +199,10 @@ function getdigitProperties(){
 	var winH = $(window).height();
 	var winW = $(window).width();
 	//Set the popup window to center regardless of the scroll
-	$('#dialog_getdigit').css("top", (($(window).height() - $('#dialog_getdigit').outerHeight()) / 2) + $(window).scrollTop() + "px");
-  $('#dialog_getdigit').css("left", (($(window).width() - $('#dialog_getdigit').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	//$('#dialog_getdigit').css("top", (($(window).height() - $('#dialog_getdigit').outerHeight()) / 2) + $(window).scrollTop() + "px");
+  //$('#dialog_getdigit').css("left", (($(window).width() - $('#dialog_getdigit').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	$('#dialog_getdigit').css("top", "100px");
+  $('#dialog_getdigit').css("left", "100px");
 	//transition effect
 	$('#dialog_getdigit').fadeIn(2000); 
 	//if close button is clicked
@@ -213,5 +229,59 @@ function saveGetdigitData() {
   applications[id].element.appImage.attr({title:tooltip});
 }
 
+////////////////////////////////////////////////////////////////////
+// Play_menu Functions
+///////////////////////////////////////////////////////////////////
+function play_menuProperties(){
+  //Get the screen height and width
+	var maskHeight = $(document).height();
+	var maskWidth = $(window).width();	
+	//Set heigth and width to mask to fill up the whole screen
+	$('#mask_play_menu').css({'width':maskWidth,'height':maskHeight});
+	//transition effect		
+	$('#mask_play_menu').fadeIn(1000);	
+	$('#mask_play_menu').fadeTo("slow",0.8);	
+	//Get the window height and width
+	var winH = $(window).height();
+	var winW = $(window).width();
+	//Set the popup window to center regardless of the scroll
+	//$('#dialog_play_menu').css("top", (($(window).height() - $('#dialog_play_menu').outerHeight()) / 2) + $(window).scrollTop() + "px");
+  //$('#dialog_play_menu').css("left", (($(window).width() - $('#dialog_play_menu').outerWidth()) / 2) + $(window).scrollLeft() + "px");
+  $('#dialog_play_menu').css("top", "100px");
+  $('#dialog_play_menu').css("left", "100px");
+	//transition effect
+	$('#dialog_play_menu').fadeIn(2000); 	
+	//if close button is clicked
+	$('.window .close').click(function (e) {
+		//Cancel the link behavior
+		e.preventDefault();
+		$('.mask').hide();
+		$('.window').hide();
+	});
+	//if mask is clicked
+	$('.mask').click(function () {
+		$(this).hide();
+		$('.window').hide();
+	});
+}
+function saveplay_menuData() {
+  id = $('input[name=app-id]').val();
+  play_menu1 = $('#edit-play-menu1').val();
+  applications[id].data.play_menu1 = play_menu1;
+  play_menu2 = $('#edit-play-menu2').val();
+  applications[id].data.play_menu2 = play_menu2;
+  play_menu3 = $('#edit-play-menu3').val();
+  applications[id].data.play_menu3 = play_menu3;
+  play_menu4 = $('#edit-play-menu4').val();
+  applications[id].data.play_menu4 = play_menu4;
+  
+  // set tooltip
+  //tooltip = applications[id].display_name;
+  //if($("#edit-play-menu1").val()!="") {
+  //  tooltip += "\nText: ";
+  //  tooltip += $("#edit-play-menu1").val();
+  //}
+  //applications[id].element.appImage.attr({title:tooltip});
+}
 
 

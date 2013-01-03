@@ -36,14 +36,14 @@ function broadcast_voice_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on voice module.
  */
-function broadcast_voice_perm() {
+function broadcast_voice_permission() {
   return array(
-    'broadcast voice system admin'
+    'broadcast voice system admin' => array('title'=> 'broadcast voice system admin')
   );
 }
 
@@ -80,22 +80,6 @@ function broadcast_voice_campaign_message_load($campaign_id, $campaign) {
     }
   }
 }
-/*
-// used to load a recording id for given campaign id
-function broadcast_voice_load($campaign_id) {  
-  $sql    = "SELECT * FROM {broadcast_campaign_recording} WHERE campaign_id = %d";
-  $result = db_query($sql, $campaign_id);
-  if ($campaign_recording = db_fetch_array($result)) {
-    $selectedRecording = array(
-      'recording'  => $campaign_recording['recording_id'],
-    );  
-    return $selectedRecording;
-  } else {
-    drupal_set_message(t('Specified Recording does not exist! or you have not proper permissions!'), 'error');
-    return FALSE;
-  }
-}
-*/
 
 // used to load a first application id for given campaign id
 function broadcast_voice_load($campaign_id) {  
@@ -137,36 +121,6 @@ function broadcast_voice_campaign_message($form_state, $campaign = array()) {
     } else if(!empty($campaign['ivr'])) {
       $campaign['message_type'] = 2;
     }
-    /*
-    // If we're editing an existing voice campaign, we'll add a value field to the form
-    // containing the voice's unique ID.
-    if (!empty($campaign['recording_id'])) {
-      $form['recording_id'] = array(
-        '#type'        => 'value',
-        '#value'       => $campaign['recording_id'],
-      );
-    }
-    if (!empty($campaign['campaign_recording_id'])) {
-      $form['campaign_recording_id'] = array(
-        '#type'        => 'value',
-        '#value'       => $campaign['campaign_recording_id'],
-      );
-    }
-
-    // If we're editing an existing voice campaign, we'll add a value field to the form
-    // containing the voice's unique ID.
-    if (!empty($campaign['ivr_id'])) {
-      $form['ivr_id'] = array(
-        '#type'        => 'value',
-        '#value'       => $campaign['ivr_id'],
-      );
-    }
-    if (!empty($campaign['campaign_ivr_id'])) {
-      $form['campaign_ivr_id'] = array(
-        '#type'        => 'value',
-        '#value'       => $campaign['campaign_ivr_id'],
-      );
-    }*/
     
     $form['voice'] = array(
       '#type'          => 'fieldset',
@@ -409,7 +363,6 @@ function broadcast_voice_get_apps($campaign_id) {
 }
 
 
-
 /* Enumerate all Voice gateways
 *****************************/
 
@@ -486,7 +439,7 @@ function writeIVRApplication($campaign_id, $ivr_id) {
       break;
     case 'play_menu':
       $test_val = array(1, 2, 3, 4);
-      $data = array();
+      $data = array('play_menu1' => $app["data"]["play_menu1"], 'play_menu2' => $app["data"]["play_menu2"], 'play_menu3' => $app["data"]["play_menu3"], 'play_menu4' => $app["data"]["play_menu4"]);
       break;
     default:
       $data = array();

@@ -86,34 +86,21 @@ function broadcast_recording_menu() {
     'access arguments' => array('broadcast recording admin'),
     'type'             => MENU_CALLBACK,
   );
-  /*
-  $items['admin/broadcast/recording'] = array(
-    'title'            => 'Recording Settings',
-    'description'      => 'Configure Recording Broadcasting behavior',
-    'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('broadcast_recording_admin_settings'),
-    'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast recording system admin'),
-    'type'             => MENU_NORMAL_ITEM,
-  );
-  */
   
   return $items;
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on recording module.
  */
-function broadcast_recording_perm() {
+function broadcast_recording_permission() {
   return array(
-    'broadcast recording',
-    'broadcast recording admin',
-    'broadcast recording group',
-    'broadcast recording group admin',
-    'broadcast recording system admin'
+    'broadcast recording'               => array('title'=> 'broadcast recording'),
+    'broadcast recording admin'         => array('title'=> 'broadcast recording admin'),
+    'broadcast recording system admin'  => array('title'=> 'broadcast recording system admin')
   );
 }
 
@@ -281,8 +268,6 @@ function broadcast_recording_form_validate($form, &$form_state) {
   if ($recording['name'] == '') {
     form_set_error('name', t('Recording name cannot be empty'));
   }
-  
-  
 }
 
 /**
@@ -293,10 +278,7 @@ function broadcast_recording_form_submit($form, &$form_state) {
   global $user;
   $path = $recording_dir = variable_get('broadcast_voice_default_directory', '/usr/ictdialer/sites/default/files/broadcast/recording');
   file_prepare_directory($path, FILE_CREATE_DIRECTORY);
-  //$path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . "/broadcast/recording";
   $recording = $form_state['values'];
-  // set source file path
-  //$file = file_save_upload('file_upload');
   $validators = array(
     'file_validate_extensions' => array('wav', 'WAV'),
   );
@@ -395,44 +377,3 @@ function broadcast_recording_option() {
   return $rows;
 }
 
-
-/*
-function broadcast_recording_admin_settings() {
-  $form['phone'] = array(
-    '#type'  => 'fieldset',
-    '#title' => t('Phone Number Validation Rules')
-  );
-  $form['phone']['broadcast_recording_phone_format_gsm'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t("GSM Phone Number's Patterns"),
-    '#default_value' => variable_get('broadcast_recording_phone_format_gsm', '923XXXXXXXXX'),
-    '#description'   => t('All Numbers in GSM Contacts will be validated against these patterns'),
-  );
-  $form['phone']['broadcast_recording_phone_format_other'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t("Other Phone Number's Patterns"),
-    '#default_value' => variable_get('broadcast_recording_phone_format_other', '92XX.'),
-    '#description'   => t('All Numbers in Other Contacts will be validated against these patterns'),
-  );
-  $form['phone']['broadcast_recording_phone_duplicate_group'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('No duplicate Phone Number'),
-    '#description'   => t('In a group no phone number will be repeated'),
-    '#default_value' => variable_get('broadcast_recording_phone_duplicate_group', '1'),
-    '#return_value'  => 1,
-  );
-  $form['email'] = array(
-    '#type'  => 'fieldset',
-    '#title' => t('Email Validation Rules')
-  );
-  $form['email']['broadcast_recording_email_duplicate_group'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('No duplicate Emails'),
-    '#description'   => t('In a group no email will be repeated'),
-    '#default_value' => variable_get('broadcast_recording_email_duplicate_group', '1'),
-    '#return_value'  => 1,
-  );
-
-  return system_settings_form($form);
-}
-*/

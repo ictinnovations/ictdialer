@@ -86,34 +86,21 @@ function broadcast_ivr_menu() {
     'access arguments' => array('broadcast ivr admin'),
     'type'             => MENU_CALLBACK,
   );
-  /*
-  $items['admin/broadcast/ivr'] = array(
-    'title'            => 'IVR Settings',
-    'description'      => 'Configure IVR Broadcasting behavior',
-    'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('broadcast_ivr_admin_settings'),
-    'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast ivr system admin'),
-    'type'             => MENU_NORMAL_ITEM,
-  );
-  */
   
   return $items;
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  *
  * Defines access permissions that may be assigned to roles and used to restrict
  * access on ivr module.
  */
-function broadcast_ivr_perm() {
+function broadcast_ivr_permission() {
   return array(
-    'broadcast ivr',
-    'broadcast ivr admin',
-    'broadcast ivr group',
-    'broadcast ivr group admin',
-    'broadcast ivr system admin'
+    'broadcast ivr'               => array('title'=> 'broadcast ivr'),
+    'broadcast ivr admin'         => array('title'=> 'broadcast ivr admin'),
+    'broadcast ivr system admin'  => array('title'=> 'broadcast ivr system admin')
   );
 }
 
@@ -148,7 +135,7 @@ function broadcast_voice_ivr_list() {
     $rows[$row_id][] = _broadcast_ivr_list_links($ivr);
   }
   if (!isset($rows)) {
-    $rows[] = array(array('data' => t('No ivrs have been added.'), 'colspan' => 5));
+    $rows[] = array(array('data' => t('No IVRs have been added.'), 'colspan' => 5));
   }
 
   $output = theme('table', array('header'=>$header, 'rows'=>$rows));
@@ -221,6 +208,10 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
     'tts' => '',
     'extension_id' => '',
     'getdigit_recording_id' => '',
+    'play_menu1' => 'option 1',
+    'play_menu2' => 'option 2',
+    'play_menu3' => 'option 3',
+    'play_menu4' => 'option 4',
     
   );
   
@@ -383,8 +374,10 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
                        </div>'
   );
   $form['ivr']['tts_properties']['tts'] = array(
-    '#type'          => 'textarea',
-    '#default_value' => $ivr['tts']
+    '#type'           => 'textarea',
+    '#cols'           => 50, 
+    '#rows'           => 5, 
+    '#default_value'  => $ivr['tts']
   );
   
   // properties window for transfer call
@@ -405,7 +398,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
   );
   $form['ivr']['transfer_properties']['extension_id'] = array(
     '#type'          => 'select',
-    '#options'       => array(-1 => t('[Select Extension]')),
+    '#options'       => array(-1 => t('[Select Extension]')) + broadcast_extension_option(),
     '#default_value' => $ivr['extension_id']
   );
   
@@ -430,6 +423,44 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
     '#options'       => array(-1 => t('[Select Recording]')) + broadcast_recording_option(),
     '#default_value' => $ivr['getdigit_recording_id']
   );
+  
+  // properties window for play_menu
+  $form['ivr']['play_menu_properties'] = array(
+    '#type'       => 'markup',
+    '#prefix'     =>  '<div id="boxes">
+                       <div id="dialog_play_menu" class="window dialog" style="margin:0px;">
+                       <h1 style="color:white; text-indent:5%">Options Menu Application</h1>',
+    '#suffix'     =>  '<a href="#" class="close" onclick="javascript:saveplay_menuData();"/><font size="4" color="red">Apply</font></a>
+                       </div>
+                       <!-- Mask to cover the whole screen -->
+                       <div id="mask_play_menu" class="mask" style="margin: 0px;"></div>
+                       </div>'
+  );
+  $form['ivr']['play_menu_properties']['play_menu1'] = array(
+    '#type'           => 'textfield',
+    '#title'          => 'Option 1',
+    '#size'           => 50,
+    '#default_value' => $ivr['play_menu1']
+  );
+  $form['ivr']['play_menu_properties']['play_menu2'] = array(
+    '#type'           => 'textfield',
+    '#title'          => 'Option 2',
+    '#size'           => 50,
+    '#default_value' => $ivr['play_menu2']
+  );
+  $form['ivr']['play_menu_properties']['play_menu3'] = array(
+    '#type'           => 'textfield',
+    '#title'          => 'Option 3',
+    '#size'           => 50,
+    '#default_value' => $ivr['play_menu3']
+  );
+  $form['ivr']['play_menu_properties']['play_menu4'] = array(
+    '#type'           => 'textfield',
+    '#title'          => 'Option 4',
+    '#size'           => 50,
+    '#default_value' => $ivr['play_menu4']
+  );
+  
   /////////////////////////////////////////////////////////
   
   $form['submit'] = array(
@@ -464,7 +495,6 @@ function broadcast_ivr_form_submit($form, &$form_state) {
   $onsubmit = 'Drupal.behaviors.broadcast_ivr = { attach: function(){serializeArray();}}';
   drupal_add_js($onsubmit,array('type'=>'inline','scope'=>'header'));
   
-  //$path = file_directory_path() . "/broadcast/ivr";
   $ivr = $form_state['values'];
   
   if (!isset($ivr['created'])) {
@@ -519,44 +549,3 @@ function broadcast_ivr_option() {
   return $rows;
 }
 
-
-/*
-function broadcast_ivr_admin_settings() {
-  $form['phone'] = array(
-    '#type'  => 'fieldset',
-    '#title' => t('Phone Number Validation Rules')
-  );
-  $form['phone']['broadcast_ivr_phone_format_gsm'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t("GSM Phone Number's Patterns"),
-    '#default_value' => variable_get('broadcast_ivr_phone_format_gsm', '923XXXXXXXXX'),
-    '#description'   => t('All Numbers in GSM Contacts will be validated against these patterns'),
-  );
-  $form['phone']['broadcast_ivr_phone_format_other'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t("Other Phone Number's Patterns"),
-    '#default_value' => variable_get('broadcast_ivr_phone_format_other', '92XX.'),
-    '#description'   => t('All Numbers in Other Contacts will be validated against these patterns'),
-  );
-  $form['phone']['broadcast_ivr_phone_duplicate_group'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('No duplicate Phone Number'),
-    '#description'   => t('In a group no phone number will be repeated'),
-    '#default_value' => variable_get('broadcast_ivr_phone_duplicate_group', '1'),
-    '#return_value'  => 1,
-  );
-  $form['email'] = array(
-    '#type'  => 'fieldset',
-    '#title' => t('Email Validation Rules')
-  );
-  $form['email']['broadcast_ivr_email_duplicate_group'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('No duplicate Emails'),
-    '#description'   => t('In a group no email will be repeated'),
-    '#default_value' => variable_get('broadcast_ivr_email_duplicate_group', '1'),
-    '#return_value'  => 1,
-  );
-
-  return system_settings_form($form);
-}
-*/
