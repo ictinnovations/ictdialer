@@ -1,125 +1,30 @@
+2013-01-03 Version 1.0.0
 
-IN THIS README
---------------
+* Improved Trunk management support
+* Select Trunk in campaign form
+* Select custom caller ID in campaign form
+* Set Max call duration in campaign form
+* Bug fix in campaign scheduling
+* Added Agent/Extenions management support
+* Added support for IVR Call transfer Application
+* Real-time Campaign Report updates
+* Sample import contact CSV file at GUI
 
- * System Requirements
- * Setup and Run Freeswitch
- * Setup and Run Plivo
- * ICTDialer Software Installation
- 
+2012-05-25 Version 0.9.1 beta
 
-System Requirements
--------------------
-Following open source softwares are required for ICTDialer to function fully:
-  * CentOS 6
-  * Apache 2
-  * MySQL 5
-  * PHP 5.3.3
-  * php-mysql
-  * php-gd
-  * php-curl
-  * php-imap
-  * php-dom
-  * php-mbstring
-  * perl
-  * perl-DBD-mysql
-  * libtiff
-  * mysql-devel
-  * git
+* Added Trunk support at GUI
+* Default Caller ID support
+* Default application variables and parameter settings
+* Bug fixes in IVRs and IVR campaigns
 
-To install above requirements issue following commands at shell prompt: 
-yum -y install httpd mysql-server mysql mysql-devel yum -y install php php-common php-cli php-gd php-imap php-curl php-mysql yum -y install perl perl-DBD-mysql yum install php-xml yum install php-mbstring yum install git
+2012-01-12 Version 0.9.0 beta
 
-Before continuing to move to next phase, please make sure that MySQL and Apache is running: 
-  # chkconfig httpd on 
-  # chkconfig mysqld on 
-  # service httpd start 
-  # service mysqld start
-  
-
-Setup and Run Freeswitch
-------------------------
-ICTDialer is based on Plivo Framework. 
-So you need to setup and run freeswitch provided by Plivo.org. 
-Instructions on how to install Freeswitch are given 
-at http://www.plivo.org/get-started/ and repeated here for your convenience:
-
-* Download and run the FreeSWITCH installer on your system
-  Note: Currently, this installer is tested on CentOS > 5.5 and Debian-based distros.
-    # wget --no-check-certificate https://github.com/plivo/plivo/raw/master/freeswitch/install.sh
-    # chmod +x install.sh
-    # ./install.sh
-
-* Run FreeSWITCH
-  Run in Foreground
-  # ./usr/local/freeswitch/bin/freeswitch
-  Run in Background
-  # ./usr/local/freeswitch/bin/freeswitch -nc
-
-
-Setup and Run Plivo Framework
------------------------------
-
-Plivo without Fax support
--------------------------
-  By default, Plivo Framework do not support sending and receiving Fax. 
-  If you do not require Fax broadcast support in ICTDialer then 
-  you can continue to install Plivo provided by Plivo.org Team as given below:
-  
-* Download and run the Plivo Framework installer on your system
-  Note: Currently, Plivo Framework is tested on CentOS > 5.5 and Debian-based distros.
-    # wget --no-check-certificate https://github.com/plivo/plivo/raw/master/scripts/plivo_install.sh
-    # chmod +x plivo_install.sh
-    # ./plivo_install.sh /usr/local/plivo/
-* Run Plivo
-    # /etc/init.d/plivo start
-
-Plivo with Fax support
-----------------------
-  However, if you want Fax support in ICTDialer then you should use 
-  our version of open source Plivo. Download and extract ictdialer.tar.gz archive.
-  Locate the folder "plivo-devel" in the extracted ICTdialer directory.
-
-  1. Stop plivo service (if any) and clear /usr/local/plivo
-
-  2. Copy and Paste plivo-devel folder in /usr/
-
-  3. Go to /usr/plivo-devel and Run plivo_install.sh using following command: 
-     #./plivo_install.sh /usr/local/plivo
-
-  5. Go to /usr/local/plivo/bin directory and Run plivo service using the following command:
-     #./plivo start
-
-
-ICTDialer Software Installation
--------------------------------
-Locate the folder "wwwroot" in the extracted ICTdialer directory. 
-Rename this folder to ictdialer and copy-paste it to /usr directory.
-
-* Database Installation:
-  Create "ictdialer" database in mysql (Run 'CREATE DATABASE ictdialer' query on mysql)
-
-* Frontend / Web GUI
-  
-  1. Create a symbolic link for /usr/ictdialer in /var/www/html 
-       ln -s /usr/ictdialer /var/www/html/ictdialer
-  
-  2. Now visit http://DOMAIN.TLD/ictdialer 
-     and follow the installation instructions for 
-     ICTDialer (drupal based) front end installation.
-     
-  3. Once you are done with installation, visit the website 
-     and login as site administrator with username and password 
-     that you provided during installation.
-     
-  4. Now copy the "Broadcast" folder and place it somewhere in 
-     your drupal installation (that you named ictdialer) 
-     preferably in modules/ folder or sites/all/modules/ folder
-  
-  4. Now comback to Web GUI and go to Modules menu and enable all modules in "ICTDialer System" Package.
-  
-  5. Now you'll see a Broadcast menu item in your Navigation 
-     with submenus Campaigns, Contacts and Manage Files. 
-     Upload your contact list and create campaign to broadcast your message.
-
-
+* Fax, SMS and Voice Broadcasting campaigns
+* Campaign scheduling
+* Web-based IVR Designer
+* Contacts and contact groups management
+* Import bulk contacts
+* Manage recording files, fax documents and IVRs.
+* Written in modular approach with Drupal 7.0 CMS
+* Written in PHP 5.3
+* 
