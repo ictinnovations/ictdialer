@@ -136,6 +136,13 @@ for ($try_no = $repeat_start; $try_no <= $camp['repeat_total']; $try_no++) {
         drupal_write_record('broadcast_campaign_log', $deliver_result, 'campaign_log_id');
 
         // Update Campaign to reflect current number of contacts done
+        // new code start: To fix start and resume issue
+        if ($camp['contact_index'] < $contact_record['contact_id']) {
+          $camp['contact_index'] = $contact_record['contact_id'];
+        } else {
+          unset($camp['contact_index']);
+        }
+        // new code end
         drupal_write_record('broadcast_campaign', $camp, 'campaign_id');
         
         // do billing stuff

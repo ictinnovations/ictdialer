@@ -1040,6 +1040,13 @@ function broadcast_campaign_service_stop($campaign_id) {
     if ($PID = $result->fetchField()) {
       // TODO: before killing verify that campaign is running and PID is valid
       shell_exec('kill -9 '.$PID.' > /dev/null &');
+
+      // To fix campaign stop and resume issue
+      $camp['campaign_id'] = $campaign_id;
+      $camp['status']      = CAMPAIGN_RUNNING;
+      drupal_write_record('broadcast_campaign', $camp, 'campaign_id');
+      // stop resume issue
+
       // TODO: check to confirm that campaign has stopped
       return TRUE;
     }
