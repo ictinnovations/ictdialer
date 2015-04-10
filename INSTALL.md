@@ -78,9 +78,8 @@ chown -R apache:apache /usr/ictdialer
 2. When asked for database please provide access info to recently created database ( in ictcore section ) and enter `web_` as database prefix
 2. Once you are done with installation, visit the website and login as site administrator with username and password that you provided during installation.
 4. Now comeback to Web GUI and go to Modules menu and enable all modules in __ICTCore System__ Package.
-5. And also enable __Chaos tools__ Package.
-6. Now enable all modules under __ICTDialer System__ Package.
-7. Now you'll see new menu items for Campaigns, Message creation, ICTCore System and others in your Navigation Menu.
+5. Now enable all modules under __ICTDialer System__ Package.
+6. Now you'll see new menu items for Campaigns, Message creation, ICTCore System and others in your Navigation Menu.
 
 ### 4.2 User Synchronization
 After installation issue following command against ictdialer database, to synchronize ICTDialer users with ICTCore

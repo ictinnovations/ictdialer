@@ -197,14 +197,15 @@ function broadcast_fax_campaign_message_delete($campaign) {
     db_query($sql, array(':campaign_id'=>$campaign['campaign_id']));
     
     // Also delete applications and actions
-    $sql = "SELECT * FROM {broadcast_campaign_application} WHERE campaign_id = :campaign_id";
+// disable IVR releated code
+/*    $sql = "SELECT * FROM {broadcast_campaign_application} WHERE campaign_id = :campaign_id";
     $result = db_query($sql, array(':campaign_id'=>$campaign['campaign_id']));
     while ($campaign_ivr = $result->fetchAssoc()) {
       $sql = 'DELETE FROM {broadcast_campaign_action} WHERE campaign_application_id = :campaign_application_id';
       db_query($sql, array(':campaign_application_id'=>$campaign_ivr['campaign_application_id']));  
     }
     $sql = 'DELETE FROM {broadcast_campaign_application} WHERE campaign_id = :campaign_id';
-    db_query($sql, array(':campaign_id'=>$campaign['campaign_id'])); 
+    db_query($sql, array(':campaign_id'=>$campaign['campaign_id'])); */
   }
 }
 
