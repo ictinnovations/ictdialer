@@ -120,7 +120,7 @@ function broadcast_voice_ivr_list() {
     array('data' => t('Operations')),
   );
 
-  $query = db_select('broadcast_ivr', 'i')->extend('PagerDefault');
+  $query = CoreDB::db_select('ivr', 'i')->extend('PagerDefault');
   $query->fields('i', array('ivr_id', 'name', 'description'));
   $query = broadcast_select_filter($query);
   $result = $query->limit(10)         
@@ -176,13 +176,12 @@ function _broadcast_ivr_list_links($ivr) {
  *   A single ivr in array format, or FALSE if none matched the incoming ID.
  */
 function broadcast_ivr_load($ivr_id) {
-  $sql    = "SELECT * FROM {broadcast_ivr} WHERE ivr_id = :ivr_id";
+  $sql    = "SELECT * FROM ivr WHERE ivr_id = :ivr_id";
   $sql    = broadcast_db_filter($sql);
-  $result = db_query($sql, array(':ivr_id'=>$ivr_id));
+  $result = CoreDB::db_query($sql, array(':ivr_id'=>$ivr_id));
   if ($ivr = $result->fetchAssoc()) {
     return $ivr;
-  }
-  else {
+  } else {
     drupal_set_message(t('Specified IVR does not exist! or you have not proper permissions!'), 'error');
     return FALSE;
   }
@@ -197,24 +196,24 @@ function broadcast_ivr_load($ivr_id) {
 function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
   // It's safe to use on both an empty array, and an incoming array with full or partial data.
   $ivr += array(
-    'name'    => '',
-    'description'     => '',
-    'type'       => '',
-    'path'      => '',
-    'length'       => '',
-    'data'      => '',
-    'app-id' => '-1',
-    'recording_id' => '',
-    'tts' => '',
-    'extension_id' => '',
+    'name'                  => '',
+    'description'           => '',
+    'type'                  => '',
+    'path'                  => '',
+    'length'                => '',
+    'data'                  => '',
+    'app-id'                => '-1',
+    'recording_id'          => '',
+    'tts'                   => '',
+    'extension_id'          => '',
     'getdigit_recording_id' => '',
-    'play_menu1' => 'option 1',
-    'play_menu2' => 'option 2',
-    'play_menu3' => 'option 3',
-    'play_menu4' => 'option 4',
+    'play_menu1'            => 'option 1',
+    'play_menu2'            => 'option 2',
+    'play_menu3'            => 'option 3',
+    'play_menu4'            => 'option 4',
     
   );
-  
+
   drupal_add_js(drupal_get_path('module', 'broadcast_ivr') .'/lib/raphael.js'); 
   drupal_add_js(drupal_get_path('module', 'broadcast_ivr') .'/lib/jquery.js');
   drupal_add_js(drupal_get_path('module', 'broadcast_ivr') .'/lib/jquery-ui-1.8.16.js');
@@ -223,7 +222,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
   drupal_add_js(drupal_get_path('module', 'broadcast_ivr') .'/lib/ui/jquery.ui.tabs.js');
   drupal_add_js(drupal_get_path('module', 'broadcast_ivr') .'/lib/IVRDesigner.js');
   drupal_add_js(drupal_get_path('module', 'broadcast_ivr') .'/lib/IVRDesigner_functions.js');
-  
+
   $onchange  = 'Drupal.behaviors.broadcast_ivr = {
                   attach: function(){
                             init();
@@ -240,7 +239,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
                           }
                   }';
   }
-  
+
   drupal_add_js($onchange, array('type'=>'inline','scope'=>'header'));
   drupal_add_css(drupal_get_path('module', 'broadcast_ivr') .'/lib/ivr.css');
   
@@ -253,7 +252,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
       '#value'       => $ivr['ivr_id'],
     );
   }
-  
+
   $form['ivr'] = array(
     '#type'          => 'fieldset',
     '#title'         => t('IVR'),
@@ -263,7 +262,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
       '#type'        => 'hidden',
       '#value'       => $ivr['app-id'],
   );
-  
+
   $form['ivr']['name'] = array(
     '#type'          => 'textfield',
     '#title'         => t('ivr Name'),
@@ -276,7 +275,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
     '#attributes'    => array('class' => array('inside'), 'style' => array('display:none;')),
     '#default_value' => $ivr['data']
   );
-  
+
   $module_path = base_path() . drupal_get_path('module', 'broadcast_ivr');
   $form['ivr']['designer'] = array(
     '#type'          => 'markup',
@@ -355,7 +354,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
   );
   $form['ivr']['play_audio_properties']['recording_id'] = array(
     '#type'          => 'select',
-    '#options'       => array(-1 => t('[Select Recording]')) + broadcast_recording_option(),
+    '#options'       => array(-1 => t('[Select Recording]')) + ictcore_recording_option(),
     '#default_value' => $ivr['recording_id']
   );
   
@@ -370,7 +369,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
                        <a href="#" class="close" onclick="javascript:saveTTSData();"/><font size="4" color="red">Apply</font></a>
                        </div>
                        <!-- Mask to cover the whole screen -->
-                       <div id="mask_tts" class="mask" style="margin: 0px;"></div>
+                       <div id="mask_tts" class="mask" style="margin: 0 auto;"></div>
                        </div>'
   );
   $form['ivr']['tts_properties']['tts'] = array(
@@ -420,7 +419,7 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
   );
   $form['ivr']['getdigit_properties']['getdigit_recording_id'] = array(
     '#type'          => 'select',
-    '#options'       => array(-1 => t('[Select Recording]')) + broadcast_recording_option(),
+    '#options'       => array(-1 => t('[Select Recording]')) + ictcore_recording_option(),
     '#default_value' => $ivr['getdigit_recording_id']
   );
   
@@ -461,8 +460,6 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
     '#default_value' => $ivr['play_menu4']
   );
   
-  /////////////////////////////////////////////////////////
-  
   $form['submit'] = array(
     '#type'          => 'submit',
     '#value'         => t('Submit'),
@@ -472,9 +469,10 @@ function broadcast_ivr_form($form, &$form_state, $ivr = array()) {
 }
 
 function broadcast_ivr_form_validate($form, &$form_state) {
-  $existing_record = 0;
-  $ivr         = $form_state['values'];
 
+  $existing_record = 0;
+
+  $ivr = $form_state['values'];
   if (isset($ivr['ivr_id'])) {
     // we are editing an existing record
     $existing_record = $ivr['ivr_id'];
@@ -492,14 +490,14 @@ function broadcast_ivr_form_validate($form, &$form_state) {
  */
 function broadcast_ivr_form_submit($form, &$form_state) {
   global $user;
+
+  include_once"/usr/ictcore/core/core.php";  
+
   $onsubmit = 'Drupal.behaviors.broadcast_ivr = { attach: function(){serializeArray();}}';
   drupal_add_js($onsubmit,array('type'=>'inline','scope'=>'header'));
   
   $ivr = $form_state['values'];
-  
-  if (!isset($ivr['created'])) {
-    $ivr['created'] = time();
-  }
+
   if (!isset($ivr['created_by'])) {
     $ivr['created_by'] = $user->uid;
   }
@@ -508,14 +506,18 @@ function broadcast_ivr_form_submit($form, &$form_state) {
     $ivr['description'] = '';
   }
   // save the ivr
-  if (isset($ivr['ivr_id'])) {
-    drupal_write_record('broadcast_ivr', $ivr, 'ivr_id');
+  $oIvr = new Ivr($ivr['ivr_id']);
+  $oIvr->set('name',        $ivr['name']);
+  $oIvr->set('description', $ivr['description']);
+  $oIvr->set('data',        $ivr['data']);
+  $oIvr->set('created_by',  $ivr['created_by']);
+  $result = $oIvr->save();
+  if ($result) {
+    drupal_set_message(t('IVR saved successfully!'), 'status');
+    $form_state['redirect'] = 'broadcast/files/ivr/list';
+  } else {
+    drupal_set_message(t('Unable to saved IVR !'), 'error');
   }
-  else {
-    drupal_write_record('broadcast_ivr', $ivr);
-  }
-  drupal_set_message(t('IVR saved successfully!'), 'status');
-  $form_state['redirect'] = 'broadcast/files/ivr/list';
 }
 
 /**
@@ -525,8 +527,11 @@ function broadcast_ivr_form_submit($form, &$form_state) {
  *   An array of ivr containing the ID of a ivr
  */
 function broadcast_ivr_delete($ivr) {
-  $sql = 'DELETE FROM {broadcast_ivr} WHERE ivr_id = :ivr_id';
-  if(db_query($sql, array(':ivr_id'=>$ivr['ivr_id']))) {
+
+  include_once"/usr/ictcore/core/core.php";
+
+  $oIvr = new Ivr($ivr['ivr_id']);
+  if($oIvr->delete()) {
     drupal_set_message(t('IVR deleted successfully!'), 'status');
   } else {
     drupal_set_message(t('Cannot delete specified IVR! or you have not proper permissions!'), 'error');
@@ -535,13 +540,28 @@ function broadcast_ivr_delete($ivr) {
 }
 
 function broadcast_ivr_option() {
-  $sql = "SELECT * FROM {broadcast_ivr}";
-  $sql = broadcast_db_filter($sql, '{broadcast_ivr}');
-  $result = db_query($sql);
-  $rows = array();
+  $sql    = "SELECT * FROM ivr";
+  $sql    = broadcast_db_filter($sql, 'ivr');
+  $result = CoreDB::db_query($sql);
+  $rows   = array();
   while ($ivr = $result->fetchAssoc()) {
     $row_id = $ivr['ivr_id'];
     $rows[$row_id] = check_plain($ivr['name']);
+  }
+  if (!isset($rows)) {
+    return FALSE;
+  }
+  return $rows;
+}
+
+function ictcore_recording_option() {
+  $sql    = "SELECT * FROM recording";
+  $sql    = broadcast_db_filter($sql, 'recording');
+  $result = CoreDB::db_query($sql);
+  $rows   = array();
+  while ($recording = $result->fetchAssoc()) {
+    $row_id = $recording['recording_id'];
+    $rows[$row_id] = check_plain($recording['name']);
   }
   if (!isset($rows)) {
     return FALSE;

@@ -99,11 +99,11 @@ function broadcast_sms_campaign_message($form_state, $campaign = array()) {
       '#type'          => 'fieldset',
       '#title'         => t('SMS Message'),
     );
-
+    $select_sms = broadcast_text_option();
     $form['sms']['message'] = array(
-      '#type'          => 'textarea',
+      '#type'          => 'select',
       '#title'         => t('Message Text'),
-      '#required'      => TRUE,
+      '#options'       => $select_sms, 
       '#default_value' => $campaign['message'],
     );
     $form['sms']['campaign_type'] = array(

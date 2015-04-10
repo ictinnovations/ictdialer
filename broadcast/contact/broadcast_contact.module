@@ -215,8 +215,9 @@ function broadcast_contact_list($contact_group = FALSE) {
     array('data' => t('E-Mail'),     'field' => 'email'),
     array('data' => t('Operations')),
   );
-
-  $query = db_select('broadcast_contact', 'c')->extend('PagerDefault');
+//TODO: please avoid this hack, dual database connectivity.
+  global $aICTCoreDB;
+  $query = db_select("$aICTCoreDB[database].contact", 'c')->extend('PagerDefault');
   $query->fields('c', array('contact_id', 'first_name', 'last_name', 'phone', 'email'));
   if (is_array($contact_group)) {
     $query->join('broadcast_contact_link', 'l', 'c.contact_id = l.contact_id');
@@ -279,9 +280,9 @@ function _broadcast_contact_list_links($contact) {
  *   A single contact in array format, or FALSE if none matched the incoming ID.
  */
 function broadcast_contact_load($contact_id) {
-  $sql    = "SELECT * FROM {broadcast_contact} WHERE contact_id = :contact_id";
+  $sql    = "SELECT * FROM contact WHERE contact_id = :contact_id";
   $sql    = broadcast_db_filter($sql);
-  $result = db_query($sql, array(':contact_id'=>$contact_id));
+  $result = CoreDB::db_query($sql, array(':contact_id'=>$contact_id));
   if ($contact = $result->fetchAssoc()) {
     // every contact may also have some groups assigned to it,
     // so fetch there id into $contact['selected_group'] as arrays
@@ -579,12 +580,14 @@ function broadcast_contact_check_duplicate($field, $value, $contact_group_id, $c
   if (variable_get('broadcast_contact_' . $field . '_duplicate_group', 0) != 1) {
     return TRUE;
   } else {
-    $sql = "SELECT COUNT({broadcast_contact}.contact_id) AS total
-      FROM {broadcast_contact} JOIN {broadcast_contact_link} 
-        ON {broadcast_contact}.contact_id = {broadcast_contact_link}.contact_id
-      WHERE {broadcast_contact}.contact_id != :contact_id
-        AND {broadcast_contact_link}.contact_group_id = :contact_group_id
-        AND {broadcast_contact}.$field = :field";
+    //TODO: please avoid this hack, dual database connectivity.
+    global $aICTCoreDB;
+    $sql = "SELECT COUNT(c.contact_id) AS total
+      FROM $aICTCoreDB[database].contact c JOIN {broadcast_contact_link} cl
+        ON c.contact_id = cl.contact_id
+      WHERE c.contact_id != :contact_id
+        AND cl.contact_group_id = :contact_group_id
+        AND c.$field = :field";
     $result = db_query($sql, array(':contact_id'=>$contact_id, ':contact_group_id'=>$contact_group_id, ':field'=>$value));
     $total  = $result->fetchField();
     if ($total > 0) {
@@ -606,32 +609,40 @@ function broadcast_contact_check_duplicate($field, $value, $contact_group_id, $c
 function broadcast_contact_form_submit($form, &$form_state) {
   global $user;
 
+  include_once"/usr/ictcore/core/core.php";  
+
   $contact = $form_state['values'];
   $previous_groups = $form['group']['selected_group']['#default_value'];
 
   if (!isset($contact['created'])) {
     $contact['created'] = time();
   }
-  if (!isset($contact['created_by'])) {
-    $contact['created_by'] = $user->uid;
-  }
+
+  do_login($user->uid);
 
   // save the contact
-  if (isset($contact['contact_id'])) {
-    drupal_write_record('broadcast_contact', $contact, 'contact_id');
+  if (!isset($contact['contact_id'])) {
+    $oContact = new Contact($contact['contact_id']);
+  } else {
+    $oContact = new Contact();
   }
-  else {
-    drupal_write_record('broadcast_contact', $contact);
-  }
-
+  $oContact->set('first_name', $contact['first_name']);
+  $oContact->set('last_name', $contact['last_name']);
+  $oContact->set('phone', $contact['phone']);
+  $oContact->set('email', $contact['email']);
+  $oContact->set('description', $contact['description']);
+  $oContact->set('address', $contact['address']);
+  $oContact->set('created_by', $user->uid);
+  $oContact->save();
+  
   // also save assigned groups to this contact. but first delete existing groups
   $sql    = 'DELETE FROM {broadcast_contact_link} WHERE contact_id = :contact_id';
-  $result = db_query($sql, array(':contact_id'=>$contact['contact_id']));
+  $result = db_query($sql, array(':contact_id'=>$oContact->contact_id));
   foreach ($contact['selected_group'] as $key => $group) {
     if ($group != 0) { // only if this group is selected
       $aSelectedGroup = array(
         'contact_group_id' => $key,
-        'contact_id'       => $contact['contact_id']
+        'contact_id'       => $oContact->contact_id
       );
       drupal_write_record('broadcast_contact_link', $aSelectedGroup);
     }
@@ -648,12 +659,15 @@ function broadcast_contact_form_submit($form, &$form_state) {
  *   An array of contact containing the ID of a contact and assigned groups.
  */
 function broadcast_contact_delete($contact) {
+
+    include_once"/usr/ictcore/core/core.php";
+
   // first delete assigned group entries
   $sql = 'DELETE FROM {broadcast_contact_link} WHERE contact_id = :contact_id';
   db_query($sql, array(':contact_id'=>$contact['contact_id']));
 
-  $sql = 'DELETE FROM {broadcast_contact} WHERE contact_id = :contact_id';
-  db_query($sql, array(':contact_id'=>$contact['contact_id']));
+  $sql = 'DELETE FROM contact WHERE contact_id = :contact_id';
+  CoreDB::db_query($sql, array(':contact_id'=>$contact['contact_id']));
 
   drupal_set_message(t('Contact deleted successfully!'), 'status');
   drupal_goto('broadcast/contact/contact');
@@ -817,7 +831,7 @@ function broadcast_contact_group_form_submit($form, &$form_state) {
   global $user;
 
   $contact_group = $form_state['values'];
-  
+
   if (!isset($contact_group['created'])) {
     $contact_group['created'] = time();
   }
@@ -915,14 +929,16 @@ function broadcast_contact_import_group($src_groups, $contact_group_id) {
   $total_rows    = 0;
   $contact_group = broadcast_contact_group_load($contact_group_id);
 
+ global $aICTCoreDB;
+
   foreach($src_groups as $key => $group_id) {
     if ($group_id != 0) { // only if this group is selected
       $contact_group_src = broadcast_contact_group_load($group_id);
-      $sql               = "SELECT {broadcast_contact}.* 
-                             FROM {broadcast_contact_link} JOIN {broadcast_contact}
-                              ON {broadcast_contact_link}.contact_id = {broadcast_contact}.contact_id
-                             WHERE contact_group_id = :contact_group_id";
-      $result            = db_query($sql, array(':contact_group_id'=>$contact_group_src['contact_group_id']));
+      $sql    = "SELECT c.* 
+                 FROM {broadcast_contact_link} JOIN $aICTCoreDB[database].contact c
+                   ON {broadcast_contact_link}.contact_id = c.contact_id
+                 WHERE contact_group_id = :contact_group_id";
+      $result = db_query($sql, array(':contact_group_id'=>$contact_group_src['contact_group_id']));
 
       while ($contact = $result->fetchAssoc()) {
         broadcast_contact_import_link($contact, $contact_group);
@@ -961,7 +977,7 @@ function broadcast_contact_import_file($input_file, $contact_group_id) {
         if (broadcast_contact_email_validate($contact['email'])) {
 
           // if all is OK save the contact
-          drupal_write_record('broadcast_contact', $contact);
+          DB::update('contact', $contact, false, true);
           broadcast_contact_import_link($contact, $contact_group);
           $total_rows++;
 

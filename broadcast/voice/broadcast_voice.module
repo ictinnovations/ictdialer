@@ -116,18 +116,19 @@ function broadcast_voice_campaign_message($form_state, $campaign = array()) {
       'message_type'    => '0',
       'ivr'             => '0',
     );
-    if(!empty($campaign['recording'])) {
+    /* if(!empty($campaign['recording'])) {
       $campaign['message_type'] = 1;
     } else if(!empty($campaign['ivr'])) {
       $campaign['message_type'] = 2;
     }
+    */
     
     $form['voice'] = array(
       '#type'          => 'fieldset',
       '#title'         => t('Voice Message'),
     );
     
-    $form['voice']['message_type'] = array(
+    /* $form['voice']['message_type'] = array(
       '#type'          => 'select',
       '#title'         => t('Message Type'),
       '#options'       => array(0 => t('[Select Message Type]'),1 => t('Voice'),2 => t('IVR')),
@@ -153,11 +154,12 @@ function broadcast_voice_campaign_message($form_state, $campaign = array()) {
            }(jQuery));";
 
     drupal_add_js($js, array('type'=>'inline', 'scope'=>'footer'));
+    */
     
     $form['voice']['recording_field'] = array(
       '#type'          => 'fieldset',
       '#title'         => t('Pre-Recorded Message'),
-      '#attributes'    => array('style' => 'display: '. (($campaign['recording'] == 0) ? 'none': ''), 'id' => 'edit-recording-wrapper'),
+      //'#attributes'    => array('style' => 'display: '. (($campaign['recording'] == 0) ? 'none': ''), 'id' => 'edit-recording-wrapper'),
     );
 
     $optionsRec = broadcast_recording_option();
@@ -168,7 +170,7 @@ function broadcast_voice_campaign_message($form_state, $campaign = array()) {
       '#default_value' => $campaign['recording'],
     );
     
-    $form['voice']['ivr_field'] = array(
+    /*$form['voice']['ivr_field'] = array(
       '#type'          => 'fieldset',
       '#title'         => t('IVR Message'),
       '#attributes'    => array('style' => 'display: '. (($campaign['ivr'] == 0) ? 'none': ''), 'id'    => 'edit-ivr-wrapper'),
@@ -181,7 +183,8 @@ function broadcast_voice_campaign_message($form_state, $campaign = array()) {
       '#options'       => $optionsIvr, 
       '#default_value' => $campaign['ivr'],
     );
-    
+    */
+
     $form['voice']['campaign_type'] = array(
     '#type'          => 'value',
     '#default_value' => 'voice',
@@ -235,7 +238,6 @@ function broadcast_voice_campaign_message_submit($form, $form_state, $campaign) 
       );
       drupal_write_record('broadcast_campaign_ivr', $aSelectedIVR);
       // then write applications and actions of selected IVR
-      writeIVRApplication($campaign['campaign_id'], $voice['ivr']);
       
     }
     
@@ -319,156 +321,9 @@ function _broadcast_voice_get_gateways() {
 }
 
 
-/* Get, load, and test default Voice gateway
-******************************************/
-
-function broadcast_voice_get_gateway($campaign_id) {
-  static $voice_gateway      = FALSE;
-  static $gateway_loaded     = FALSE;
-  static $function_ready     = FALSE;
-  static $function_deliver   = FALSE;
-
-  if (!$gateway_loaded) {
-    $voice_gateway      = variable_get('broadcast_voice_default_gateway', 'broadcast_plivo');
-    $function_load    = $voice_gateway . '_load';
-    $function_ready   = $voice_gateway . '_is_ready';
-    $function_deliver = $voice_gateway . '_deliver';
-
-    $gateway_loaded   = $function_load('voice', $campaign_id);
-  }
-
-  if ($gateway_loaded) {
-    // Wait until gateway is ready
-    // TODO: timeout ??
-    while (!$function_ready('sms')) {
-      usleep(200000); // 200000 = 0.2 second
-    }
-    return $function_deliver;
-  } else {
-    return FALSE;
-  }
-}
-
-/* Load applications for this campaign and gateway function
-************************************************************/
-
-function broadcast_voice_get_apps($campaign_id) {
-    $message = broadcast_voice_load($campaign_id);
-
-    $voice_gateway      = variable_get('broadcast_voice_default_gateway', 'broadcast_plivo');
-    $function_prepare = $voice_gateway . '_message_prepare';
-
-    return $function_prepare('voice', $message); 
- 
-}
-
-
-/* Enumerate all Voice gateways
-*****************************/
-
-function broadcast_voice_deliver($campaign_id, $contact_id, $log_id) {
-  static $first_app_id       = FALSE;
-  static $message_variables = array('%firstname', 
-                                    '%lastname', 
-                                    '%phone', 
-                                    '%email', 
-                                    '%company'
-                                   );
-      
-  // No need to send message. We will get it by application id. 
-  // We'll handle IVRs and get applications and actions.
-  if (!$first_app_id) {
-    $first_app_id = broadcast_voice_get_apps($campaign_id);
-    //TODO: what to do if it failed
-  }
-  
-  $gateway_deliver = broadcast_voice_get_gateway($campaign_id);
-  //TODO: what to do if gateway is not ready
-  
-  $contact         = broadcast_contact_load($contact_id);
-  $message_values  = array($contact['first_name'], 
-                           $contact['last_name'], 
-                           $contact['phone'], 
-                           $contact['email'], 
-                           $contact['company']
-                          );
-  
-  // customize message for each contact by replacing variables (if used) with there values
-  //$message_custom  = str_replace($message_variables, $message_values, $voice_message);
-
-  $deliver_result  = $gateway_deliver($contact['phone'], $first_app_id, $log_id);
-  
-  return $deliver_result;
-  
-}
 
 /* Write IVR to database
 *************************/
-
-function writeIVRApplication($campaign_id, $ivr_id) {
-  $result = db_query("SELECT * FROM broadcast_ivr WHERE ivr_id=:ivr_id", array(':ivr_id'=>$ivr_id));
-  if($ivr = $result->fetchAssoc()) {
-    $applications = json_decode($ivr["data"], true);
-  }
-  
-  foreach($applications as $app) {
-    if($app["isRemoved"] == "yes") {
-      continue;
-    }
-    $appType = $app["appType"];
-    switch($appType) {
-    case 'play_audio':
-      $test_val = array();
-      $data = array('recording' => $app["data"]["recording_id"]);
-      break;
-    case 'transfer':
-      $test_val = array();
-      $data = array('extension' => $app["data"]["extension_id"]);
-      break;
-    case 'tts':
-      $test_val = array();
-      $data = array('tts' => $app["data"]["tts"]);
-      break;
-    case 'getdigit':
-      $test_val = array();
-      $data = array('recording' => $app["data"]["getdigit_recording_id"]);
-      break;
-    case 'amd':
-      $test_val = array(0 => 'machine', 1 => 'human');
-      $data = array();
-      break;
-    case 'play_menu':
-      $test_val = array(1, 2, 3, 4);
-      $data = array('play_menu1' => $app["data"]["play_menu1"], 'play_menu2' => $app["data"]["play_menu2"], 'play_menu3' => $app["data"]["play_menu3"], 'play_menu4' => $app["data"]["play_menu4"]);
-      break;
-    default:
-      $data = array();
-      $test_val = array();
-    }
-    $cur_app = dialplan_application_add(
-      $campaign_id, 
-      $appType, 
-      $data
-    );
-    dialplan_action_next(null);
-    for($out = 0; $out < count($app["nodes"]["output"]); $out++) {
-      if($app["element"]["outPointer"][$out]["isAttached"]=="yes") {
-        $test_value = isset($test_val[$out]) ? $test_val[$out] : '';
-        dialplan_action_set($app["index"], $out, array('src_app' => $cur_app, 'test_value' => $test_value));
-      }
-    }
-    for($in = 0; $in < count($app["element"]["inPointer"]); $in++) {
-      if(!empty($app["element"]["inPointer"][$in])) {
-        $app_ref = $app["element"]["inPointer"][$in]["sourceAppIndex"];
-        $node_ref = $app["element"]["inPointer"][$in]["ptrIndex"];
-        dialplan_action_set($app_ref, $node_ref, array('dst_app' => $cur_app));
-      }
-    }
-  }// end loop for applications
-  
-  // to save all pending actions
-  dialplan_action_update_all();
-}
 
 function writeRecordingApplication($campaign_id, $recording_id) {
   

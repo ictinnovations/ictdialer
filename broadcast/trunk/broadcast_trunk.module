@@ -338,12 +338,12 @@ function broadcast_trunk_delete($trunk) {
  */
 function broadcast_trunk_option() {
   global $user;
-  $sql = "SELECT broadcast_trunk_id, name FROM {broadcast_trunk}  
+  $sql = "SELECT provider_id, name FROM provider
           WHERE created_by = :uid";
-  $result = db_query($sql, array(':uid'=>$user->uid));
+  $result = CoreDB::db_query($sql, array(':uid'=>$user->uid));
   $rows = array();
   while ($trunk = $result->fetchAssoc()) {
-    $row_id = $trunk['broadcast_trunk_id'];
+    $row_id = $trunk['provider_id'];
     $rows[$row_id] = check_plain($trunk['name']);
   }
   if (!isset($rows)) {
@@ -356,7 +356,7 @@ function broadcast_trunk_option() {
  * Loader function for active trunks.
  */
 function get_trunk_active() {
-  $sql = "SELECT * FROM {broadcast_trunk} WHERE active=1 ORDER BY created DESC LIMIT 1";
+  $sql = "SELECT * FROM {provider} WHERE active=1 ORDER BY created DESC LIMIT 1";
   $result = db_query($sql);
   if ($trunk = $result->fetchAssoc()) {
     return $trunk;

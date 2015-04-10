@@ -103,19 +103,19 @@ function broadcast_extension_list($admin_links = false) {
   global $user;
 
   $header = array(
-    array('data' => t('Extension / Username'),  'field' => 'name',  'sort' => 'asc'),
-    array('data' => t('Secret'),                'field' => 'secret'),
-    array('data' => t('Assigned To'),           'field' => 'user_name'),
+    array('data' => t('Extension / Username'),  'field' => 'username',  'sort' => 'asc'),
+    array('data' => t('Secret'),                'field' => 'passwd'),
+    array('data' => t('Email'),                 'field' => 'email'),
     array('data' => t('Operations')),
   );
   
-  $query = db_select('broadcast_extension', 't')->extend('PagerDefault');
-  $query->fields('t', array('extension_id', 'name', 'secret', 'created_by'));
-  $query->join('users', 'u', 't.created_by = u.uid');
-  $query->addField('u', 'name', 'user_name');
-  if($user->uid != 1) {
-    $query->condition('t.created_by', $user->uid,'=');
-  }
+  $query = CoreDB::db_select('account', 'a')->extend('PagerDefault');
+  $query->fields('a', array('account_id', 'username', 'passwd', 'email'));
+//  $query->join('usr', 'u', 'a.created_by = u.usr_id');
+//  $query->addField('u', 'name', 'user_name');
+//  if($user->uid != 1) {
+//    $query->condition('a.created_by', $user->uid,'=');
+//  }
   //$query->orderBy('created', 'DESC');
   
   $result = $query->limit(50)  
@@ -124,10 +124,10 @@ function broadcast_extension_list($admin_links = false) {
             ->execute();
     
   while ($extension = $result->fetchAssoc()) {
-    $row_id = $extension['extension_id'];
-    $rows[$row_id][] = check_plain($extension['name']);
-    $rows[$row_id][] = check_plain($extension['secret']);
-    $rows[$row_id][] = check_plain($extension['user_name']); 
+    $row_id = $extension['account_id'];
+    $rows[$row_id][] = check_plain($extension['username']);
+    $rows[$row_id][] = check_plain($extension['passwd']);
+    $rows[$row_id][] = check_plain($extension['email']); 
     $rows[$row_id][] = _broadcast_extension_list_links($extension);
   }
   if (!isset($rows)) {
@@ -148,12 +148,12 @@ function broadcast_extension_list($admin_links = false) {
 function _broadcast_extension_list_links($extension) {
   $links['edit'] = array(
     'title' => t('Edit'),
-    'href' => 'broadcast/extension/' . $extension['extension_id'] . '/edit',
+    'href' => 'broadcast/extension/' . $extension['account_id'] . '/edit',
     'html' => TRUE,
   );
   $links['delete'] = array(
-    'title' => t('Remove'),
-    'href' => 'broadcast/extension/' . $extension['extension_id'] . '/delete',
+    'title' => t('Delete'),
+    'href' => 'broadcast/extension/' . $extension['account_id'] . '/delete',
     'html' => TRUE,
   );
   return theme('links', array('links'=>$links, 'attributes' => array('class' => array('links', 'inline'))));
@@ -167,20 +167,24 @@ function broadcast_extension_form($form, &$form_state, $edit = array()) {
   
   // It's safe to use on both an empty array, and an incoming array with full or partial data.
   $edit += array(
-    'extension_id' => '',
-    'name'            => '',
-    'description'     => '',
-    'username'        => '',
-    'secret'          => '',
-    'created_by'      => '',
+    'account_id' => '',
+    'username'   => '',
+    'passwd'     => '',
+    'email'      => '',
+    'first_name' => '',
+    'last_name'  => '',
+    'phone'      => '',
+    'address'    => '',
+    'active'     => '',
+    'created_by' => '',
   );
 
   // If we're editing an existing, we'll add a value field to the form
   // containing it's unique ID.
-  if (!empty($edit['extension_id'])) {
-    $form['extension_id'] = array(
+  if (!empty($edit['account_id'])) {
+    $form['account_id'] = array(
       '#type'          => 'value',
-      '#value'         => $edit['extension_id'],
+      '#value'         => $edit['account_id'],
     );
   }
 
@@ -189,20 +193,57 @@ function broadcast_extension_form($form, &$form_state, $edit = array()) {
     '#title' => t('Extension Information'),
   );
 
-  $form['info']['name'] = array(
+  $form['info']['username'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Extension / Username'),
     '#required'      => TRUE,
-    '#default_value' => $edit['name'],
+    '#default_value' => $edit['username'],
     '#description' => t('Requires an extension file to be created in Freeswitch. Username MUST match with extension name that you created in freeswitch.'),
   );
   
-  $form['info']['secret'] = array(
+  $form['info']['passwd'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Secret / Password'),
-    '#default_value' => $edit['secret'],
+    '#default_value' => $edit['passwd'],
   );
   
+  $form['info']['email'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('E-mail address'),
+    '#default_value' => $edit['email'],
+  );
+  
+  $form['info']['first_name'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('First Name'),
+    '#default_value' => $edit['first_name'],
+  );
+  
+  $form['info']['last_name'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Last Name'),
+    '#default_value' => $edit['last_name'],
+  );
+  
+  $form['info']['phone'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Phone'),
+    '#default_value' => $edit['phone'],
+  );
+  
+  $form['info']['address'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Address'),
+    '#default_value' => $edit['address'],
+  );
+  
+  $form['info']['active'] = array(
+    '#type' => 'radios',
+    '#title' => t('Status'),
+    '#default_value' => $edit['active'],
+    '#options' => array(t('Disable'), t('Active')),
+  );
+/*
   $form['info']['created_by'] = array(
     '#type'          => 'select',
     '#title'         => t('Assign Extension'),
@@ -210,7 +251,7 @@ function broadcast_extension_form($form, &$form_state, $edit = array()) {
     '#options'       => array(-1=>'- Select -') + broadcast_user_option(),
     '#default_value' => $edit['created_by'],
   );
-
+*/
   $form['buttons']['submit'] = array(
     '#type'          => 'submit',
     '#value'         => t('Submit'),
@@ -224,16 +265,14 @@ function broadcast_extension_form($form, &$form_state, $edit = array()) {
  */
 function broadcast_extension_form_validate($form, &$form_state) {
   $extension = $form_state['values'];
-  if (!isset($extension['extension_id'])) {
-    $query = 'SELECT * FROM {broadcast_extension} WHERE name=:name';
-    $result = db_query($query, array(':name'=>$extension['name']));
+  if (!isset($extension['account_id'])) {
+    $query = 'SELECT * FROM account WHERE username=:username';
+    $result = CoreDB::db_query($query, array(':username'=>$extension['username']));
     if($rec = $result->fetchAssoc()) {
-        form_set_error('name', t('Extension name is already taken. Please choose another name.'));
+        form_set_error('username', t('Extension name is already taken. Please choose another name.'));
     }
   }
-  if ($form_state['values']['created_by'] == -1) {
-      form_set_error('created_by', t('Assign Extension field is required.'));
-    }
+
 }
 
 
@@ -241,7 +280,7 @@ function broadcast_extension_form_validate($form, &$form_state) {
  * Inserts a new extension, or updates an existing one.
  *
  * @param $extension
- *   A extension to be saved. If $extension['extension_id'] is set, the extension will be updated.
+ *   A extension to be saved. If $extension['account_id'] is set, the extension will be updated.
  *   Otherwise, a new extension will be inserted into the database.
  * @return
  *   The saved extension, with its ID set.
@@ -249,24 +288,27 @@ function broadcast_extension_form_validate($form, &$form_state) {
 function broadcast_extension_form_submit($form, &$form_state) {
   global $user;
 
-  $extension = $form_state['values'];
+  include_once "/usr/ictcore/core/core.php";
 
-  if (!isset($extension['created'])) {
-    $extension['created'] = time();
-  }
-  if (!isset($extension['created_by'])) {
+  $account = $form_state['values'];
+  if (!isset($account['created_by'])) {
     $extension['created_by'] = $user->uid;
   }
-
-  // save new or update the extension
-  if (isset($extension['extension_id'])) {
-    drupal_write_record('broadcast_extension', $extension, 'extension_id');
+  $oAccount = new Account($account['account_id']);
+  $oAccount->set('username',   $account['username']);
+  $oAccount->set('passwd',     $account['passwd']);
+  $oAccount->set('first_name', $account['first_name']);
+  $oAccount->set('last_name',  $account['last_name']);
+  $oAccount->set('phone',      $account['phone']);
+  $oAccount->set('email',      $account['email']);
+  $oAccount->set('address',    $account['address']);
+  $oAccount->set('active',     $account['active']);
+  $result = $oAccount->save();
+  if ($result) {
     drupal_set_message(t('Extension updated successfully!'), 'status');
   } else {
-    drupal_write_record('broadcast_extension', $extension);
-    drupal_set_message(t('Extension created successfully!'), 'status');
+    drupal_set_message(t('Unable to create Extension!'), 'error');
   }
-    
   $form_state['redirect'] = 'broadcast/extension/list';
 }
 
@@ -274,9 +316,9 @@ function broadcast_extension_form_submit($form, &$form_state) {
 /**
  * Loader function for individual extensions.
  */
-function broadcast_extension_load($extension_id) {
-  $sql    = "SELECT * FROM {broadcast_extension} WHERE extension_id = :extension_id";
-  $result = db_query($sql, array(':extension_id' => $extension_id));
+function broadcast_extension_load($account_id) {
+  $sql    = "SELECT * FROM account WHERE account_id = :account_id";
+  $result = CoreDB::db_query($sql, array(':account_id' => $account_id));
   if ($extension = $result->fetchAssoc()) {
     return $extension;
   } else {
@@ -292,10 +334,22 @@ function broadcast_extension_load($extension_id) {
  *   An array of extension containing the ID of a extension.
  */
 function broadcast_extension_delete($extension) {
-  // Now remove extension from broadcast_extension table
-  $sql = 'DELETE FROM {broadcast_extension} WHERE extension_id = :extension_id';
-  db_query($sql, array(':extension_id'=>$extension['extension_id']));
-  drupal_set_message(t('Extension deleted successfully!'), 'status');
+
+  include_once "/usr/ictcore/core/core.php";
+
+  $query  = 'SELECT * FROM account';
+  $result = CoreDB::db_query($query);
+  $count  = $result->rowCount();
+  if ($count >= 2){
+    $oAccount = new Account($extension['account_id']);
+    if ($oAccount->delete()){
+      drupal_set_message(t('Extension deleted successfully!'), 'status');
+    } else {
+      drupal_set_message(t('Unable to delete Extension.'), 'error');
+    }
+  } else {
+    drupal_set_message(t('At least one Extension must have, can\'t delete'), 'error');
+  }
   drupal_goto('broadcast/extension/list');
 }
 
@@ -304,13 +358,13 @@ function broadcast_extension_delete($extension) {
  */
 function broadcast_extension_option() {
   global $user;
-  $sql = "SELECT extension_id, name FROM {broadcast_extension}  
-          WHERE created_by = :uid";
-  $result = db_query($sql, array(':uid'=>$user->uid));
+  $sql = "SELECT account_id, username FROM {account}  
+          WHERE created_by = :usr_id";
+  $result = CoreDB::db_query($sql, array(':usr_id'=>$user->uid));
   $rows = array();
   while ($extension = $result->fetchAssoc()) {
-    $row_id = $extension['extension_id'];
-    $rows[$row_id] = check_plain($extension['name']);
+    $row_id = $extension['account_id'];
+    $rows[$row_id] = check_plain($extension['username']);
   }
   if (!isset($rows)) {
     return FALSE;
@@ -322,17 +376,15 @@ function broadcast_extension_option() {
  * Loader function for all users.
  */
 function broadcast_user_option() {
-  $sql = "SELECT uid, name FROM {users} WHERE uid > 0";
-  $result = db_query($sql);
-  $rows = array();
+  $sql    = "SELECT usr_id, username FROM usr WHERE usr_id > 0";
+  $result = CoreDB::db_query($sql);
+  $rows   = array();
   while ($user = $result->fetchAssoc()) {
-    $row_id = $user['uid'];
-    $rows[$row_id] = check_plain($user['name']);
+    $row_id = $user['usr_id'];
+    $rows[$row_id] = check_plain($user['username']);
   }
   if (!isset($rows)) {
     return FALSE;
   }
   return $rows;
 }
-
-

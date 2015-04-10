@@ -115,26 +115,23 @@ function broadcast_document_permission() {
 function broadcast_voice_document_list() {
 
   $header = array(
-    array('data' => t('document Name'),   'field' => 'name', 'sort' => 'asc'),
+    array('data' => t('Document Name'),   'field' => 'name', 'sort' => 'asc'),
     array('data' => t('Type'),            'field' => 'type'),
-    array('data' => t('Size'),            'field' => 'size'),
+    array('data' => t('File Name'),       'field' => 'file_name'),
     array('data' => t('Description'),     'field' => 'description'),
     array('data' => t('Operations')),
   );
-  
-  $query = db_select('broadcast_document', 'd')->extend('PagerDefault');
-  $query->fields('d', array('document_id', 'name', 'type', 'size', 'description'));
-  $query = broadcast_select_filter($query);
+  $query = CoreDB::db_select('document', 'd')->extend('PagerDefault');
+  $query->fields('d', array('document_id', 'name', 'type', 'file_name', 'description'));
   $result = $query->limit(10)         
             ->extend('TableSort')
             ->orderByHeader($header)
             ->execute();
-
   while ($document = $result->fetchAssoc()) {
-    $row_id = $document['document_id'];
+    $row_id = $document['document_id']; 
     $rows[$row_id][] = check_plain($document['name']);
     $rows[$row_id][] = check_plain($document['type']);
-    $rows[$row_id][] = check_plain($document['size']. " bytes");
+    $rows[$row_id][] = check_plain($document['file_name']);
     $rows[$row_id][] = check_plain($document['description']);
     $rows[$row_id][] = _broadcast_document_list_links($document);
   }
@@ -180,16 +177,16 @@ function _broadcast_document_list_links($document) {
  *   A single document in array format, or FALSE if none matched the incoming ID.
  */
 function broadcast_document_load($document_id) {
-  $sql    = "SELECT * FROM {broadcast_document} WHERE document_id = :document_id";
-  $sql    = broadcast_db_filter($sql);
-  $result = db_query($sql, array(':document_id'=>$document_id));
-  if ($document = $result->fetchAssoc()) {
-    return $document;
-  }
-  else {
-    drupal_set_message(t('Specified document does not exist! or you have not proper permissions!'), 'error');
-    return FALSE;
-  }
+  global $user;
+    $query  = 'SELECT * FROM document WHERE document_id = :document_id AND created_by=:created_by';
+    $result = CoreDB::db_query($query, array(':document_id' => $document_id, ':created_by' => $user->uid));
+    if ($document = $result->fetchAssoc()) {
+      return $document;
+    }
+    else {
+      drupal_set_message(t('Specified document does not exist! or you have not proper permissions!'), 'error');
+      return FALSE;
+    }
 }
 
 /**
@@ -201,11 +198,10 @@ function broadcast_document_load($document_id) {
 function broadcast_document_form($form, &$form_state, $document = array()) {
   // It's safe to use on both an empty array, and an incoming array with full or partial data.
   $document += array(
-    'name'    => '',
-    'description'     => '',
-    'type'       => '',
-    'path'      => '',
-    'size'       => '',
+    'name'        => '',
+    'type'        => '',
+    'file_name'   => '',
+    'description' => '',
     'file_upload' => '',
   );
   // If we're editing an existing document, we'll add a value field to the form
@@ -278,14 +274,18 @@ function broadcast_document_form_validate($form, &$form_state) {
  */
 function broadcast_document_form_submit($form, &$form_state) {
   global $user;
+  
+  include_once "/usr/ictcore/core/core.php";
+
   $path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . "/broadcast/document";
   file_prepare_directory($path, FILE_CREATE_DIRECTORY);
   $document = $form_state['values'];
   // set source file path
   $validators = array(
-    'file_validate_extensions' => array('tif', 'TIF'),
+    'file_validate_extensions' => array("tif TIF pdf PDF"),
   );
   if($file = file_save_upload('file_upload', $validators)) {
+
     // Do something with $file here.
     $orgFile = '/tmp/'.$file->filename;
     $size    = $file->filesize;
@@ -296,30 +296,32 @@ function broadcast_document_form_submit($form, &$form_state) {
     exec("cp '$orgFile' '$fixedFile'");
     exec("chmod 666 '$fixedFile'");
     
-    $document['path']   = $fixedFile;
+    $document['path'] = $fixedFile;
     $document['size'] = $size;
     
     if (!isset($document['created'])) {
       $document['created'] = time();
     }
-    if (!isset($document['created_by'])) {
-      $document['created_by'] = $user->uid;
-    }
+
+    do_login($user->uid);
+
     // save the document
-    if (isset($document['document_id'])) {
-      drupal_write_record('broadcast_document', $document, 'document_id');
-    }
-    else {
-      drupal_write_record('broadcast_document', $document);
-    }
-    drupal_set_message(t('document saved successfully!'), 'status');
-    $form_state['redirect'] = 'broadcast/files/document/list';
-  } else
-  {
+    $oDocument = new Document();
+    $oDocument->__construct($document['document_id']);
+    $oDocument->set('name', $document['name']);
+    $oDocument->set('file_name', $orgFile);
+    $oDocument->set('type', $document['type']);
+    $oDocument->set('description' , $document['description']);
+    $oDocument->set('created_by' , $created_by);
+    $result = $oDocument->save();
+    if ($result) {
+      drupal_set_message(t('document saved successfully!'), 'status');
+      $form_state['redirect'] = 'broadcast/files/document/list';
+    } else {
     drupal_set_message(t('Cannot save document!'), 'error');
+    }
   }
 }
-
 /**
  * Deletes a document, given its unique ID.
  *
@@ -327,21 +329,20 @@ function broadcast_document_form_submit($form, &$form_state) {
  *   An array of document containing the ID of a document
  */
 function broadcast_document_delete($document) {
-  $sql = 'DELETE FROM {broadcast_document} WHERE document_id = :document_id';
-  if(db_query($sql, array(':document_id'=>$document['document_id']))) {
-    $filepath = $document['path'];
-    exec("rm -rf '$filepath'");
-    drupal_set_message(t('document deleted successfully!'), 'status');
-  } else {
-    drupal_set_message(t('Cannot delete specified document! or you have not proper permissions!'), 'error');
-  }
+  include_once "/usr/ictcore/core/core.php";
+  $oDocument = new Document($document['document_id']);
+    if($oDocument->delete()){
+        drupal_set_message(t('Document deleted successfully!'), 'status');
+      } else {
+        drupal_set_message(t('Cannot delete specified Document! Document does not exist or you have not proper permissions!'), 'error');
+      }
   drupal_goto('broadcast/files/document/list');
 }
 
 function broadcast_document_option() {
-  $sql = "SELECT * FROM {broadcast_document}";
-  $sql = broadcast_db_filter($sql, '{broadcast_document}');
-  $result = db_query($sql);
+  $sql = "SELECT * FROM document";
+  $sql = broadcast_db_filter($sql, 'document');
+  $result = CoreDB::db_query($sql);
   $rows = array();
   while ($document = $result->fetchAssoc()) {
     $row_id = $document['document_id'];

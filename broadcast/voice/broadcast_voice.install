@@ -22,20 +22,7 @@ function broadcast_voice_install() {
  * Implementation of hook_schema().
  */
 function broadcast_voice_schema() {
-  $schema['broadcast_recording'] = array(
-    'fields' => array(
-      'recording_id'    => array('type' => 'serial',  'not null' => TRUE),
-      'name'            => array('type' => 'text',    'not null' => TRUE),
-      'description'     => array('type' => 'text',    'not null' => TRUE),
-      'type'            => array('type' => 'text',    'not null' => TRUE),
-      'path'            => array('type' => 'text',    'not null' => TRUE),
-      'length'          => array('type' => 'int',    'not null' => TRUE),
-      'created'    => array('type' => 'int',     'not null' => FALSE, 'unsigned' => TRUE),
-      'created_by' => array('type' => 'int',     'not null' => TRUE,  'unsigned' => TRUE),
-    ),
-    'primary key' => array('recording_id'),
-  );
-  
+
   $schema['broadcast_campaign_recording'] = array(
     'fields' => array(
       'campaign_recording_id' => array('type' => 'serial',  'not null' => TRUE),

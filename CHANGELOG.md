@@ -1,3 +1,6 @@
+2015-04-09 Version 2.0.0
+* Plivo replaced with ICTCore
+
 2013-06-03 Version 1.0.1
 
 * Bug fix for stop and resume campaign
