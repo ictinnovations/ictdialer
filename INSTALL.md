@@ -62,9 +62,15 @@ Now update /usr/ictcore/etc/ictcore.conf and /usr/ictcore/etc/odbc.ini files as 
 4: ICTDialer Installation
 =========================
 1. (if any) delete /usr/ictdialer
-2. Download, ictdialer folders into temp folder
-3. move ICTDialer wwwroot folder into /usr/ictdialer
-4. move broadcast folder into /usr/ictdialer/sites/all/modules
+2. Download, ictdialer source from github and extract it into some temp folder
+3. from ictdialer source move wwwroot folder as /usr/ictdialer
+```bash
+mv /tmp/ictdialer/wwwroot /usr/ictdialer
+```
+4. again from ictdialer source move broadcast folder into /usr/ictdialer/sites/all/modules
+```bash
+mv /tmp/ictdialer/broadcast /usr/ictdialer/sites/all/modules
+```
 5. issue following command to create website configuration file
 ```bash
 cp /usr/ictdialer/sites/default/default.settings.php /usr/ictdialer/sites/default/settings.php
