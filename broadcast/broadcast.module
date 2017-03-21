@@ -58,18 +58,6 @@ function broadcast_menu() {
     'description'      => 'Manage Campaigns',
     'page callback'    => 'broadcast_campaign_list',
     'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast campaign'),
-    'type'             => MENU_DEFAULT_LOCAL_TASK,
-    'weight'           => -10,
-  );
-
-  $items['broadcast/campaign/add'] = array(
-    'title'            => 'Create New Campaign',
-    'description'      => 'Add / Create new Campaigns',
-    'page callback'    => 'broadcast_campaign_type',
-    'access callback'  => 'broadcast_access',
-    'access arguments' => array('broadcast campaign admin'),
-    'type'             => MENU_LOCAL_TASK,
   );
 
   $items['broadcast/campaign/%/add'] = array(
@@ -998,8 +986,9 @@ function broadcast_campaign_service_stop($campaign_id) {
       shell_exec('kill -9 '.$PID.' > /dev/null &');
 
       // To fix campaign stop and resume issue
+      //I think this is incorrect!
       $camp['campaign_id'] = $campaign_id;
-      $camp['status']      = CAMPAIGN_RUNNING;
+      $camp['status']      = CAMPAIGN_PAUSED;
       drupal_write_record('broadcast_campaign', $camp, 'campaign_id');
       // stop resume issue
 
