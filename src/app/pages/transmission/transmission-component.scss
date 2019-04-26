@@ -1,0 +1,64 @@
+
+.example-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+
+}
+  
+.example-header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-size: 20px;
+}
+  
+.mat-table {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.mat-header-cell .mat-sort-header-sorted {
+  color: black;
+}
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.button {
+  border: none;
+  padding-bottom: 0;
+}
+
+@import '../../@theme/styles/themes';
+@import '~bootstrap/scss/mixins/breakpoints';
+@import '~@nebular/theme/styles/global/bootstrap/breakpoints';
+   
+@include nb-install-component() {
+  .button {
+    border: none;
+    padding-bottom: 0;
+  }
+
+  @include media-breakpoint-down(sm) {
+    ngx-traffic {
+      display: none;
+    }
+  }
+
+  @include media-breakpoint-down(is) {
+    /deep/ nb-card.large-card {
+      height: nb-theme(card-height-medium);
+    }
+  }
+
+}

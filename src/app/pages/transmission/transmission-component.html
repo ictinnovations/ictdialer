@@ -1,0 +1,77 @@
+<div class="row">
+  <div class="col-xxxl-3 col-md-6">    
+    <ngx-status [routerLink]="['/pages/transmission/transsendsms/new']" title="Send SMS" type="primary">
+      <i class="ion-android-textsms"></i>
+    </ngx-status>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status [routerLink]="['/pages/transmission/transsendemail/new']" title="Send Email" type="success" >
+      <i class="ion-email"></i>
+    </ngx-status>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status [routerLink]="['/pages/transmission/transsenddocument/new']" title="Send Fax" type="info">
+      <i class="fa fa-file"></i>
+    </ngx-status>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status [routerLink]="['/pages/transmission/transsendvoice/new']" title="Voice Call" type="warning">
+      <i class="nb-phone"></i>
+    </ngx-status>
+  </div>
+  <!--
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status [routerLink]="['/pages/transmission/transsendivr/new']" title="Send IVR" type="danger">
+      <i class="fa fa-signal"></i>
+    </ngx-status>
+  </div>
+  !-->
+</div>
+<nb-card>
+    <nb-card-header>
+      Transmission List
+    </nb-card-header>
+    <nb-card-body>
+      <div class="example-container mat-elevation-z8">
+        <mat-table #table [dataSource]="aTransmission" matSort>
+          <ng-container matColumnDef="ID">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+            <mat-cell *matCellDef="let transmission">
+              {{transmission.transmission_id}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="contact_id">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Contact ID</mat-header-cell>
+            <mat-cell *matCellDef="let transmission">
+              {{transmission.contact_id}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="type">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Program Name</mat-header-cell>
+              <mat-cell *matCellDef="let transmission">
+                {{transmission.type}}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="title">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
+                <mat-cell *matCellDef="let transmission" style="text-align:left">
+                  {{transmission.title}}</mat-cell>
+              </ng-container>
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
+            <mat-cell *matCellDef="let transmission" style="text-align:left">
+              {{transmission.status}}</mat-cell>
+          </ng-container>
+        <mat-header-row
+          *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+    </mat-table>
+    <mat-paginator #paginator
+    [length] = "length"
+    [pageIndex]="0"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 25, 100]">
+  </mat-paginator>
+  </div>
+</nb-card-body>
+</nb-card>

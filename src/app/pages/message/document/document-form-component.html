@@ -1,0 +1,66 @@
+<h3>Add::Document</h3>
+<div class="col-lg-12">
+<form id="form1" #f1="ngForm">
+<nb-card>
+    <nb-card-header>
+      Document Information
+    </nb-card-header>
+  <nb-card-body>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="name">Document Name:</label>
+            <input [(ngModel)]="document.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Document Name" id="name" required/>
+          </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+      
+
+<nb-card>
+    <nb-card-header>
+      Upload Document
+    </nb-card-header>
+    <nb-card-body>
+        <div class="container">
+            
+                <div class="navbar navbar-default">
+                </div>
+            
+                <div class="row">
+            
+                    <div class="col-md-3">
+                        
+                        <input type="file" ng2FileSelect [uploader]="uploader" />
+                    </div>
+  
+            
+                </div>
+            
+            </div>
+    </nb-card-body>
+    </nb-card>
+
+<nb-card>
+  <nb-card-header>
+    Description
+  </nb-card-header>
+      <nb-card-body>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="description">Description:</label>
+            <input [(ngModel)]="document.description" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Description" id="description" required/>  
+          </div>
+        </div>
+    </nb-card-body>
+</nb-card>
+
+<div *ngIf="(document_id>0)">
+    <button type="button" class="btn btn-primary" (click)="updateDocument()">Update</button>
+</div>
+<div *ngIf="(!document_id)">
+    <button type="button" class="btn btn-success" (click)="addDocument()">Submit</button>
+</div>
+</form>
+</div>

@@ -1,0 +1,65 @@
+<h3>Add::Recording</h3>
+<div class="col-lg-12">
+<form id="form1" #f1="ngForm">
+<nb-card>
+    <nb-card-header>
+      Recording Information
+    </nb-card-header>
+  <nb-card-body>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="name">Recording Name:</label>
+            <input [(ngModel)]="recording.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Recording Name" id="name" required/>
+          </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    Upload Recording
+  </nb-card-header>
+  <nb-card-body>
+      <div class="container">
+          
+              <div class="navbar navbar-default">
+              </div>
+          
+              <div class="row">
+          
+                  <div class="col-md-3">
+
+                      <input type="file" ng2FileSelect [uploader]="uploader" />
+                  </div>
+
+          
+              </div>
+          
+          </div>
+  </nb-card-body>
+  </nb-card>
+
+  <nb-card>
+    <nb-card-header>
+      Description
+    </nb-card-header>
+    <nb-card-body>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label for="description">Description:</label>
+          <input [(ngModel)]="recording.description" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Description" id="description" required/>  
+        </div>
+      </div>
+    </nb-card-body>
+  </nb-card>
+
+<div *ngIf="(recording_id>0)">
+    <button type="button" class="btn btn-primary" (click)="updateRecording()">Update</button>
+</div>
+<div *ngIf="(!recording_id)">
+    <button type="button" class="btn btn-success" (click)="addRecording()">Submit</button>
+</div>
+</form>
+</div>

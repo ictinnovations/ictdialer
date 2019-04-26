@@ -1,0 +1,115 @@
+<h3>Add::Email</h3>
+<div class="col-lg-12">
+<form id="form1" #f1="ngForm">
+<nb-card>
+    <nb-card-header>
+      Email Information
+    </nb-card-header>
+  <nb-card-body>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="name">Email Name:</label>
+            <input [(ngModel)]="template.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Document Name" id="name" required/>
+          </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+  Further Information
+  </nb-card-header>
+<nb-card-body>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="form-group">
+          <label for="subject">Subject:</label>
+          <input [(ngModel)]="template.subject" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Your Subject Here" id="subject" required/>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="form-group">
+          <label for="body">Message:</label>
+          <textarea [(ngModel)]="this.template.body" [ngModelOptions]="{standalone: true}" class="form-control" placeholder="Message" id="body" rows="10" cols="30" required></textarea>
+    </div>
+      </div>
+      <div class="col-sm-12">
+          <div class="form-group">
+          <label for="body_alt">Plain Message:</label>
+          <textarea [(ngModel)]="this.template.body_alt" [ngModelOptions]="{standalone: true}" class="form-control" placeholder="Alternative text message" id="body_alt" rows="10" cols="30" required></textarea>
+        </div>
+            </div>
+  </div>
+</nb-card-body>
+</nb-card>
+<!--
+<nb-card>
+  <nb-card-header>
+    Email Message
+  </nb-card-header>
+<nb-card-body>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label for="body">Message:</label>
+          <textarea [(ngModel)]="this.template.body" [ngModelOptions]="{standalone: true}" class="form-control" placeholder="Message" id="body" rows="10" cols="30" required></textarea>
+    </div>
+      </div>
+      <div class="col-sm-6">
+    <div class="form-group">
+    <label for="body_alt">Plain Message:</label>
+    <textarea [(ngModel)]="this.template.body_alt" [ngModelOptions]="{standalone: true}" class="form-control" placeholder="Alternative text message" id="body_alt" rows="10" cols="30" required></textarea>
+  </div>
+      </div>
+  </div>
+</nb-card-body>
+</nb-card>
+!-->
+<nb-card>
+    <nb-card-header>
+      Upload Attachment
+    </nb-card-header>
+    <nb-card-body>
+        <div class="container">
+            
+                <div class="navbar navbar-default">
+                </div>
+            
+                <div class="row">
+            
+                    <div class="col-md-3">
+  
+                        <input type="file" ng2FileSelect [uploader]="uploader" />
+                    </div>
+  
+            
+                </div>
+            
+            </div>
+    </nb-card-body>
+    </nb-card>
+  
+<nb-card>
+  <nb-card-header>
+    Description
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <input [(ngModel)]="template.description" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Description" id="description" required/>  
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<div *ngIf="(template_id>0)">
+    <button type="button" class="btn btn-primary" (click)="updateTemplate()">Update</button>
+</div>
+<div *ngIf="(!template_id)">
+    <button type="button" class="btn btn-success" (click)="addTemplate()">Submit</button>
+</div>
+</form>
+</div>

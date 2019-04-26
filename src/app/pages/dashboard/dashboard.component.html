@@ -1,0 +1,162 @@
+<h3 style="text-align:center">System Statistics</h3><br>
+<div class="row">
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card title="Total Campaigns" type="primary">
+      <span style="font-size:30px">{{cam_t}}</span>
+    </ngx-status-card>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card title="Active Campaigns" type="success">
+      <span style="font-size:30px">{{cam_actv}}</span>
+    </ngx-status-card>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card title="Total Contacts" type="info">
+        <span style="font-size:30px">{{con_t}}</span>
+    </ngx-status-card>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card title="Contact Processed" type="warning">
+      <span style="font-size:30px">{{con_pr}}</span>
+    </ngx-status-card>
+  </div>
+</div>
+
+    <nb-card>
+      <nb-card-header style="font-size:20px">
+        Send a Single Transmission
+      </nb-card-header>
+      <nb-card-body>
+      ICTDialer allows to support different kind of transmissions like Voice Call, SMS, Email and Fax to send message to a single contact. <br><br>
+      <div class="row">
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            Voice Call
+          </nb-card-header>
+          <nb-card-body>
+            This transmission dials number from a contact list and on answer plays a recorded message.
+            <a routerLink = "/pages/transmission/transsendvoice/new" >Send Voice Call</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            SMS Transmission
+          </nb-card-header>
+          <nb-card-body>
+            This transmission selects number from a contact list and simply broadcast a text message to the contact group.
+            <a routerLink = "/pages/transmission/transsendsms/new" >Send SMS</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            Email Transmission
+          </nb-card-header>
+          <nb-card-body>
+            This transmission sends email to the specified email address of your contact.
+            <a routerLink = "/pages/transmission/transsendemail/new" >Send Email</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            Fax Transmission
+          </nb-card-header>
+          <nb-card-body>
+            This transmission dials number from a contact list and on answer transfer fax documents.
+            <a routerLink = "/pages/transmission/transsenddocument/new" >Send Fax</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <!--
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            IVR Transmission
+          </nb-card-header>
+          <nb-card-body>
+            This transmission dials number from a contact list and on answer plays the IVR menu.
+            <a routerLink = "/pages/transmission/transsendivr/new" >Send IVR</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      !-->
+      </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header style="font-size:20px">
+      Launch a Campaign
+      </nb-card-header>
+      <nb-card-body>
+      ICTDialer supports complete campaign management. Each user can manage, monitor, and run multiple campaigns separately and independently to send message to contact group.<br><br>
+      <div class="row">
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            Voice Campaign
+          </nb-card-header>
+          <nb-card-body>
+            This campaign dials number from a contact list and on answer plays a recorded message.
+            <a routerLink = "/pages/campaigns/campaigns/voicemessage/new" >Send Voice Call</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            SMS Campaign
+          </nb-card-header>
+          <nb-card-body>
+            This campaign selects number from a contact list and simply broadcast a text message to the contact.
+            <a routerLink = "/pages/campaigns/campaigns/sendsms/new" >Send SMS</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            Email Campaign
+          </nb-card-header>
+          <nb-card-body>
+            This campaign sends email to the specified email address of your contact group.
+            <a routerLink = "/pages/campaigns/campaigns/sendemail/new" >Send Email</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            Fax Campaign
+          </nb-card-header>
+          <nb-card-body>
+            This campaign dials number from a contact list and on answer transfer fax documents.
+            <a routerLink = "/pages/campaigns/campaigns/sendfax/new" >Send Fax</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <!--
+      <div class="col-xxxl-3 col-xxl-4 col-md-5">
+        <nb-card>
+          <nb-card-header>
+            IVR Campaign
+          </nb-card-header>
+          <nb-card-body>
+            This campaign dials number from a contact list and on answer play the IVR menu.
+            <a routerLink = "/pages/campaigns/campaigns/sendivr/new" >Send IVR</a>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      !-->
+      </div>
+      </nb-card-body>
+    </nb-card>
