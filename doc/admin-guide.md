@@ -1,4 +1,4 @@
-Admin Guide for ICTCore
+Admin Guide for ICTDIALER
 ==========================
 When we build softwares our main objective is to provide ease to our Users , and make it user friendly as much as we can.
 
@@ -49,6 +49,7 @@ Clicking the **Submit** button will configure a new provider and redirect to the
 Provider details can be **update** by clicking on the edit icon against the provider name in the list.
 
 The provider can be obliterate from the list by  **delete** icon against the provider in provider list.
+<div style="text-align: center"><img src="http://ictdialer.org/sites/default/files/provider.png" width: 528px;    height: 444px:/></div> 
 
 ### Accounts
 
