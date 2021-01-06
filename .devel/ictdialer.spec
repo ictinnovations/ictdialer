@@ -19,7 +19,7 @@ Source1:  ictdialer.conf
 
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: npm git
+BuildRequires: nodejs git
 
 Provides: ictdialer
 
@@ -35,9 +35,8 @@ ICTDialer is web based interface which act as client to ICTCore REST APIs and ex
 %setup -q -n %{name}-%{version}
 
 %build
-npm install @angular/cli
 npm install
-./node_modules/.bin/ng build --prod
+node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --prod --base-href "."
 
 %install
 %{__rm} -rf %{buildroot}
