@@ -8,10 +8,12 @@ import { FormsDocumentComponent } from '../message/document/document-component';
 import { FormsRecordingComponent } from '../message/recording/recording-component';
 import { MatTableModule } from '@angular/material/table';
 import { CdkTableModule } from '@angular/cdk/table';
-import { MatSortModule, MatPaginator } from '@angular/material';
+import { MatSortModule, MatPaginator, MatIconModule } from '@angular/material';
 import { FileUploadModule } from 'ng2-file-upload';
 import { MatButtonModule } from '@angular/material';
 import { MatPaginatorModule } from '@angular/material';
+import { NbCardModule, NbIconModule } from '@nebular/theme';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 
@@ -25,6 +27,11 @@ import { MatPaginatorModule } from '@angular/material';
       FileUploadModule,
       MatButtonModule,
       MatPaginatorModule,
+      NbCardModule,
+      FormsModule,
+      ReactiveFormsModule,
+      MatIconModule,
+      NbIconModule
     ],
     declarations: [
       ...routedComponents,

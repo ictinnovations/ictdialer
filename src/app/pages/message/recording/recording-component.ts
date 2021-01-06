@@ -1,15 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { RecordingService } from './recording.service';
-import { Recording } from './recording';
-import { DataSource } from '@angular/cdk/collections';
-import { BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { MatSortHeaderIntl } from '@angular/material';
 import { MatPaginator, MatSort } from '@angular/material';
 import { RecordingDatabase } from './recording-database.component';
 import { RecordingDataSource } from './recording-datasource.component';
 import { ModalComponent } from '../../../modal.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'ngx-recording-component',
@@ -27,9 +23,11 @@ export class FormsRecordingComponent implements OnInit {
 
   displayedColumns= ['ID', 'name', 'type', 'length', 'Operations'];
 
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+
+  @ViewChild('filter', {static: false}) filter: ElementRef;
 
   ngOnInit() {
     this.getRecordinglist();
@@ -39,6 +37,15 @@ export class FormsRecordingComponent implements OnInit {
     this.recording_service.get_RecordingList().then(data => {
       this.length = data.length;
       this.aRecording = new RecordingDataSource(new RecordingDatabase( data ), this.sort, this.paginator);
+
+      // Observable for the filter
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+     .debounceTime(150)
+     .distinctUntilChanged()
+     .subscribe(() => {
+       if (!this.aRecording) { return; }
+       this.aRecording.filter = this.filter.nativeElement.value;
+      });
     });
   }
 

@@ -1,24 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
 import { CampaignService } from './campaign.service';
-import { Campaign } from './campaign';
-import { Response } from '@angular/http';
-import { CdkTableModule } from '@angular/cdk/table';
-import { MatTableModule } from '@angular/material/table';
-import { DataSource } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material';
-import { BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { MatSortHeaderIntl } from '@angular/material';
 import { MatPaginator } from '@angular/material';
 import { CampaignDatabase } from './campaign-database.component';
 import { CampaignDataSource } from './campaign-datasource.component';
-import { ModalComponent } from '../../modal.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/operator/toPromise';
-import { Observable } from 'rxjs';
+import { Observable, timer } from 'rxjs';
+import { ModalComponent } from '../../modal.component';
+import { CRMUser } from './campaign';
 
 
 @Component({
@@ -39,9 +29,11 @@ export class FormsCampaignComponent implements OnInit {
 
   displayedColumns= ['ID', 'ID1', 'name', 'status', 'total', 'done', 'Operations'];
 
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+  usersArray: any[] = [];
+  // crmuser: CRMUser = new CRMUser;
 
   ngOnInit() {
     this.getCampaignlist();
@@ -76,7 +68,7 @@ export class FormsCampaignComponent implements OnInit {
   }
 
   private subscribeToData(): void {
-    this.timerSubscription = Observable.timer(5000).first().subscribe(() => this.refreshData());
+    this.timerSubscription = timer(5000).first().subscribe(() => this.refreshData());
   }
 
   stopCampaign(campaign_id): void {
@@ -112,8 +104,6 @@ export class FormsCampaignComponent implements OnInit {
       return  `with: ${reason}`;
     }
   }
-
-
 
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);

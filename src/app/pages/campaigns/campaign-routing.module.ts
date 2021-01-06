@@ -8,7 +8,6 @@ import { AddEmailCampaignComponent } from './sendemail/campaign-email-component'
 import { AddVoiceCampaignComponent } from './sendvoice/campaign-voice-component';
 import { AddDocCampaignComponent } from './senddocument/campaign-document-component';
 import { AddIVRCampaignComponent } from './sendivr/campaign-ivr-component';
-import { Component } from '@angular/core/src/metadata/directives';
 
 const routes: Routes = [{
   path: '',

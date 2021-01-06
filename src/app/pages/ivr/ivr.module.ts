@@ -5,12 +5,13 @@ import { FormsTransmissionComponent } from '../../pages/transmission/transmissio
 import { MatTableModule } from '@angular/material/table';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TransmissionService } from '../../pages/transmission/transmission.service';
-import { MatSortModule } from '@angular/material';
+import { MatSortModule, MatIconModule } from '@angular/material';
 import { MatPaginatorModule } from '@angular/material';
-import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
 import { MatButtonModule, MatNativeDateModule } from '@angular/material';
 import { IVRRoutingModule, routedComponents } from './ivr-routing.module';
 import {MatDatepickerModule} from '@angular/material/datepicker';
+import { NbCardModule, NbIconModule } from '@nebular/theme';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
@@ -23,6 +24,11 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
     MatPaginatorModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    NbCardModule,
+    FormsModule, 
+    MatIconModule,
+    ReactiveFormsModule,
+    NbIconModule
   ],
   declarations: [
     ...routedComponents,

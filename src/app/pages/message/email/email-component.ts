@@ -1,15 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { TemplateService } from './email.service';
-import { Template } from './email';
-import { DataSource } from '@angular/cdk/collections';
-import { BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { MatSortHeaderIntl } from '@angular/material';
 import { MatPaginator, MatSort } from '@angular/material';
 import { TemplateDatabase } from './email-database.component';
 import { TemplateDataSource } from './email-datasource.component';
 import { ModalComponent } from '../../../modal.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'ngx-email-component',
@@ -26,9 +22,11 @@ export class FormsTemplateComponent implements OnInit {
 
   displayedColumns= ['ID', 'name', 'type', 'Operations'];
 
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+
+  @ViewChild('filter', {static: false}) filter: ElementRef;
 
   ngOnInit() {
     this.getTemplatelist();
@@ -38,6 +36,15 @@ export class FormsTemplateComponent implements OnInit {
     this.template_service.get_TemplateList().then(data => {
       this.length = data.length;
       this.aTemplate = new TemplateDataSource(new TemplateDatabase( data ), this.sort, this.paginator);
+
+      // Observable for the filter
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+     .debounceTime(150)
+     .distinctUntilChanged()
+     .subscribe(() => {
+       if (!this.aTemplate) { return; }
+       this.aTemplate.filter = this.filter.nativeElement.value;
+      });
     });
   }
 

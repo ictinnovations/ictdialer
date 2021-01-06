@@ -1,9 +1,7 @@
-
 .example-container {
   display: flex;
   flex-direction: column;
   min-width: 300px;
-
 }
   
 .example-header {
@@ -57,4 +55,8 @@ a:hover {
 
 .fa-cloud-download:hover {
   color: darkblue;
+}
+
+.cc {
+  width: 40%;
 }

@@ -1,35 +1,34 @@
 <div class="row">
   <div class="col-xxxl-3 col-md-6">    
-    <ngx-status [routerLink]="['/pages/transmission/transsendsms/new']" title="Send SMS" type="primary">
+    <ngx-status-card [routerLink]="['/pages/transmission/transsendsms/new']" title="Send SMS" type="primary">
       <i class="ion-android-textsms"></i>
-    </ngx-status>
+    </ngx-status-card>
   </div>
 
   <div class="col-xxxl-3 col-md-6">
-    <ngx-status [routerLink]="['/pages/transmission/transsendemail/new']" title="Send Email" type="success" >
+    <ngx-status-card [routerLink]="['/pages/transmission/transsendemail/new']" title="Send Email" type="success" >
       <i class="ion-email"></i>
-    </ngx-status>
+    </ngx-status-card>
   </div>
 
   <div class="col-xxxl-3 col-md-6">
-    <ngx-status [routerLink]="['/pages/transmission/transsenddocument/new']" title="Send Fax" type="info">
+    <ngx-status-card [routerLink]="['/pages/transmission/transsenddocument/new']" title="Send Fax" type="info">
       <i class="fa fa-file"></i>
-    </ngx-status>
+    </ngx-status-card>
   </div>
 
   <div class="col-xxxl-3 col-md-6">
-    <ngx-status [routerLink]="['/pages/transmission/transsendvoice/new']" title="Voice Call" type="warning">
+    <ngx-status-card [routerLink]="['/pages/transmission/transsendvoice/new']" title="Voice Call" type="warning">
       <i class="nb-phone"></i>
-    </ngx-status>
+    </ngx-status-card>
   </div>
-  <!--
   <div class="col-xxxl-3 col-md-6">
-    <ngx-status [routerLink]="['/pages/transmission/transsendivr/new']" title="Send IVR" type="danger">
+    <ngx-status-card [routerLink]="['/pages/transmission/transsendivr/new']" title="Send IVR" type="danger">
       <i class="fa fa-signal"></i>
-    </ngx-status>
+    </ngx-status-card>
   </div>
-  !-->
 </div>
+
 <nb-card>
     <nb-card-header>
       Transmission List

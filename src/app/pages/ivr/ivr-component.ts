@@ -1,10 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { IVRService } from './ivr.service';
 import { MatSort, MatPaginator } from '@angular/material';
 import { IVRDataSource } from './ivr-datasource.component';
 import { IVRDatabase } from './ivr-database.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ModalComponent } from '../../modal.component';
+import { Observable } from 'rxjs/Rx';
 
 
 @Component({
@@ -19,15 +20,16 @@ export class FormsIVRComponent implements OnInit {
   }
 
   aIvr: IVRDataSource | null;
-  private _serviceSubscription;
   length: number;
   closeResult: any;
 
   displayedColumns= ['ID', 'name', 'Operations'];
 
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+
+  @ViewChild('filter', {static: false}) filter: ElementRef;
 
   ngOnInit() {
     this.get_ivr();
@@ -37,6 +39,15 @@ export class FormsIVRComponent implements OnInit {
     this.ivr_service.get_ivrList().then(response => {
       this.length = response.length;
       this.aIvr = new IVRDataSource(new IVRDatabase( response ), this.sort, this.paginator);
+
+      // Observable for the filter
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+     .debounceTime(150)
+     .distinctUntilChanged()
+     .subscribe(() => {
+       if (!this.aIvr) { return; }
+       this.aIvr.filter = this.filter.nativeElement.value;
+      });
     });
   }
 

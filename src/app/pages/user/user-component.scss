@@ -1,10 +1,8 @@
-
 .example-container {
   display: flex;
   flex-direction: column;
   min-width: 300px;
   max-height: 500px;
-      
 }
   
 .example-header {
@@ -58,4 +56,15 @@ a:hover {
 
 .fa-trash:hover {
   color: rgb(138, 4, 4);
+}
+
+.mat-input-container {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 32px;
+  margin-top: 8px;
+}
+
+.cc {
+  width: 40%;
 }

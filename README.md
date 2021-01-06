@@ -31,7 +31,17 @@ Getting Started
 ---------------
 ### Download and install
 
-To download the ICTDialer you need to have a fresh server if you are looking for Source Code you can find it as git branch `ictdialer` at [ICT Dialer](http://devel.ictinnovations.com/git/ict/gittest_git). You first install ICTDialer from the following [link](https://github.com/ictinnovations/ictdialer). Install it and download the build. After that open the terminal and keep the build in the
+To download the ICTDialer you need to have a fresh server.
+
+#### Install through RPM
+
+You can install the ICTDialer through yum
+
+        yum install ictdialer
+
+#### Install from the source code
+
+To install from the source code follow the build guide and prepare the build. For preparing the build follow the [Build Guide](doc/build-guide.md). After preparing the build place it in
 
       /usr/ictdialer/wwwroot/GUI
 

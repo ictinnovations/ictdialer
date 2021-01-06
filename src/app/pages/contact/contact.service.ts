@@ -62,6 +62,15 @@ export class ContactService {
    .catch(response => this.app_service.handleError(response));
   }
 
+  associate_contact_with_group(contact_id, group_id) {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({headers: headers});
+    const updateUrl = `${this.app_service.apiUrlContacts}/${contact_id}/link/${group_id}`;
+    return this.http.put(updateUrl, null, options).toPromise().then(response => response.json() as Contact)
+    .catch(response => this.app_service.handleError(response));
+  }
+
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error); // for demo purposes only
     return Promise.reject(error.message || error);

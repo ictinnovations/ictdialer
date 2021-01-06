@@ -1,6 +1,7 @@
 <nb-card>
     <nb-card-header>
       Extension List 
+      <input style="float:right" class="form-control cc" type="text" #filter placeholder="Filter Extensions">
     </nb-card-header>
   
     <nb-card-body>
@@ -33,10 +34,10 @@
                 <mat-header-cell *matHeaderCellDef>Operations</mat-header-cell>
                 <mat-cell *matCellDef="let extension">
                 <button mat-icon-button color="primary" style= "font-size:20px">
-                  <mat-icon><a routerLink="/pages/extension/extension/{{extension.account_id}}" title="Edit"><i class="fa fa-pencil-square-o"></i></a></mat-icon>
+                  <mat-icon><a routerLink="/pages/extension/extension/{{extension.account_id}}" title="Edit"><nb-icon icon="edit-2-outline"></nb-icon></a></mat-icon>
                 </button>
                 <button mat-icon-button color="primary" style= "font-size:20px">  
-                  <mat-icon style="color: red" (click)="showStaticModal(extension.username, extension.account_id)" ><i class="fa fa-trash" title="Delete"></i></mat-icon>                  
+                  <mat-icon style="color: red" (click)="showStaticModal(extension.username, extension.account_id)" ><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>                  
                 </button>
                 </mat-cell>
                 </ng-container>

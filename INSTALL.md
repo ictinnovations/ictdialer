@@ -101,7 +101,7 @@ Password = plsChangeIt
 
 Now install ICTDialer web interface
 
-         yum install ictdialer;
+         yum install ictdialer
          
 Now Restart the **apache** by typing the following command in the terminal
 
@@ -114,5 +114,5 @@ Default Username : **admin@ictcore.org**
 Default Password : **helloAdmin**  
 
 Login by entering the default admin and password, which we provided you. Go to the administration panel, which is placed on the bottom of the side bar on left.Create a new user or edit the existing.
-You can configure providers and accounts too. For further details visit [**Admin guide** ](/admin-guide).  
+You can configure providers and accounts too. For further details visit [**Admin guide** ](doc/admin-guide.md).  
 

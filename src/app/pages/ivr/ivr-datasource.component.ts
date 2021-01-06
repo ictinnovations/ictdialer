@@ -1,67 +1,72 @@
 import { IVR } from './ivr';
-import { Response } from '@angular/http';
-import { CdkTableModule } from '@angular/cdk/table';
-import { MatTableModule } from '@angular/material/table';
 import { DataSource } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material';
-import { BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { MatSortHeaderIntl } from '@angular/material';
 import { MatPaginator } from '@angular/material';
-import { PageEvent } from '@angular/material';
 import { IVRDatabase } from './ivr-database.component';
 
-
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/map';
-import { Observable } from 'rxjs/Observable';
+import { Observable, merge, BehaviorSubject } from 'rxjs';
 
 export class IVRDataSource extends DataSource<IVR> {
 
-    constructor(
-      private ivrDatabase: IVRDatabase,
-      private _sort: MatSort,
-      private _paginator: MatPaginator) {
-       super();
-    }
+  _filterChange = new BehaviorSubject('');
+  get filter(): string { return this._filterChange.value; }
+  set filter(filter: string) { this._filterChange.next(filter); }
 
-    connect(): Observable<IVR[]> {
-       const displayDataChanges = [
-         this.ivrDatabase.dataChange,
-         this._paginator.page,
-         this._sort.sortChange,
-       ];
-       return Observable.merge(...displayDataChanges)
-       .map(() => this.getSortedData())
-       .map(data => this.paginate(data));
-    }
+  filteredData: IVR[] = [];
+  renderedData: IVR[] = [];
 
-    disconnect() { }
-    getSortedData(): IVR[] {
-      const data = this.ivrDatabase.data.slice();
-      if (!this._sort.active || this._sort.direction === '') {
-        return data;
-      }
-      return data.sort((a , b) => {
-        let propertyA: number|string = '';
-        let propertyB: number|string = '';
+  constructor(
+    private ivrDatabase: IVRDatabase, private _sort: MatSort, private _paginator: MatPaginator) {
+      super();
 
-        switch (this._sort.active) {
-          case 'ID': [propertyA, propertyB] = [a.program_id, b.program_id]; break;
-          case 'name': [propertyA, propertyB] = [a.name, b.name]; break;
-        }
+      this._filterChange.subscribe(() => this._paginator.pageIndex = 0
+    );
+  }
 
-        const valueA = isNaN(+propertyA) ? propertyA : +propertyA;
-        const valueB = isNaN(+propertyB) ? propertyB : +propertyB;
-
-        return (valueA < valueB ? -1 : 1) *
-        (this._sort.direction === 'asc' ? 1 : -1);
+  connect(): Observable<IVR[]> {
+    const displayDataChanges = [
+      this.ivrDatabase.dataChange,
+      this._paginator.page,
+      this._filterChange,
+      this._sort.sortChange,
+    ];
+    return merge(...displayDataChanges).map(() => {
+      // Filter data
+      this.filteredData = this.ivrDatabase.data.slice().filter((item: IVR) => {
+        let searchStr = (item.name + item.description).toLowerCase();
+        return searchStr.indexOf(this.filter.toLowerCase()) != -1;
       });
-    }
-    paginate(data) {
+
+      // Sort filtered data
+      const sortedData = this.getSortedData(this.filteredData.slice());
+
+      // Grab the page's slice of the filtered sorted data.
       const startIndex = this._paginator.pageIndex * this._paginator.pageSize;
-      return data.splice(startIndex, this._paginator.pageSize);
+      this.renderedData = sortedData.splice(startIndex, this._paginator.pageSize);
+      return this.renderedData;
+    })
+  }
+
+  disconnect() { }
+  getSortedData(data): IVR[] {
+    if (!this._sort.active || this._sort.direction === '') {
+      return data;
     }
+    return data.sort((a , b) => {
+      let propertyA: number|string = '';
+      let propertyB: number|string = '';
+
+      switch (this._sort.active) {
+        case 'ID': [propertyA, propertyB] = [a.program_id, b.program_id]; break;
+        case 'name': [propertyA, propertyB] = [a.name, b.name]; break;
+      }
+
+      const valueA = isNaN(+propertyA) ? propertyA : +propertyA;
+      const valueB = isNaN(+propertyB) ? propertyB : +propertyB;
+
+      return (valueA < valueB ? -1 : 1) *
+      (this._sort.direction === 'asc' ? 1 : -1);
+    });
+  }
 }
 

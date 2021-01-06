@@ -1,6 +1,7 @@
 <nb-card>
     <nb-card-header>
       Recording List
+      <input style="float:right" class="form-control cc" type="text" #filter placeholder="Filter Recordings">
     </nb-card-header>
   
     <nb-card-body>
@@ -38,13 +39,13 @@
               <mat-header-cell *matHeaderCellDef>Operations</mat-header-cell>
               <mat-cell *matCellDef="let recording">
               <button mat-icon-button color="primary" style= "font-size:20px">
-                <mat-icon><a routerLink="/pages/message/recording/{{recording.recording_id}}" title="Edit"><i class="fa fa-pencil-square-o"></i></a></mat-icon>
+                <mat-icon><a routerLink="/pages/message/recording/{{recording.recording_id}}" title="Edit"><nb-icon icon="edit-2-outline"></nb-icon></a></mat-icon>
               </button>
               <button mat-icon-button color="primary" style= "font-size:20px">
-                <mat-icon (click)="downloadRecording(recording.recording_id)"  ><i class="fa fa-cloud-download" title="Download"></i></mat-icon>
+                <mat-icon (click)="downloadRecording(recording.recording_id)"  ><nb-icon icon="download-outline" title="Download"></nb-icon></mat-icon>
               </button>
               <button mat-icon-button color="primary" style= "font-size:20px">
-                <mat-icon style="color:red" (click)="showStaticModal(recording.name, recording.recording_id)" ><i class="fa fa-trash" title="Delete"></i></mat-icon>                
+                <mat-icon style="color:red" (click)="showStaticModal(recording.name, recording.recording_id)" ><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>                
               </button>
               </mat-cell>
               </ng-container>

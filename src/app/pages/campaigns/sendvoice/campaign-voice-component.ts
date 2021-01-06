@@ -31,6 +31,7 @@ export class AddVoiceCampaignComponent implements OnInit {
   selectedVoice: Recording;
 
   ngOnInit(): void {
+    this.campaign.source = 'remote';
     this.route.params.subscribe(params => {
       this.campaign_id = +params['id'];
       const test_url = this.router.url.split('/');

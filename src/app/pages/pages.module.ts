@@ -1,25 +1,28 @@
 import { NgModule } from '@angular/core';
+import { NbMenuModule } from '@nebular/theme';
 
-import { PagesComponent } from './pages.component';
-import { ErrorModule } from './error-handler/error-handler.module';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { TransmissionModule } from '../pages/transmission/transmission.module';
-import { PagesRoutingModule } from './pages-routing.module';
 import { ThemeModule } from '../@theme/theme.module';
-const PAGES_COMPONENTS = [
-  PagesComponent,
-];
+import { PagesComponent } from './pages.component';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { PagesRoutingModule } from './pages-routing.module';
+import { MiscellaneousModule } from './miscellaneous/miscellaneous.module';
+import { ChangePasswordModule } from './changepassword/changepassword.module';
+import { CrmConfigModule } from './crmconfig/crmconfig.module';
+import { CRMSettingsModule } from './crm-settings/crm-settings.module';
 
 @NgModule({
   imports: [
     PagesRoutingModule,
     ThemeModule,
+    NbMenuModule,
     DashboardModule,
-    TransmissionModule,
-    ErrorModule,
+    MiscellaneousModule,
+    ChangePasswordModule,
+    CrmConfigModule,
+    CRMSettingsModule
   ],
   declarations: [
-    ...PAGES_COMPONENTS,
+    PagesComponent,
   ],
 })
 export class PagesModule {

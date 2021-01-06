@@ -9,6 +9,7 @@ export class Campaign {
   status: string;
   contact_total: any;
   contact_done: any;
+  source: string;
 }
 
 export class SMSProgram {
@@ -38,5 +39,20 @@ export class VoiceCallProgram {
 export class IVRProgram {
   program_id: number;
   ivr_id: number;
+  name: string;
+}
+
+export class CRMUser {
+  first_name: string;
+  last_name: string;
+  phone: number;
+  address: string;
+  email: string;
+  email1: string;
+  description: string;
+}
+
+export class Prospect {
+  id: number;
   name: string;
 }

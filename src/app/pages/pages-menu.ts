@@ -3,81 +3,181 @@ import { NbMenuItem } from '@nebular/theme';
 export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Dashboard',
-    icon: 'nb-home',
     link: '/pages/dashboard',
+    icon: 'home-outline',
     home: true,
+  },
+  {
+    title: 'FEATURES',
+    group: true,
   },
   {
     title: 'Campaigns',
     link: '/pages/campaigns/campaigns',
-    icon: 'fa fa-bars',
+    icon: 'radio-outline'
   },
   {
     title: 'Transmissions',
-    icon: 'fa fa-volume-control-phone',
     link: '/pages/transmission/transmissions',
+    icon: 'shake-outline'
+  },
+  {
+    title: 'IVR',
+    link: '/pages/ivr/ivr',
+    icon: 'trending-up-outline'
   },
   {
     title: 'Contacts',
-    icon: 'nb-phone',
+    icon: 'person-outline',
     children: [
       {
         title: 'Contacts',
         link: '/pages/contact/contacts',
-        icon: 'nb-person',
+        icon: 'person-add-outline'
       },
       {
         title: 'Groups',
         link: '/pages/contact/group',
-        icon: 'fa fa-users',
+        icon: 'people-outline'
       },
     ],
   },
   {
     title: 'Resources',
-    icon: 'ion-android-apps',
+    icon: 'keypad-outline',
     children: [
   {
     title: 'Voice Recordings',
     link: '/pages/message/recording',
-    icon: 'ion-mic-a',
+    icon: 'mic-outline'
   },
   {
     title: 'Fax Documents',
     link: '/pages/message/document',
-    icon: 'fa fa-file',
+    icon: 'file-text-outline'
   },
   {
     title: 'Email Templates',
     link: '/pages/message/template',
-    icon: 'ion-email',
+    icon: 'email-outline'
   },
   {
     title: 'Text Messages',
     link: '/pages/message/text',
-    icon: 'ion-android-textsms',
+    icon: 'message-circle-outline'
   },
 ],
   },
   {
-    title: 'Administartion',
-    icon: 'ion-person',
+    title: 'Administration',
+    icon: 'settings-2-outline',
     children: [
   {
     title: 'Provider / Trunks',
     link: '/pages/provider/provider',
-    icon: 'fa fa-user-circle-o',
+    icon: 'shuffle-2-outline',
   },
   {
     title: 'User Management',
     link: '/pages/user/user',
-    icon: 'ion-person',
+    icon: 'person-done-outline'
   },
   {
     title: 'Extensions',
     link: '/pages/extension/extension',
-    icon: 'fa fa-phone-square',
+    icon: 'hash-outline'
   },
+  {
+    title: 'CRM Settings',
+    link: '/pages/crmsettings',
+    icon: 'file-text-outline'
+  }
+ ],
+},
+];
+
+export const userMenuItems: NbMenuItem[] = [
+  {
+    title: 'Dashboard',
+    link: '/pages/dashboard',
+    icon: 'home-outline',
+    home: true,
+  },
+  {
+    title: 'FEATURES',
+    group: true,
+  },
+  {
+    title: 'Campaigns',
+    link: '/pages/campaigns/campaigns',
+    icon: 'radio-outline'
+  },
+  {
+    title: 'Transmissions',
+    link: '/pages/transmission/transmissions',
+    icon: 'shake-outline'
+  },
+  {
+    title: 'IVR',
+    link: '/pages/ivr/ivr',
+    icon: 'trending-up-outline'
+  },
+  {
+    title: 'Contacts',
+    icon: 'person-outline',
+    children: [
+      {
+        title: 'Contacts',
+        link: '/pages/contact/contacts',
+        icon: 'person-add-outline'
+      },
+      {
+        title: 'Groups',
+        link: '/pages/contact/group',
+        icon: 'people-outline'
+      },
+    ],
+  },
+  {
+    title: 'Resources',
+    icon: 'keypad-outline',
+    children: [
+  {
+    title: 'Voice Recordings',
+    link: '/pages/message/recording',
+    icon: 'mic-outline'
+  },
+  {
+    title: 'Fax Documents',
+    link: '/pages/message/document',
+    icon: 'file-text-outline'
+  },
+  {
+    title: 'Email Templates',
+    link: '/pages/message/template',
+    icon: 'email-outline'
+  },
+  {
+    title: 'Text Messages',
+    link: '/pages/message/text',
+    icon: 'message-circle-outline'
+  },
+],
+  },
+  {
+    title: 'Administration',
+    icon: 'settings-2-outline',
+    children: [
+  {
+    title: 'Extensions',
+    link: '/pages/extension/extension',
+    icon: 'hash-outline'
+  },
+  {
+    title: 'CRM Settings',
+    link: '/pages/crmsettings',
+    icon: 'file-text-outline'
+  }
  ],
 },
 ];

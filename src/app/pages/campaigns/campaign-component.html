@@ -1,35 +1,33 @@
 <div class="row">
-    <div class="col-xxxl-3 col-md-6">    
-      <ngx-status [routerLink]="['/pages/campaigns/campaigns/sendsms/new']" title="SMS Campaign" type="primary">
-        <i class="ion-android-textsms"></i>
-      </ngx-status>
-    </div>
-  
-    <div class="col-xxxl-3 col-md-6">
-      <ngx-status [routerLink]="['/pages/campaigns/campaigns/sendemail/new']" title="Email Campaign" type="success" >
-        <i class="ion-email"></i>
-      </ngx-status>
-    </div>
-  
-    <div class="col-xxxl-3 col-md-6">
-      <ngx-status [routerLink]="['/pages/campaigns/campaigns/sendfax/new']" title="Fax Campaign" type="info">
-        <i class="fa fa-file"></i>
-      </ngx-status>
-    </div>
-  
-    <div class="col-xxxl-3 col-md-6">
-      <ngx-status [routerLink]="['/pages/campaigns/campaigns/voicemessage/new']" title="Voice Campaign" type="warning">
-        <i class="nb-phone"></i>
-      </ngx-status>
-    </div>
-    <!--
-    <div class="col-xxxl-3 col-md-6">
-      <ngx-status [routerLink]="['/pages/campaigns/campaigns/sendivr/new']" title="IVR Campaign" type="danger">
-        <i class="fa fa-signal"></i>
-      </ngx-status>
-    </div>
-    !-->
+  <div class="col-xxxl-3 col-md-6">    
+    <ngx-status-card [routerLink]="['/pages/campaigns/campaigns/sendsms/new']" title="SMS Campaign" type="primary">
+      <i class="ion-android-textsms"></i>
+    </ngx-status-card>
   </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card [routerLink]="['/pages/campaigns/campaigns/sendemail/new']" title="Email Campaign" type="success" >
+      <i class="ion-email"></i>
+    </ngx-status-card>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card [routerLink]="['/pages/campaigns/campaigns/sendfax/new']" title="Fax Campaign" type="info">
+      <i class="fa fa-file"></i>
+    </ngx-status-card>
+  </div>
+
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card [routerLink]="['/pages/campaigns/campaigns/voicemessage/new']" title="Voice Campaign" type="warning">
+      <i class="nb-phone"></i>
+    </ngx-status-card>
+  </div>
+  <div class="col-xxxl-3 col-md-6">
+    <ngx-status-card [routerLink]="['/pages/campaigns/campaigns/ivr/new']" title="IVR Campaign" type="danger">
+      <i class="fa fa-signal"></i>
+    </ngx-status-card>
+  </div>
+</div>
 <nb-card>
     <nb-card-header>
       Campaign List
@@ -70,18 +68,17 @@
             <ng-container cdkColumnDef="Operations">
                 <mat-header-cell *matHeaderCellDef>Operations</mat-header-cell>
                 <mat-cell *matCellDef="let campaign">
-                <button mat-icon-button color="primary" style= "font-size:20px">
-                  <mat-icon><a routerLink="/pages/campaigns/campaigns/{{campaign.program_type}}/{{campaign.campaign_id}}" title="Edit"><i class="fa fa-pencil-square-o"></i></a></mat-icon>
+                <button mat-icon-button color="primary" >
+                  <mat-icon><a routerLink="/pages/campaigns/campaigns/{{campaign.program_type}}/{{campaign.campaign_id}}" title="Edit"><nb-icon icon="edit-2-outline"></nb-icon></a></mat-icon>
                 </button>
-                <button mat-icon-button color="primary" style= "font-size:20px">
-                  <mat-icon (click)="startCampaign(campaign.campaign_id)"><i class="fa fa-play-circle" title="Start"></i></mat-icon>
+                <button mat-icon-button color="primary" >
+                  <mat-icon (click)="startCampaign(campaign.campaign_id)"><nb-icon icon="play-circle-outline" title="Start"></nb-icon></mat-icon>
                 </button>
-                <br>
-                <button mat-icon-button color="primary" style= "font-size:20px">  
-                  <mat-icon (click)="stopCampaign(campaign.campaign_id)" ><i class="fa fa-stop" title="Stop"></i></mat-icon>
+                <button mat-icon-button color="primary" >  
+                  <mat-icon (click)="stopCampaign(campaign.campaign_id)" ><nb-icon icon="pause-circle-outline" title="Stop"></nb-icon></mat-icon>
                 </button>
-                <button mat-icon-button color="primary" style= "font-size:20px">  
-                  <mat-icon style="color: red" (click)="showStaticModal(campaign.campaign_id)" ><i class="fa fa-trash" title="Delete"></i></mat-icon>                  
+                <button mat-icon-button color="primary" >  
+                  <mat-icon style="color: red" (click)="showStaticModal(campaign.campaign_id)" ><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>                  
                 </button>
                 </mat-cell>
                 </ng-container>

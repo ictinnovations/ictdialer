@@ -7,7 +7,7 @@ Getting Started
 
 ### Download and install
 
-To download and install ICTDialer you can follow our [Installation Guide]().
+To download and install ICTDialer you can follow our [Installation Guide](../INSTALL.md).
 
 For managing Provider(Trunks),Contacts and Accounts(extensions), admin must login to his account.After login the page will be redirected to the main page.
 Click  **Administration Icon** , placed at the bottom of the side bar on left.
@@ -49,7 +49,6 @@ Clicking the **Submit** button will configure a new provider and redirect to the
 Provider details can be **update** by clicking on the edit icon against the provider name in the list.
 
 The provider can be obliterate from the list by  **delete** icon against the provider in provider list.
-<div style="text-align: center"><img src="http://ictdialer.org/sites/default/files/provider.png" width: 528px;    height: 444px:/></div> 
 
 ### Accounts
 

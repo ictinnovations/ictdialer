@@ -65,6 +65,19 @@
   </nb-card-body>
 </nb-card>
 
+<nb-card>
+  <nb-card-header>
+    Source
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <input type="radio" name="source" checked>  Remote
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
 
 <div *ngIf="(campaign_id>0)">
     <button type="button" class="btn btn-primary" (click)="updateCampaign()">Update</button>

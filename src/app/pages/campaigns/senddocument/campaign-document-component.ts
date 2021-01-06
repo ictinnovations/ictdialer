@@ -1,14 +1,14 @@
-import { Component, OnInit, NgModule, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
-import { Router, ActivatedRoute, Params, ParamMap } from '@angular/router';
-import { Http, HttpModule, Response } from '@angular/http';
-import { FormsModule } from '@angular/forms';
-import { Campaign, DocumentProgram } from '../campaign';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Campaign, CRMUser, DocumentProgram, Prospect } from '../campaign';
 import { CampaignService } from '../campaign.service';
 import { Document } from '../../message/document/document';
 import { DocumentService } from '../../message/document/document.service';
 import { Group } from '../../contact/group/group';
 import { GroupService } from '../../contact/group/group.service';
 import 'rxjs/add/operator/toPromise';
+import { ContactDataSource } from '../../contact/contact-datasource.component';
+import { ContactService } from '../../contact/contact.service';
 
 @Component({
   selector: 'ngx-add-campaign-component',
@@ -18,19 +18,31 @@ import 'rxjs/add/operator/toPromise';
 
 export class AddDocCampaignComponent implements OnInit {
 
-  constructor(private http: Http, private route: ActivatedRoute, private document_service: DocumentService, private group_service: GroupService, private campaign_service: CampaignService, private router: Router) { }
-
+  constructor(private route: ActivatedRoute, private document_service: DocumentService, private group_service: GroupService, private campaign_service: CampaignService, private router: Router
+  ,private contact_service: ContactService) { }
 
   form1: any= {};
   documentProgram: DocumentProgram = new DocumentProgram;
   campaign: Campaign= new Campaign;
   campaign_id: any= null;
   group: Group[] = [];
+  groupObj: Group = new Group;
   selectedGroup: Group;
   document: Document[] = [];
   selectedDocument: Document;
 
+  aContact: ContactDataSource | null;
+  length: number;
+  closeResult: any;
+
+  usersArray: any[] = [];
+  group_id: any;
+
+  session_id: any;
+
   ngOnInit(): void {
+    this.campaign.source = 'remote';
+    // this.checkSession();
     this.route.params.subscribe(params => {
       this.campaign_id = +params['id'];
       const test_url = this.router.url.split('/');
@@ -47,6 +59,13 @@ export class AddDocCampaignComponent implements OnInit {
     this.getGrouplist();
   }
 
+  checkSession() {
+    this.session_id = localStorage.getItem('session_id');
+    if (this.session_id == undefined || this.session_id == null) {
+      this.router.navigate(['pages/Crmconfig']);
+    }
+  }
+
   addSendDocument(): void {
     this.campaign_service.add_senddocument(this.documentProgram).then(response => {
       const program_id = response;
@@ -54,7 +73,6 @@ export class AddDocCampaignComponent implements OnInit {
       this.addCampaign();
     });
   }
-
 
   addCampaign(): void {
     this.campaign_service.add_Campaign(this.campaign).then(response => {
@@ -70,7 +88,6 @@ export class AddDocCampaignComponent implements OnInit {
       this.router.navigate(['../../../campaigns'], {relativeTo: this.route});
     });
   }
-
 
   update(): void {
     this.campaign_service.update_Campaign(this.campaign).then(() => {

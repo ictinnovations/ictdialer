@@ -33,7 +33,7 @@ For previous versions of OS i.e CentOS and Fedora21 use this command:
 
 Once the installation is complete , clone the repository using:
 
-        git clone http://devel.ictinnovations.com/git/ict/gittest.git ~/ictdialer-gui     
+        git clone https://github.com/ictinnovations/ictdialer.git ~/ictdialer     
 
 Download the source code.
 
@@ -79,7 +79,7 @@ replace these lines with the following ones:
 
 Build the project, use the following commands for this purpose:
 
-        cd ~/ictdialer-gui
+        cd ~/ictdialer
         npm install
         ng build --env=prod
         

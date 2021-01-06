@@ -1,16 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ContactService } from '../contact/contact.service';
+import {Component, OnDestroy, OnInit } from '@angular/core';
+import { NbThemeService } from '@nebular/theme';
+import { takeWhile } from 'rxjs/operators' ;
 import { DashboardService } from './dashboard.service';
+import { Router } from '@angular/router';
 
+interface CardSettings {
+  title: string;
+  iconClass: string;
+  type: string;
+}
 
 @Component({
   selector: 'ngx-dashboard',
   styleUrls: ['./dashboard.component.scss'],
   templateUrl: './dashboard.component.html',
 })
+export class DashboardComponent implements OnInit, OnDestroy {
 
-export class DashboardComponent implements OnInit {
   stat: any;
   length: number;
   con_t: any;
@@ -18,19 +24,85 @@ export class DashboardComponent implements OnInit {
   cam_t: any;
   cam_actv: any;
 
-  constructor(private contact_service: ContactService,
-  private dashboard_service: DashboardService,
-  public router: Router) { }
+  private alive = true;
+
+  solarValue: number;
+  lightCard: CardSettings = {
+    title: 'Light',
+    iconClass: 'nb-lightbulb',
+    type: 'primary',
+  };
+  rollerShadesCard: CardSettings = {
+    title: 'Roller Shades',
+    iconClass: 'nb-roller-shades',
+    type: 'success',
+  };
+  wirelessAudioCard: CardSettings = {
+    title: 'Wireless Audio',
+    iconClass: 'nb-audio',
+    type: 'info',
+  };
+  coffeeMakerCard: CardSettings = {
+    title: 'Coffee Maker',
+    iconClass: 'nb-coffee-maker',
+    type: 'warning',
+  };
+
+  statusCards: string;
+
+  commonStatusCardsSet: CardSettings[] = [
+    this.lightCard,
+    this.rollerShadesCard,
+    this.wirelessAudioCard,
+    this.coffeeMakerCard,
+  ];
+
+  statusCardsByThemes: {
+    default: CardSettings[];
+    cosmic: CardSettings[];
+    corporate: CardSettings[];
+    dark: CardSettings[];
+  } = {
+    default: this.commonStatusCardsSet,
+    cosmic: this.commonStatusCardsSet,
+    corporate: [
+      {
+        ...this.lightCard,
+        type: 'warning',
+      },
+      {
+        ...this.rollerShadesCard,
+        type: 'primary',
+      },
+      {
+        ...this.wirelessAudioCard,
+        type: 'danger',
+      },
+      {
+        ...this.coffeeMakerCard,
+        type: 'info',
+      },
+    ],
+    dark: this.commonStatusCardsSet,
+  };
+
+  constructor(private themeService: NbThemeService, private dashboard_service: DashboardService,
+  public router: Router) {
+
+    this.themeService.getJsTheme()
+      .pipe(takeWhile(() => this.alive))
+      .subscribe(theme => {
+        this.statusCards = this.statusCardsByThemes[theme.name];
+    });
+
+  }
 
   ngOnInit() {
-    this.contactlength();
     this.getStat();
   }
 
-  contactlength(): void {
-    this.contact_service.get_ContactList().then(data => {
-      this.length = data.length;
-    });
+  ngOnDestroy() {
+    this.alive = false;
   }
 
   getStat(): void {
@@ -67,5 +139,3 @@ export class DashboardComponent implements OnInit {
   return newValue;
  }
 }
-
-

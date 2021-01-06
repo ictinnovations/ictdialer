@@ -99,22 +99,22 @@
               </div>
   </nb-card-body>
 </nb-card>
-<nb-card>
-    <nb-card-header>
-      Active
-    </nb-card-header>
-  <nb-card-body>
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="form-group">
-                <label for="active">Active:</label>
-                <input [(ngModel)]="extension.active" [ngModelOptions]="{standalone: true}" type="radio"  name="active" value="0"> No
-                <input [(ngModel)]="extension.active" [ngModelOptions]="{standalone: true}" type="radio"  name="active" value="1"> Yes
+    <nb-card>
+      <nb-card-header>
+        Active
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="active">Active:</label>
+              <input [(ngModel)]="extension.active" [ngModelOptions]="{standalone: true}" type="radio"  name="active" value="0"> No
+              <input [(ngModel)]="extension.active" [ngModelOptions]="{standalone: true}" type="radio"  name="active" value="1"> Yes
+            </div>
           </div>
-      </div>
-    </div>
-  </nb-card-body>
-</nb-card>
+        </div>
+      </nb-card-body>
+    </nb-card>
 
 <div *ngIf="(account_id>0)">
     <button type="button" class="btn btn-primary" (click)="updateExtension()">Update</button>

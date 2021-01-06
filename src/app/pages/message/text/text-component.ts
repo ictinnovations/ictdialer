@@ -1,14 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { TextService } from './text.service';
-import { Text } from './text';
-import { DataSource } from '@angular/cdk/collections';
 import { MatSort, MatPaginator } from '@angular/material';
-import { BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { MatSortHeaderIntl } from '@angular/material';
 import { TextDatabase } from './text-database.component';
 import { TextDataSource } from './text-datasource.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ModalComponent } from '../../../modal.component';
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'ngx-text-component',
@@ -24,9 +21,11 @@ export class FormsTextComponent implements OnInit {
   closeResult: any;
 
   displayedColumns= ['ID', 'name', 'type', 'length', 'Operations'];
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+
+  @ViewChild('filter', {static: false}) filter: ElementRef;
 
   ngOnInit() {
     this.getTextlist();
@@ -36,6 +35,15 @@ export class FormsTextComponent implements OnInit {
     this.text_service.get_TextList().then(data => {
       this.length = data.length;
       this.aText = new TextDataSource(new TextDatabase( data ), this.sort, this.paginator);
+
+      // Observable for the filter
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+     .debounceTime(150)
+     .distinctUntilChanged()
+     .subscribe(() => {
+       if (!this.aText) { return; }
+       this.aText.filter = this.filter.nativeElement.value;
+      });
     });
   }
 

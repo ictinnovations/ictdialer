@@ -19,6 +19,7 @@ export class Pointers {
   ptr_link: any;
   ptr_r_set;
   parent_app_index: any;
+  data:any;
 
   constructor(app_index, i, type, node_type, left, top, nodeColor, set, node_rect) {
     this.app_index = app_index;
@@ -30,6 +31,7 @@ export class Pointers {
     this.parentApp = type;
     this.parentNode = node_type;
     this.parent_app_index = app_index;
+    this.data = node_type;
 
     if (type != 'play_menu') {
       this.ptr_link = AddIVRComponent.r.rect(left + 80, top + (25 + (10*i)), 7, 7).attr({stroke: nodeColor, 'fill-opacity': 100, 'fill': nodeColor, 'opacity': 1, cursor: 'move'});

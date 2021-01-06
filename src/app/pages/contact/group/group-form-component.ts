@@ -6,7 +6,6 @@ import { Group } from './group';
 import { GroupService } from './group.service';
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import 'rxjs/add/operator/toPromise';
-import { Console } from '@angular/core/src/console';
 import { AppService } from '../../../app.service';
 
 @Component({
@@ -45,6 +44,7 @@ export class AddGroupComponent implements OnInit {
     this.uploader.onBeforeUploadItem = (item) => {
       item.method = 'POST';
       item.url = this.URL;
+      item.withCredentials = false;
     };
 
     this.uploader.onAfterAddingFile = (response: any) => {

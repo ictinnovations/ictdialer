@@ -9,5 +9,13 @@ export class Extension {
   email: string;
   address: string;
   active: number;
-  type:any;
+  type: any;
+  settings : {
+    emailtofax_coversheet: any;
+    crmsettings: any;
+  }
+}
+
+export class Settings {
+  value:any;
 }

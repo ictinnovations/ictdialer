@@ -1,16 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { GroupService } from './group.service';
-import { Group } from './group';
-import { DataSource } from '@angular/cdk/collections';
-import { BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { MatSortHeaderIntl } from '@angular/material';
 import { MatPaginator, MatSort } from '@angular/material';
 import { GroupDatabase } from './group-database.component';
 import { GroupDataSource } from './group-datasource.component';
 import { ModalComponent } from '../../../modal.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'ngx-group-component',
@@ -29,9 +24,11 @@ export class FormsGroupComponent implements OnInit {
 
   displayedColumns= ['ID', 'Name', 'contact_total', 'Operations'];
 
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+
+  @ViewChild('filter', {static: false}) filter: ElementRef;
 
   ngOnInit() {
     this.getGrouplist();
@@ -41,6 +38,15 @@ export class FormsGroupComponent implements OnInit {
     this.group_service.get_GroupList().then(data => {
       this.length = data.length;
       this.aGroup = new GroupDataSource(new GroupDatabase( data ), this.sort, this.paginator);
+
+      // Observable for the filter
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+     .debounceTime(150)
+     .distinctUntilChanged()
+     .subscribe(() => {
+       if (!this.aGroup) { return; }
+       this.aGroup.filter = this.filter.nativeElement.value;
+      });
     });
   }
 

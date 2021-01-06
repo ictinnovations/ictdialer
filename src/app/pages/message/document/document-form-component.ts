@@ -26,11 +26,13 @@ export class AddDocumentComponent implements OnInit {
 
 
   form1: any= {};
-  file: any;
+  file: any = [];
   document: Document= new Document;
   document_id: any= null;
   URL = `${this.app_service.apiUrlDocument}/${this.document_id}/media`;
   public uploader: FileUploader = new FileUploader({url: this.URL, disableMultipart: true });
+
+  unsupportedErr: any = false;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -38,6 +40,7 @@ export class AddDocumentComponent implements OnInit {
       const test_url = this.router.url.split('/');
       const lastsegment = test_url[test_url.length - 1];
       if (lastsegment === 'new') {
+        this.document.quality = 'standard';
         return null;
       } else {
         return this.document_service.get_DocumentData(this.document_id).then(data => {
@@ -47,12 +50,24 @@ export class AddDocumentComponent implements OnInit {
     });
 
     this.uploader.onBeforeUploadItem = (item) => {
-      item.method = 'PUT';
+      item.method = 'POST';
       item.url = this.URL;
+      item.withCredentials = false;
     };
 
     this.uploader.onAfterAddingFile = (response: any) => {
+      console.log(response);
       this.file = response;
+      if (response.file.type == 'application/pdf' || response.file.type == 'image/png' || response.file.type == 'image/jpg' || response.file.type == 'image/jpeg' || response.file.type == 'image/tiff' || response.file.type == 'image/tif') {
+        
+      }
+      else {
+        this.unsupportedErr = true;
+        this.uploader.removeFromQueue(response);
+        setTimeout(() => {
+          this.unsupportedErr = false;
+        }, 2000);
+      }
     };
 
     const authHeader = this.app_service.upload_Header;
@@ -61,6 +76,7 @@ export class AddDocumentComponent implements OnInit {
 
     this.uploader.onSuccessItem = (item: any, response: any, status: any, headers: any) => {
     };
+
   }
 
   addDocument(): void {
@@ -91,7 +107,7 @@ export class AddDocumentComponent implements OnInit {
   }
 
   upload () {
-    this.file.upload();
+    this.uploader.uploadAll();
   }
 
   private hasBaseDropZoneOver = false;

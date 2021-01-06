@@ -1,66 +1,93 @@
 <h3>Add::Document</h3>
 <div class="col-lg-12">
-<form id="form1" #f1="ngForm">
-<nb-card>
-    <nb-card-header>
-      Document Information
-    </nb-card-header>
-  <nb-card-body>
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="form-group">
-            <label for="name">Document Name:</label>
-            <input [(ngModel)]="document.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Document Name" id="name" required/>
-          </div>
-      </div>
-    </div>
-  </nb-card-body>
-</nb-card>
-      
-
-<nb-card>
-    <nb-card-header>
-      Upload Document
-    </nb-card-header>
-    <nb-card-body>
-        <div class="container">
-            
-                <div class="navbar navbar-default">
-                </div>
-            
-                <div class="row">
-            
-                    <div class="col-md-3">
-                        
-                        <input type="file" ng2FileSelect [uploader]="uploader" />
-                    </div>
-  
-            
-                </div>
-            
+  <form id="form1" #f1="ngForm">
+    <nb-card>
+      <nb-card-header>
+        Document Information
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="name">Document Name:</label>
+              <input [(ngModel)]="document.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="name" required/>
             </div>
-    </nb-card-body>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+      
+    <nb-card>
+      <nb-card-header>
+        Upload Document (pdf, png, tiff and jpeg are supported only)
+      </nb-card-header>
+      <nb-card-body>
+        <div class="container">
+          <div class="navbar navbar-default">
+          </div>  
+          <div class="row">            
+            <div class="col-md-3">
+              <input type="file" accept=".pdf,.tif,.tiff,.png,.jpg,.jpeg" ng2FileSelect [uploader]="uploader" multiple  /><br/>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="unsupportedErr">
+          <br>
+          <label style="color:red" text-center>Unsupported file type</label>
+        </div>
+        <div *ngFor="let item of uploader.queue"> 
+          <br>
+          <label>{{ item?.file?.name }}</label>
+          <i class="nb-close smmmm" (click)="item.remove()"></i>
+          <!--
+          <button type="button" class="btn btn-primary btn-icon btn-xs smmmm" (click)="item.remove()">
+            <i class="nb-close" (click)="item.remove()"></i>
+          </button>
+          !-->
+        </div>
+      </nb-card-body>
     </nb-card>
 
-<nb-card>
-  <nb-card-header>
-    Description
-  </nb-card-header>
+    <nb-card>
+      <nb-card-header>
+        Fax Quality Type
+      </nb-card-header>
+      <nb-card-body>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <div>  
+              <label for="type">Quality Type:</label>  
+              <select class = "form-control" name = "quality" [(ngModel)]= "document.quality" [ngModelOptions]="{standalone: true}" [disabled]="(document_id>0)">
+                <option value = "">Please Select an Option below</option>  
+                <option value="standard">Standard</option>
+                <option value="fine">Fine</option>
+                <option value="super">Super</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        Description
+      </nb-card-header>
       <nb-card-body>
         <div class="col-sm-6">
           <div class="form-group">
             <label for="description">Description:</label>
-            <input [(ngModel)]="document.description" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Description" id="description" required/>  
+            <input [(ngModel)]="document.description" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="description" required/>  
           </div>
         </div>
-    </nb-card-body>
-</nb-card>
+      </nb-card-body>
+    </nb-card>
 
-<div *ngIf="(document_id>0)">
-    <button type="button" class="btn btn-primary" (click)="updateDocument()">Update</button>
-</div>
-<div *ngIf="(!document_id)">
-    <button type="button" class="btn btn-success" (click)="addDocument()">Submit</button>
-</div>
-</form>
+    <div *ngIf="(document_id>0)">
+      <button type="button" class="btn btn-primary" (click)="updateDocument()">Update</button>
+    </div>
+    <div *ngIf="(!document_id)">
+      <button type="button" class="btn btn-success" (click)="addDocument()">Submit</button>
+    </div>
+  </form>
 </div>

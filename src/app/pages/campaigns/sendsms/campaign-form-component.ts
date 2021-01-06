@@ -31,6 +31,7 @@ export class AddSMSCampaignComponent implements OnInit {
   selectedText: Text;
 
   ngOnInit(): void {
+    this.campaign.source = 'remote';
     this.route.params.subscribe(params => {
       this.campaign_id = +params['id'];
       const test_url = this.router.url.split('/');

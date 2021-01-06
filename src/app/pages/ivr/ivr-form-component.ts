@@ -1,15 +1,9 @@
-import { Component, ViewEncapsulation, Inject } from '@angular/core';
-import * as d3 from 'd3';
+import { Component, OnInit } from '@angular/core';
 import * as $ from 'jquery';
-import 'jqueryui';
-import { Applications } from './ivr_application';
-import { Pointers } from './ivr_pointer';
-import { Nodes } from './ivr_nodes';
-import { Connections } from './ivr_connection';
 import * as Raphael from 'raphael';
+import 'jqueryui';
 import { RecordingService } from '../message/recording/recording.service';
 import { Recording } from '../message/recording/recording';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { Extension } from '../extension/extension';
 import { ExtensionService } from '../extension/extension.service';
 import { IVRService } from './ivr.service';
@@ -426,6 +420,7 @@ export class AddIVRComponent implements OnInit {
             pointers[k]['parent_app_index'] = total_apps[i].in_nod[j].pointers[k].parent_app_index;
             pointers[k]['pointer_index'] = total_apps[i].in_nod[j].pointers[k].pointer_index;
             pointers[k]['linked_app_index'] = total_apps[i].in_nod[j].pointers[k].linked_app_index;
+            pointers[k]['data'] = total_apps[i].in_nod[j].pointers[k].data;
           }
           in_nod[j].pointers = pointers;
         }
