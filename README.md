@@ -1,7 +1,7 @@
 Management GUI for ICTDialer
 ============================
 
-ICTDialer is a unified communication dailing sofrware for mass communications like voice broadcasting, fax broadcasting, sms and email marketing 
+ICTDialer is a unified communication auto dialer sofrware for mass communications like voice broadcasting, fax broadcasting, sms and email marketing 
 
 ICTDialer front end has been developed over Angular framwork and at back end, ICTCore has been employed, A Freeswitch based unified communications framework that empower ICTDialer with communciations capabilities like creating different kind of transmissions like SMS, emails and voice fax calls.
 
