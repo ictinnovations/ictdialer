@@ -194,5 +194,5 @@ ICTDialer developed by [ICT Innovations]
 
 [ICTCore]: https://www.ictcore.org/ "ICTCore Communications framework"
 [ICT Innovations]: https://www.ictinnovations.com/ "ICT Innovations leverging open source in ICTs"
-[ICTDialer]: https://www.ictdialer.com/ "Cloud call center platform"
+[ICTDialer]: https://github.com/ictinnovations/ictdialer/ "Open Source Auto dialer software"
 
