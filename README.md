@@ -3,7 +3,7 @@ Management GUI for ICTDialer
 
 ICTDialer is a unified communication auto dialer sofrware for mass communications like voice broadcasting, fax broadcasting, sms and email marketing 
 
-ICTDialer front end has been developed over Angular framwork and at back end, ICTCore has been employed, A Freeswitch based unified communications framework that empower ICTDialer with communciations capabilities like creating different kind of transmissions like SMS, emails and voice fax calls.
+ICTDialer front end has been developed over Angular framwork and at back end, [ICTCore] has been employed, A Freeswitch based unified communications framework developed by [ICT Innovations] that empower ICTDialer with communciations capabilities like creating different kind of transmissions like SMS, emails and voice fax calls.
 
 Here a brief instruction and user guide for this application.
 
@@ -17,7 +17,7 @@ A Single GUI is created to cover all the major communication methods and service
 
 ### Features
 
-By Using ICTDialer a user can manage:
+By Using [ICTDialer] a user can manage:
 
 * Contacts Management
 * Message Management
@@ -151,7 +151,7 @@ Similarly you can create othe transmissions like send email, voice call like thi
 Campaign Management:
 -------------------
 
-In case when you want to send a message to a group of contacts, you can use campaign management. ICTDialer supports different kind of campaigns like:
+In case when you want to send a message to a group of contacts, you can use campaign management. [ICTDialer] supports different kind of campaigns like:
 
 * SMS Campaign
 * Email Campaign
@@ -189,3 +189,9 @@ You can also **delete** the user by clicking on the delete icon against the user
 A new user will be created.
 
 You can also **update** the user detail by clicking on the edit icon against the user in the user list. Change the desired fields and press the update button.
+
+
+[ICTCore]: https://www.ictcore.org/ "ICTCore Communications framework"
+[ICT Innovations]: https://www.ictinnovations.com/ "ICT Innovations leverging open source in ICTs"
+[ICTDialer]: https://www.ictdialer.com/ "Cloud call center platform"
+
