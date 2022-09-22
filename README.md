@@ -190,7 +190,7 @@ A new user will be created.
 
 You can also **update** the user detail by clicking on the edit icon against the user in the user list. Change the desired fields and press the update button.
 
-ICTDialer developed by [ICT Innovations]
+[ICTDialer] developed by [ICT Innovations]
 
 [ICTCore]: https://www.ictcore.org/ "ICTCore Communications framework"
 [ICT Innovations]: https://www.ictinnovations.com/ "ICT Innovations leverging open source in ICTs"
