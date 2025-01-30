@@ -8,7 +8,7 @@
       <nb-card-body>
         <div class="form-group">
           <label for="title">Title:</label>
-          <input [(ngModel)]="transmission.title" [ngModelOptions]="{standalone: true}" type="text" class="form-control" placeholder="Title" id="title" required/>
+          <input [(ngModel)]="transmission.title" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="title" required/>
         </div>
       </nb-card-body>
     </nb-card>
@@ -37,7 +37,7 @@
       <nb-card-body>
         <div class="form-group">
           <label for="phone">Destination Contact: </label>
-          <input type="text" class="form-control" [(ngModel)]="transmission.phone" [ngModelOptions]="{standalone: true}" placeholder="Enter Phone number of Destination contact" id="phone" required/>
+          <input type="text" class="form-control" [(ngModel)]="transmission.phone" [ngModelOptions]="{standalone: true}" id="phone" required/>
         </div>    
       </nb-card-body>
     </nb-card>

@@ -5,18 +5,16 @@ import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-
-  constructor(private authService: NbAuthService, private router: Router) {
-  }
+  constructor(private authService: NbAuthService, private router: Router) { }
 
   canActivate() {
     return this.authService.isAuthenticated()
-      .pipe(
-        tap(authenticated => {
-          if (!authenticated) {
-            this.router.navigate(['auth/login']);
-          }
-        }),
-      );
+    .pipe(
+      tap(authenticated => {
+        if (!authenticated) {
+          this.router.navigate(['auth/login']);
+        }
+      })
+    )
   }
 }

@@ -4,11 +4,13 @@ import { ThemeModule } from '../../@theme/theme.module';
 import { ProviderRoutingModule, routedComponents } from './provider-routing.module';
 import { MatTableModule } from '@angular/material/table';
 import { CdkTableModule } from '@angular/cdk/table';
-import { MatSortModule, MatIconModule } from '@angular/material';
-import { MatButtonModule } from '@angular/material';
-import { MatPaginatorModule } from '@angular/material';
+import { MatSortModule } from '@angular/material/sort';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { NbCardModule, NbIconModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -24,7 +26,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     ReactiveFormsModule,
     MatIconModule,
-    NbIconModule
+    NbIconModule,
+    TranslateModule
   ],
   declarations: [
     ...routedComponents,

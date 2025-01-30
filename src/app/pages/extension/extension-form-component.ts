@@ -44,7 +44,7 @@ export class AddExtensionComponent implements OnInit {
   }
 
   addExtension(): void {
-    this.extension.type = 'extension';   
+    this.extension.type = 'extension';
     this.account_service.add_Extension(this.extension).then(response => {
       if (this.sendbody == true) {
         this.updateSettings(response);

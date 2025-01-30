@@ -10,12 +10,15 @@ import {
 import { LoginComponent } from './auth/login/login.component';
 import { LogoutComponent } from './auth/logout/logout.component';
 import { AuthGuard } from './auth-guard.service';
+import { SigninComponent } from './auth/signin/signin.component';
+import { RequestPasswordComponent } from './auth/request-password/request-password.component';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 
 const routes: Routes = [
   {
     path: 'pages',
     canActivate: [AuthGuard],
-    loadChildren: () => import('app/pages/pages.module')
+    loadChildren: () => import('./pages/pages.module')
       .then(m => m.PagesModule),
   },
   {
@@ -40,11 +43,11 @@ const routes: Routes = [
       },
       {
         path: 'request-password',
-        component: NbRequestPasswordComponent,
+        component: RequestPasswordComponent,
       },
       {
         path: 'reset-password',
-        component: NbResetPasswordComponent,
+        component: ResetPasswordComponent,
       },
     ],
   },
@@ -53,8 +56,9 @@ const routes: Routes = [
 ];
 
 const config: ExtraOptions = {
-  useHash: true,
-};
+    useHash: true,
+    relativeLinkResolution: 'legacy'
+}
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, config)],

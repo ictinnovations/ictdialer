@@ -1,14 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CampaignService } from './campaign.service';
-import { MatSort } from '@angular/material';
-import { MatPaginator } from '@angular/material';
+import { MatSort } from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
 import { CampaignDatabase } from './campaign-database.component';
 import { CampaignDataSource } from './campaign-datasource.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-
 import { Observable, timer } from 'rxjs';
 import { ModalComponent } from '../../modal.component';
-import { CRMUser } from './campaign';
+
 
 
 @Component({
@@ -32,8 +31,6 @@ export class FormsCampaignComponent implements OnInit {
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
-  usersArray: any[] = [];
-  // crmuser: CRMUser = new CRMUser;
 
   ngOnInit() {
     this.getCampaignlist();

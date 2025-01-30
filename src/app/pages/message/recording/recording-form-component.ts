@@ -24,7 +24,7 @@ export class AddRecordingComponent implements OnInit {
 
   form1: any= {};
   recording: Recording= new Recording;
-  recording_id: any;
+  recording_id: any = null;
   file: any;
   URL = `${this.app_service.apiUrlRecording}/${this.recording_id}/media`;
   public uploader: FileUploader = new FileUploader({url: this.URL, disableMultipart: true });

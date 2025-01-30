@@ -21,8 +21,9 @@ const routes: Routes = [{
     component: AddContactComponent,
   }, {
     path: 'contacts/:id/delete',
-    component: AddContactComponent,
-  }, {
+    component: FormsContactComponent,
+  }, 
+  {
     path: 'group',
     component: FormsGroupComponent,
   }, {
@@ -34,7 +35,8 @@ const routes: Routes = [{
   }, {
     path: 'group/:id/delete',
     component: AddGroupComponent,
-  }],
+  }
+],
 }];
 
 @NgModule({
@@ -56,3 +58,4 @@ export const routedComponents = [
   FormsGroupComponent,
   AddGroupComponent,
 ];
+

@@ -12,8 +12,9 @@ export class Extension {
   type: any;
   settings : {
     emailtofax_coversheet: any;
-    crmsettings: any;
+    coverpage: any;
   }
+  user_id: any;
 }
 
 export class Settings {

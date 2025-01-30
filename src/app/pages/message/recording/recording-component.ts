@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { RecordingService } from './recording.service';
-import { MatPaginator, MatSort } from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
 import { RecordingDatabase } from './recording-database.component';
 import { RecordingDataSource } from './recording-datasource.component';
 import { ModalComponent } from '../../../modal.component';

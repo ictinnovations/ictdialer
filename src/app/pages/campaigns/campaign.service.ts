@@ -142,9 +142,4 @@ export class CampaignService {
     return this.http.delete(url, options).toPromise().then(response => response.json() as Campaign)
     .catch(response => this.app_service.handleError(response));
   }
-
-  fetch_crm_contacts(formdata) {
-    const url = 'http://45.76.173.75/service/v4_1/rest.php';    
-    return this.http.post(url, formdata).toPromise().then(response => response.json());
-  }
 }

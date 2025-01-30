@@ -50,7 +50,7 @@ export class AddUserComponent implements OnInit {
     this.user_service.get_RoleList().then(response => {
       this.role = response;
       this.role.forEach(element => {
-        element.state = null;
+        element.state = true;
       });
     })
   }

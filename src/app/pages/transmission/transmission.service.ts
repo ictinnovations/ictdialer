@@ -24,11 +24,12 @@ export class TransmissionService {
 
   constructor(private http: Http, private app_service: AppService) {}
 
-  get_TransmissionList(): Promise<Transmission[]> {
+  get_OutFaxTransmissionList(): Promise<Transmission[]> {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({ headers: headers});
-    return this.http.get(this.app_service.apiUrlTransmission, options).toPromise()
+    const getUrl = `${this.app_service.apiUrlTransmission}?service_flag=1&direction=outbound`;
+    return this.http.get(getUrl, options).toPromise()
     .then(response => response.json() as Transmission[]).catch(response => this.app_service.handleError(response));
   }
 
@@ -49,16 +50,6 @@ export class TransmissionService {
     .then(response => response.json() as Program).catch(response => this.app_service.handleError(response));
   }
 
-  add_sendsms(smsProgram: SMSProgram): Promise<number> {
-    const headers = new Headers();
-    this.app_service.createAuthorizationHeader(headers);
-    const options = new RequestOptions({headers: headers});
-    const body = JSON.stringify(smsProgram);
-    const addSendSmsUrl = `${this.app_service.apiUrlPrograms}/sendsms`;
-    return this.http.post(addSendSmsUrl, body, options).toPromise().then(response => response.json() as Number)
-    .catch(response => this.app_service.handleError(response));
-  }
-
   add_Transmission(transmission: Transmission): Promise<number> {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
@@ -66,16 +57,6 @@ export class TransmissionService {
     const body = JSON.stringify(transmission);
     const addTransmissionUrl = `${this.app_service.apiUrlTransmission}`;
     return this.http.post(addTransmissionUrl, body, options).toPromise().then(response => response.json() as Number)
-    .catch(response => this.app_service.handleError(response));
-  }
-
-  add_sendemail(templateProgram: TemplateProgram): Promise<number> {
-    const headers = new Headers();
-    this.app_service.createAuthorizationHeader(headers);
-    const options = new RequestOptions({headers: headers});
-    const body = JSON.stringify(templateProgram);
-    const addSendEmailUrl = `${this.app_service.apiUrlPrograms}/sendemail`;
-    return this.http.post(addSendEmailUrl, body, options).toPromise().then(response => response.json() as Number)
     .catch(response => this.app_service.handleError(response));
   }
 

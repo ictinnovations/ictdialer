@@ -1,7 +1,7 @@
 import { Recording } from './recording';
 import { DataSource } from '@angular/cdk/collections';
-import { MatSort } from '@angular/material';
-import { MatPaginator } from '@angular/material';
+import { MatSort, Sort } from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
 import { RecordingDatabase } from './recording-database.component';
 import { BehaviorSubject} from 'rxjs/BehaviorSubject';
 

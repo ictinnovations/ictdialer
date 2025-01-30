@@ -20,17 +20,17 @@ import { TransmissionService } from '../pages/transmission/transmission.service'
 import { ContactService } from '../pages/contact/contact.service';
 import { GroupService } from '../pages/contact/group/group.service';
 import { ExtensionService } from '../pages/extension/extension.service';
-import { IVRService } from '../pages/ivr/ivr.service';
 import { DocumentService } from '../pages/message/document/document.service';
-import { TextService } from '../pages/message/text/text.service';
-import { RecordingService } from '../pages/message/recording/recording.service';
-import { TemplateService } from '../pages/message/email/email.service';
 import { AUserService } from '../pages/user/user.service';
 import { ProviderService } from '../pages/provider/provider.service';
 import { environment } from '../../environments/environment';
 import { HttpResponse } from '@angular/common/http';
 import { AuthGuard } from '../auth-guard.service';
-import { CrmConfigService } from '../pages/crmconfig/crmconfig.service';
+import { DIDService } from '../pages/did/did.service';
+import { SendFaxService } from '../pages/sendfax/sendfax.service';
+import { InFaxService } from '../pages/infax/infax.service';
+import { IncomingNumberService } from '../pages/incoming_number/incoming_number.service';
+import { RecordingService } from '../pages/message/recording/recording.service';
 
 const socialLinks = [
   {
@@ -145,15 +145,15 @@ export const NB_CORE_PROVIDERS = [
   ContactService,
   GroupService,
   ExtensionService,
-  IVRService,
   DocumentService,
-  TextService,
-  RecordingService,
-  TemplateService,
   AUserService,
   ProviderService,
-  CrmConfigService,
-  AuthGuard
+  AuthGuard,
+  DIDService,
+  SendFaxService,
+  InFaxService,
+  IncomingNumberService,
+  RecordingService
 ];
 
 export function token_to_json(module: string, res: HttpResponse<Object>) {
@@ -174,8 +174,8 @@ export class CoreModule {
     throwIfAlreadyLoaded(parentModule, 'CoreModule');
   }
 
-  static forRoot(): ModuleWithProviders {
-    return <ModuleWithProviders>{
+  static forRoot(): ModuleWithProviders <CoreModule> {
+    return{
       ngModule: CoreModule,
       providers: [
         ...NB_CORE_PROVIDERS,

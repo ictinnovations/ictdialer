@@ -68,11 +68,17 @@
     </ng-container>
   </div>
 
+  <!--
   <div class="form-control-group accept-group">
     <nb-checkbox name="rememberMe" [(ngModel)]="user.rememberMe" *ngIf="rememberMe">Remember me</nb-checkbox>
     <a class="forgot-password" routerLink="../request-password">Forgot Password?</a>
   </div>
+  -->
 
+  <div>
+    <a [routerLink]="['/auth/request-password']"> Forgot Password </a>
+  </div>
+  &nbsp;
   <button nbButton
           fullWidth
           status="success"

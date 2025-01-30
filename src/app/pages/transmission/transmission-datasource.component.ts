@@ -1,8 +1,8 @@
 import { DataSource } from '@angular/cdk/collections';
 import { TransmissionDatabase } from './transmission-database.component';
 import { Transmission } from './transmission';
-import { MatSort, MatPaginator } from '@angular/material';
-
+import { MatSort} from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
 import { Observable, merge } from 'rxjs';
 
 export class TransmissionDataSource extends DataSource<Transmission> {
@@ -35,8 +35,7 @@ export class TransmissionDataSource extends DataSource<Transmission> {
       switch (this._sort.active) {
         case 'ID': [propertyA, propertyB] = [a.transmission_id, b.transmission_id]; break;
         case 'contact_id': [propertyA, propertyB] = [a.contact_id, b.contact_id]; break;
-        case 'type': [propertyA, propertyB] = [a.program_type, b.program_type]; break;
-        case 'title': [propertyA, propertyB] = [a.title, b.title]; break;
+        case 'status': [propertyA, propertyB] = [a.status, b.status]; break;
       }
 
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

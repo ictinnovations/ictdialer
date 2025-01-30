@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { AUserService } from './user.service';
-import { MatSort, MatPaginator } from '@angular/material';
+import { MatSort, Sort } from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
 import { UserDatabase } from './user-database.component';
 import { UserDataSource } from './user-datasource.component';
 import { ModalComponent } from '../../modal.component';
@@ -39,6 +40,13 @@ export class FormsUserComponent implements OnInit {
     this.user_service.get_UserList().then(data => {
       this.length = data.length;
       this.aUser = new  UserDataSource(new UserDatabase( data ), this.sort, this.paginator);
+
+      //Sort the data automatically
+
+      const sortState: Sort = {active: 'ID', direction: 'desc'};
+      this.sort.active = sortState.active;
+      this.sort.direction = sortState.direction;
+      this.sort.sortChange.emit(sortState);
 
       // Observable for the filter
       fromEvent(this.filter.nativeElement, 'keyup')

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ExtensionService } from './extension.service';
-import { MatSort, MatPaginator } from '@angular/material';
+import { MatSort } from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
 import { ExtensionDatabase } from './extension-database.component';
 import { ExtensionDataSource } from './extension-datasource.component';
 import { ModalComponent } from '../../modal.component';
@@ -12,7 +13,6 @@ import { Observable } from 'rxjs/Rx';
   templateUrl: './extension-component.html',
   styleUrls: ['./extension-component.scss'],
 })
-
 
 export class FormsExtensionComponent implements OnInit {
   constructor(private extension_service: ExtensionService, private modalService: NgbModal) { }

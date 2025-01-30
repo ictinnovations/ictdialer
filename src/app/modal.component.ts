@@ -25,7 +25,6 @@ export class ModalComponent {
   modalContent = ``;
   public onChange: EventEmitter<any> = new EventEmitter();
 
-
   constructor(public activeModal: NgbActiveModal) { }
 
 }

@@ -20,7 +20,7 @@ export class ExtensionService {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({ headers: headers});
-    const getUrl = `${this.app_service.apiUrlAccounts}?type=extension`;    
+    const getUrl = `${this.app_service.apiUrlAccounts}?type=extension`;
     return this.http.get(getUrl, options).toPromise()
     .then(response => response.json() as Extension[]).catch(response => this.app_service.handleError(response));
   }
@@ -67,7 +67,7 @@ export class ExtensionService {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({ headers: headers});
-    const url5 = `${this.app_service.apiUrlAccounts}/${account_id}/settings/crmsettings`;
+    const url5 = `${this.app_service.apiUrlAccounts}/${account_id}/settings/emailtofax_coversheet`;
     return this.http.get(url5, options).toPromise()
     .then(response => response.json()).catch(err => this.handleError(err));
   }
@@ -77,7 +77,7 @@ export class ExtensionService {
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({headers: headers});
     const body = JSON.stringify(settings);
-    const updateUrl = `${this.app_service.apiUrlAccounts}/${account_id}/settings/crmsettings`;
+    const updateUrl = `${this.app_service.apiUrlAccounts}/${account_id}/settings/emailtofax_coversheet`;
     return this.http.put(updateUrl, body, options).toPromise().then(response => response.json())
     .catch(this.handleError);
   }
@@ -86,10 +86,39 @@ export class ExtensionService {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({headers: headers});
-    const deleteUrl = `${this.app_service.apiUrlAccounts}/${account_id}/settings/crmsettings`;
+    const deleteUrl = `${this.app_service.apiUrlAccounts}/${account_id}/settings/emailtofax_coversheet`;
     return this.http.delete(deleteUrl, options).toPromise().then(response => response.json() as Extension)
     .catch(err => this.handleError(err));
   }
+
+  get_coverpageSettings(account_id) {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers: headers});
+    const url5 = `${this.app_service.apiUrlAccounts}/${account_id}/settings/coverpage`;
+    return this.http.get(url5, options).toPromise()
+    .then(response => response.json()).catch(err => this.handleError(err));
+  }
+
+  update_coverpageSettings(account_id, settings){
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({headers: headers});
+    const body = JSON.stringify(settings);
+    const updateUrl = `${this.app_service.apiUrlAccounts}/${account_id}/settings/coverpage`;
+    return this.http.put(updateUrl, body, options).toPromise().then(response => response.json())
+    .catch(this.handleError);
+  }
+
+  delete_coverpageSettings(account_id) {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({headers: headers});
+    const deleteUrl = `${this.app_service.apiUrlAccounts}/${account_id}/settings/coverpage`;
+    return this.http.delete(deleteUrl, options).toPromise().then(response => response.json() as Extension)
+    .catch(err => this.handleError(err));
+  }
+
 
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error); // for demo purposes only

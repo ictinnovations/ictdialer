@@ -13,6 +13,15 @@ export class Transmission {
   response: string;
   program_type: string;
   try_allowed: any;
+  fax_from: any;
+  fax_to: any;
+  job_id: any;
+  result: any;
+  last_run:any;
+  contact: {
+    phone:any;
+  }
+  contact_phone:any;
 }
 
 export class SMSProgram {

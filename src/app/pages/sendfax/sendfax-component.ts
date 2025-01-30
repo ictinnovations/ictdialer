@@ -1,0 +1,156 @@
+import { NgModule, Component, EventEmitter, ElementRef, Input, Output, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
+import { SendFaxService } from './sendfax.service';
+import { SendFax } from './sendfax';
+import { Response, Http, RequestOptions, Headers } from '@angular/http';
+import { CdkTableModule } from '@angular/cdk/table';
+import { MatTableModule } from '@angular/material/table';
+import { DataSource } from '@angular/cdk/collections';
+import {  MatPaginator, } from '@angular/material/paginator';
+import { MatSort,Sort } from '@angular/material/sort';
+import { BehaviorSubject} from 'rxjs/BehaviorSubject';
+import { SendFaxDatabase } from './sendfax-database.component';
+import { SendFaxDataSource } from './sendfax-datasource.component';
+import { ContactService } from '../contact/contact.service';
+import { NgbModal, NgbModalRef  } from '@ng-bootstrap/ng-bootstrap';
+import { Faxactivity, Faxlogs } from './faxlogs';
+import 'rxjs/add/operator/startWith';
+import 'rxjs/add/observable/merge';
+import 'rxjs/add/operator/toPromise';
+import { Observable } from 'rxjs';
+import 'rxjs/add/observable/fromEvent';
+import { AppService } from '../../app.service';
+import { TransmissionService } from '../transmission/transmission.service';
+import { DocumentService } from '../message/document/document.service';
+
+
+@Component({
+  selector: 'ngx-sendfax-component',
+  templateUrl: './sendfax-component.html',
+  styleUrls: ['./sendfax-component.scss'],
+})
+
+export class FormsSendFaxComponent implements OnInit {
+  constructor(private sendfax_service: SendFaxService, private contact_service: ContactService, private http: Http
+  ,private app_service: AppService, private documnet_service:DocumentService, private modalService: NgbModal ) { }
+
+  aSendFax: SendFaxDataSource | null;
+  public length: number;
+
+  faxlog : Faxlogs = new Faxlogs;
+  faxlogarray : Faxlogs[] = [];
+  faxactivity : Faxactivity = new Faxactivity;
+  faxactivityarray : Faxactivity[] = [];
+  sendfax : SendFax  = new SendFax;
+  private modalRef: NgbModalRef;
+
+  private timerSubscription: any;
+
+  displayedColumns= ['ID', 'phone', 'Timestamp', 'username', 'status','operations'];
+
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
+
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+
+  @ViewChild('filter', {static: false}) filter: ElementRef;
+
+
+  ngOnInit() {
+    this.getFaxlist();
+    
+    setTimeout(() => {
+      this.refreshData();
+    }, 8000);
+    
+  }
+
+  async getFaxlist() {
+    this.sendfax_service.get_OutFaxTransmissionList().then(data => {
+      this.length = data.length;
+
+      data.forEach(element => {
+        if (element.contact_phone == null) {
+          element.contact_phone = 'N/A';
+        }
+      })
+      
+      this.aSendFax = new SendFaxDataSource(new SendFaxDatabase( data ), this.sort, this.paginator);
+
+      //Sort the data automatically
+
+      const sortState: Sort = {active: 'ID', direction: 'desc'};
+      this.sort.active = sortState.active;
+      this.sort.direction = sortState.direction;
+      this.sort.sortChange.emit(sortState);
+
+      // Observable for the filter
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+     .debounceTime(150)
+     .distinctUntilChanged()
+     .subscribe(() => {
+       if (!this.aSendFax) { return; }
+       this.aSendFax.filter = this.filter.nativeElement.value;
+      });
+    });
+  }
+
+  private refreshData(): void {
+    this.sendfax_service.get_OutFaxTransmissionList().then(data => {
+      this.length = data.length;
+
+      data.forEach(element => {
+        if (element.contact_phone == null) {
+          element.contact_phone = 'N/A';
+        }
+      })
+      
+      this.aSendFax = new SendFaxDataSource(new SendFaxDatabase( data ), this.sort, this.paginator);
+
+      // Observable for the filter
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+     .debounceTime(150)
+     .distinctUntilChanged()
+     .subscribe(() => {
+       if (!this.aSendFax) { return; }
+       this.aSendFax.filter = this.filter.nativeElement.value;
+      });
+    });
+    this.subscribeToData();
+  }
+
+  onSave() {
+    this.modalRef.close();
+    this.faxactivityarray = [];
+    this.faxlogarray = [];
+  }
+
+  open(content , transmission_id) {
+    this.showFaxhistory(transmission_id);
+    this.modalRef = this.modalService.open(content,  { size: 'lg' });
+    this.modalRef.result.then((result) => {
+      // this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      // this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+    });
+  }
+  showFaxhistory(transmission_id) {
+    this.sendfax_service.getfaxlogs(transmission_id).then(response => {
+      this.faxlogarray= response;
+    });
+    this.sendfax_service.getfaxactivity(transmission_id).then(response => {
+      this.faxactivityarray= response;
+    });
+    }
+  downloadDocument(document_id){
+    this.documnet_service.get_Documentdownload(document_id);
+  }
+  deleteDocument(transmission_id){
+this.sendfax_service.delete_Document(transmission_id)
+  }
+
+  private subscribeToData(): void {
+    this.timerSubscription = Observable.timer(5000).first().subscribe(() => this.refreshData());
+  }
+
+
+}

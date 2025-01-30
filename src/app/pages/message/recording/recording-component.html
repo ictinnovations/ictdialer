@@ -1,42 +1,42 @@
 <nb-card>
     <nb-card-header>
-      Recording List
-      <input style="float:right" class="form-control cc" type="text" #filter placeholder="Filter Recordings">
+      {{ 'recording.list' | translate}}
+      <input style="float:right" class="form-control cc" type="text" #filter placeholder="{{ 'recording.filter' | translate}}">
     </nb-card-header>
   
     <nb-card-body>
-        <button type="button" mat-raised-button color="primary" style="font-size:15px" [routerLink]="['/pages/message/recording/new']"><i class="fa fa-plus"></i> Add Recording</button>
+        <button type="button" mat-raised-button color="primary" style="font-size:15px" [routerLink]="['/pages/message/recording/new']"><i class="fa fa-plus"></i> {{ 'recording.add' | translate}}</button>
         <br>
         <br>
       <div class="example-container mat-elevation-z8">
         <mat-table #table [dataSource]="aRecording" matSort>
           <ng-container matColumnDef="ID">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'general.ID' | translate}}</mat-header-cell>
             <mat-cell *matCellDef="let recording">
               {{recording.recording_id}}</mat-cell>
           </ng-container>
           <ng-container matColumnDef="name">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>Recording Name:</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'recording.recording_name' | translate}}</mat-header-cell>
             <mat-cell *matCellDef="let recording" style="text-align:left">
               {{recording.name}}</mat-cell>
           </ng-container>
           <ng-container matColumnDef="type">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>Type</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'recording.type' | translate}}</mat-header-cell>
             <mat-cell *matCellDef="let recording" style="text-align:left">
               {{recording.type}}</mat-cell>
           </ng-container>
           <ng-container matColumnDef="length">
-              <mat-header-cell *matHeaderCellDef mat-sort-header>Length</mat-header-cell>
+              <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'recording.length' | translate}}</mat-header-cell>
               <mat-cell *matCellDef="let recording">
                 {{recording.length}}</mat-cell>
             </ng-container>
           <ng-container matColumnDef="description">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>Description</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'recording.description' | translate}}</mat-header-cell>
             <mat-cell *matCellDef="let recording" style="text-align:left">
               {{recording.description}}</mat-cell>
           </ng-container>
           <ng-container cdkColumnDef="Operations">
-              <mat-header-cell *matHeaderCellDef>Operations</mat-header-cell>
+              <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate}}</mat-header-cell>
               <mat-cell *matCellDef="let recording">
               <button mat-icon-button color="primary" style= "font-size:20px">
                 <mat-icon><a routerLink="/pages/message/recording/{{recording.recording_id}}" title="Edit"><nb-icon icon="edit-2-outline"></nb-icon></a></mat-icon>

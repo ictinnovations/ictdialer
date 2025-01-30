@@ -1,9 +1,7 @@
-
 .example-container {
   display: flex;
   flex-direction: column;
   min-width: 300px;
-
 }
   
 .example-header {
@@ -34,7 +32,31 @@
   width: 1px;
 }
 
-.button {
-  border: none;
-  padding-bottom: 0;
+.example-button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 32px;
+    
+}
+
+a:hover {
+  color: rgb(10, 238, 10);
+}
+
+.fa-trash:hover {
+  color: rgb(138, 4, 4);
+}
+
+.fa-play-circle:hover {
+  color: darkblue;
+}
+
+.fa-stop:hover {
+  color: darkblue;
 }

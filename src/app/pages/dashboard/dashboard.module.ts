@@ -16,7 +16,11 @@ import { ThemeModule } from '../../@theme/theme.module';
 import { DashboardComponent } from './dashboard.component';
 import { StatusCardComponent } from './status-card/status-card.component';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { CdkTableModule } from '@angular/cdk/table';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -33,7 +37,11 @@ import { RouterModule } from '@angular/router';
     NbIconModule,
     NbButtonModule,
     NgxEchartsModule,
-    RouterModule
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    CdkTableModule,
+    TranslateModule
   ],
   declarations: [
     DashboardComponent,

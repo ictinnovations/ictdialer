@@ -4,12 +4,15 @@ import { ThemeModule } from '../../@theme/theme.module';
 import { CampaignRoutingModule, routedComponents } from './campaign-routing.module';
 import { MatTableModule } from '@angular/material/table';
 import { CdkTableModule } from '@angular/cdk/table';
-import { MatSortModule, MatIconModule, MatCheckboxModule } from '@angular/material';
-import { MatButtonModule } from '@angular/material';
-import { MatPaginatorModule } from '@angular/material';
+import { CampaignService } from './campaign.service';
+import { MatSortModule } from '@angular/material/sort';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { NbCardModule, NbIconModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StatusCardComponent } from './status-card/status-card.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -26,7 +29,7 @@ import { StatusCardComponent } from './status-card/status-card.component';
     FormsModule,
     ReactiveFormsModule,
     NbIconModule,
-    MatCheckboxModule
+    TranslateModule
   ],
   declarations: [
     ...routedComponents,

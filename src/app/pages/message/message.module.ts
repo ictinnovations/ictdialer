@@ -2,19 +2,19 @@ import { NgModule } from '@angular/core';
 
 import { ThemeModule } from '../../@theme/theme.module';
 import { MessageRoutingModule, routedComponents } from './message-routing.module';
-import { FormsTextComponent } from '../message/text/text-component';
-import { FormsTemplateComponent } from '../message/email/email-component';
 import { FormsDocumentComponent } from '../message/document/document-component';
-import { FormsRecordingComponent } from '../message/recording/recording-component';
 import { MatTableModule } from '@angular/material/table';
 import { CdkTableModule } from '@angular/cdk/table';
-import { MatSortModule, MatPaginator, MatIconModule } from '@angular/material';
+import { MatSortModule} from '@angular/material/sort';
+import { MatIconModule } from '@angular/material/icon';
 import { FileUploadModule } from 'ng2-file-upload';
-import { MatButtonModule } from '@angular/material';
-import { MatPaginatorModule } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { NbCardModule, NbIconModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+import { TranslateModule } from '@ngx-translate/core';
+import { Ng2CompleterModule } from "ng2-completer";
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 
 @NgModule({
@@ -31,7 +31,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
       FormsModule,
       ReactiveFormsModule,
       MatIconModule,
-      NbIconModule
+      NbIconModule,
+      TranslateModule,
+      Ng2CompleterModule,
+      PdfViewerModule
     ],
     declarations: [
       ...routedComponents,

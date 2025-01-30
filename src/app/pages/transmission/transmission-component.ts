@@ -6,9 +6,9 @@ import { Response } from '@angular/http';
 import { CdkTableModule } from '@angular/cdk/table';
 import { MatTableModule } from '@angular/material/table';
 import { DataSource } from '@angular/cdk/collections';
-import { MatSort, MatPaginator } from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { MatSortHeaderIntl } from '@angular/material';
 import { TransmissionDatabase } from './transmission-database.component';
 import { TransmissionDataSource } from './transmission-datasource.component';
 
@@ -17,7 +17,6 @@ import 'rxjs/add/operator/startWith';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/toPromise';
 import { Observable } from 'rxjs/Observable';
-import { error } from 'util';
 import { elementAt } from 'rxjs/operator/elementAt';
 
 
@@ -39,7 +38,7 @@ export class FormsTransmissionComponent implements OnInit {
   public err_message: string;
   public appval;
 
-  displayedColumns= ['ID', 'contact_id', 'type' , 'title', 'status'];
+  displayedColumns= ['ID', 'contact_id', 'title', 'status'];
 
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 
@@ -51,7 +50,7 @@ export class FormsTransmissionComponent implements OnInit {
   }
 
   getTransmissionlist() {
-    this.transmission_service.get_TransmissionList().then(data => {
+    this.transmission_service.get_OutFaxTransmissionList().then(data => {
       this.length = data.length;
       this.aTransmission = new TransmissionDataSource(new TransmissionDatabase( data ), this.sort, this.paginator);
     });

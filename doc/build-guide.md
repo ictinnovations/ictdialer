@@ -1,6 +1,6 @@
-### ICTDialer BUILD GUIDE
+### ICTFax BUILD GUIDE
 
-In order to access **ICTDialer** , there are some steps that should be followed.
+In order to access **ICTFax** , there are some steps that should be followed.
 * Remote Server
 * Install Git
 * Install NPM and Node
@@ -10,7 +10,7 @@ In order to access **ICTDialer** , there are some steps that should be followed.
 
 ### 1. Remote Server
 
-To build ICTDialer on a remote server, a **remote connection** must be established by SSH.
+To build ICTFax on a remote server, a **remote connection** must be established by SSH.
 
 Establishing this connection requires following steps:
  
@@ -33,7 +33,7 @@ For previous versions of OS i.e CentOS and Fedora21 use this command:
 
 Once the installation is complete , clone the repository using:
 
-        git clone https://github.com/ictinnovations/ictdialer.git ~/ictdialer     
+        git clone https://github.com/ictinnovations/ictfax ~/ictfax-gui     
 
 Download the source code.
 
@@ -49,7 +49,7 @@ make a new folder by :
 
 install node:
           
-             mkdir ~/node-latest-install
+         mkdir ~/node-latest-install
          cd ~/node-latest-install
          curl http://nodejs.org/dist/node-latest.tar.gz | tar xz --strip-components=1./   configure --prefix=~/local
          make install
@@ -65,10 +65,10 @@ Angular cli will be installed by typing the following command in terminal:
         
 
 ### 4. Change Server:
-Replacing API_URL variable with **domain name or IPaddress of the server** will change server. For this navigate to `src>environments/environment.prod.ts `and open the **environment.prod.ts**
+Replacing API_URL variable with **domain name or IP address of the server** will change server. For this navigate to `src>environments/environment.prod.ts `and open the **environment.prod.ts**
 Find the following lines and make changes to these:
 
-        API_URL: 'http://demo.ictdialer.org/api',
+        API_URL: '/api',
 
 replace these lines with the following ones:
 
@@ -79,11 +79,11 @@ replace these lines with the following ones:
 
 Build the project, use the following commands for this purpose:
 
-        cd ~/ictdialer
+        cd ~/ictfax-gui
         npm install
         ng build --env=prod
         
-Now you can manage **ICTDialer** on the new server.
+Now you can manage **ICTFax** on the new server.
 
 **Note** : If you want to change the API after build, then open the dist folder which is created after **ng build --env=prod** command, find the file **main.bundle.js** , open this file, and change the API_URL with the desired one.
 

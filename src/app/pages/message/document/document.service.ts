@@ -14,7 +14,7 @@ import { getFileNameFromResponseContentDisposition, saveFile } from '../../../fi
 export class DocumentService {
 
   aDocument: Document[] = [];
-  document_id: any = null;
+  document_id:any =null;
   document: Document = new Document;
 
   constructor(private http: Http, private app_service: AppService) { }
@@ -38,12 +38,33 @@ export class DocumentService {
     .then(response => response.json() as Document).catch(response => this.app_service.handleError(response));
   }
 
-  get_Documentdownload(document_id): any {
+  get_ViewFaxDocument(document_id): any {
+    console.log(document_id);
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({ headers: headers});
     options.responseType = ResponseContentType.Blob;
     const url = `${this.app_service.apiUrlDocument}/${document_id}/media`;
+    return url;
+    // this.http.get(url, options).subscribe(res => {
+    //   return res.url;
+    //   // console.log(res.url);
+    //   // const fileName = getFileNameFromResponseContentDisposition(res);
+    //   // saveFile(res.blob(), fileName);
+    // }, error => {
+    //   this.app_service.downloadError(error);
+    // });
+  }
+
+  get_Documentdownload(document_id, transmission_id = null): any {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers: headers});
+    options.responseType = ResponseContentType.Blob;
+    const url = `${this.app_service.apiUrlDocument}/${document_id}/media`;
+    if(transmission_id){
+      const url_doc = `${this.app_service.apiUrlDocument}/${document_id}/media/${transmission_id}`;
+      }
     this.http.get(url, options).subscribe(res => {
       const fileName = getFileNameFromResponseContentDisposition(res);
       saveFile(res.blob(), fileName);
@@ -52,13 +73,13 @@ export class DocumentService {
     });
   }
 
-  add_Document(document: Document): Promise<Document> {
+  add_Document(document: Document) {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({headers: headers});
     const body = JSON.stringify(document);
     const addDocumentUrl = `${this.app_service.apiUrlDocument}`;
-    return this.http.post(addDocumentUrl, body, options).toPromise().then(response => response.json() as Document)
+    return this.http.post(addDocumentUrl, body, options).toPromise().then(response => response.json())
     .catch(response => this.app_service.handleError(response));
   }
 

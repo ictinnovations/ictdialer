@@ -1,183 +1,213 @@
-import { NbMenuItem } from '@nebular/theme';
+import { MenuItem } from "./menu-item";
 
-export const MENU_ITEMS: NbMenuItem[] = [
+export const MENU_ITEMS: MenuItem[] = [
   {
     title: 'Dashboard',
     link: '/pages/dashboard',
     icon: 'home-outline',
     home: true,
+    key: 'dashboard'
+  },
+  
+  // {
+  //   title: 'Fax Campaigns',
+  //   link: '/pages/campaigns/campaigns',
+  //   icon: 'radio-outline',
+  //   key : 'campaigns'
+  // },
+
+  {
+    title: 'Send Fax',
+    icon: 'arrow-upward-outline',
+    link: '/pages/sendfax/sendfax',
+    key : 'send_fax'
   },
   {
-    title: 'FEATURES',
-    group: true,
-  },
-  {
-    title: 'Campaigns',
-    link: '/pages/campaigns/campaigns',
-    icon: 'radio-outline'
-  },
-  {
-    title: 'Transmissions',
+    title: 'Send Voice',
     link: '/pages/transmission/transmissions',
-    icon: 'shake-outline'
+    icon: 'phone-call-outline'
   },
   {
-    title: 'IVR',
-    link: '/pages/ivr/ivr',
-    icon: 'trending-up-outline'
+    title: 'Receive Fax',
+    icon: 'arrow-downward-outline',
+    link: '/pages/infax',
+    key : 'receive_fax'
   },
-  {
-    title: 'Contacts',
-    icon: 'person-outline',
-    children: [
+  
       {
         title: 'Contacts',
         link: '/pages/contact/contacts',
-        icon: 'person-add-outline'
+        icon: 'person-add-outline',
+        key : 'contacts'
       },
+      
+      // {
+      //   title: 'Groups',
+      //   link: '/pages/contact/group',
+      //   icon: 'people-outline',
+      //   key : 'group'
+      // },
+      
       {
-        title: 'Groups',
-        link: '/pages/contact/group',
-        icon: 'people-outline'
-      },
-    ],
-  },
+        title: 'Contact DNC',
+        link: '/pages/contact_dnc/contact_dnc',
+        icon :'person-add-outline',
+         key:'contact_dnc'
+       },
+      
+   
   {
-    title: 'Resources',
-    icon: 'keypad-outline',
-    children: [
+    title: 'Fax Documents',
+    link: '/pages/message/document',
+    icon: 'file-text-outline',
+    key : 'fax_documents'
+  },
   {
     title: 'Voice Recordings',
     link: '/pages/message/recording',
     icon: 'mic-outline'
   },
   {
-    title: 'Fax Documents',
-    link: '/pages/message/document',
-    icon: 'file-text-outline'
-  },
-  {
-    title: 'Email Templates',
-    link: '/pages/message/template',
-    icon: 'email-outline'
-  },
-  {
-    title: 'Text Messages',
-    link: '/pages/message/text',
-    icon: 'message-circle-outline'
-  },
-],
+    title: 'My DIDs',
+    link: '/pages/incoming_number/incoming_number',
+    icon: 'arrow-downward-outline',
+    key : 'my_dids'
   },
   {
     title: 'Administration',
     icon: 'settings-2-outline',
+    key : 'administration',
     children: [
+  {
+    title: 'DID Numbers',
+    link: '/pages/did/did',
+    icon: 'smartphone-outline',
+    key : 'did_number'
+  },
+  {
+    title: 'CID Numbers',
+    link: '/pages/cid/cid',
+    icon: 'person-outline',
+    key: 'cid_number'
+  },
   {
     title: 'Provider / Trunks',
     link: '/pages/provider/provider',
     icon: 'shuffle-2-outline',
+    key : 'providers'
   },
   {
     title: 'User Management',
     link: '/pages/user/user',
-    icon: 'person-done-outline'
+    icon: 'person-done-outline',
+    key : 'user_management'
   },
   {
     title: 'Extensions',
     link: '/pages/extension/extension',
-    icon: 'hash-outline'
+    icon: 'hash-outline',
+    key : 'extensions'
   },
   {
-    title: 'CRM Settings',
-    link: '/pages/crmsettings',
-    icon: 'file-text-outline'
-  }
+    title: 'Fax Settings',
+    link: '/pages/faxsettings',
+    icon: 'file-text-outline',
+    key: 'fax_setting'
+  },
  ],
 },
 ];
 
-export const userMenuItems: NbMenuItem[] = [
-  {
-    title: 'Dashboard',
-    link: '/pages/dashboard',
-    icon: 'home-outline',
-    home: true,
-  },
-  {
-    title: 'FEATURES',
-    group: true,
-  },
-  {
-    title: 'Campaigns',
-    link: '/pages/campaigns/campaigns',
-    icon: 'radio-outline'
-  },
-  {
-    title: 'Transmissions',
-    link: '/pages/transmission/transmissions',
-    icon: 'shake-outline'
-  },
-  {
-    title: 'IVR',
-    link: '/pages/ivr/ivr',
-    icon: 'trending-up-outline'
-  },
-  {
-    title: 'Contacts',
-    icon: 'person-outline',
-    children: [
-      {
-        title: 'Contacts',
-        link: '/pages/contact/contacts',
-        icon: 'person-add-outline'
-      },
-      {
-        title: 'Groups',
-        link: '/pages/contact/group',
-        icon: 'people-outline'
-      },
-    ],
-  },
-  {
-    title: 'Resources',
-    icon: 'keypad-outline',
-    children: [
-  {
-    title: 'Voice Recordings',
-    link: '/pages/message/recording',
-    icon: 'mic-outline'
-  },
-  {
-    title: 'Fax Documents',
-    link: '/pages/message/document',
-    icon: 'file-text-outline'
-  },
-  {
-    title: 'Email Templates',
-    link: '/pages/message/template',
-    icon: 'email-outline'
-  },
-  {
-    title: 'Text Messages',
-    link: '/pages/message/text',
-    icon: 'message-circle-outline'
-  },
+export const userMenuItems: MenuItem[] = [   {
+  title: 'Dashboard',
+  link: '/pages/dashboard',
+  icon: 'home-outline',
+  home: true,
+  key: 'dashboard'
+},
+
+// {
+//   title: 'Fax Campaigns',
+//   link: '/pages/campaigns/campaigns',
+//   icon: 'radio-outline',
+//   key : 'campaigns'
+// },
+
+{
+  title: 'Send Fax',
+  icon: 'arrow-upward-outline',
+  link: '/pages/sendfax/sendfax',
+  key : 'send_fax'
+},
+{
+  title: 'Receive Fax',
+  icon: 'arrow-downward-outline',
+  link: '/pages/infax',
+  key : 'receive_fax'
+},
+
+    {
+      title: 'Contacts',
+      link: '/pages/contact/contacts',
+      icon: 'person-add-outline',
+      key : 'contact'
+    },
+    
+    // {
+    //   title: 'Groups',
+    //   link: '/pages/contact/group',
+    //   icon: 'people-outline',
+    //   key : 'group'
+    // },
+    
+  
+{
+  title: 'Fax Documents',
+  link: '/pages/message/document',
+  icon: 'file-text-outline',
+  key : 'fax_document'
+},
+{
+  title: 'My DIDs',
+  link: '/pages/incoming_number/incoming_number',
+  icon: 'arrow-downward-outline',
+  key : 'my_dids'
+},
+{
+  title: 'Administration',
+  icon: 'settings-2-outline',
+  key : 'administration',
+  children: [
+{
+  title: 'DID Numbers',
+  link: '/pages/did/did',
+  icon: 'smartphone-outline',
+  key : 'did_number'
+},
+{
+  title: 'Provider / Trunks',
+  link: '/pages/provider/provider',
+  icon: 'shuffle-2-outline',
+  key : 'provider'
+},
+{
+  title: 'User Management',
+  link: '/pages/user/user',
+  icon: 'person-done-outline',
+  key : 'user_management'
+},
+{
+  title: 'Extensions',
+  link: '/pages/extension/extension',
+  icon: 'hash-outline',
+  key : 'extensions'
+},
+{
+  title: 'Fax Settings',
+  link: '/pages/faxsettings',
+  icon: 'file-text-outline',
+  key: 'fax_setting'
+},
 ],
-  },
-  {
-    title: 'Administration',
-    icon: 'settings-2-outline',
-    children: [
-  {
-    title: 'Extensions',
-    link: '/pages/extension/extension',
-    icon: 'hash-outline'
-  },
-  {
-    title: 'CRM Settings',
-    link: '/pages/crmsettings',
-    icon: 'file-text-outline'
-  }
- ],
 },
 ];
