@@ -15,10 +15,13 @@
     "features": "特徴",
     "campaigns": "キャンペーン",
     "send_fax": "ファックスを送信する",
+    "send_voice": "音声を送信",
     "receive_fax": "ファックスを受信する",
     "my_dids": "私のDID",
     "fax_documents" :"ユーザー管理",
     "text_messages": "テキストメッセージ",
+    "voice_recordings": "音声録音",
+    "email_template": "メールテンプレート",
     "contacts": "連絡先",
     "contact_dnc": "連絡先 DNC",
 
@@ -144,8 +147,7 @@
     "description": "説明"
  },
 
-
-  "document": {
+ "document": {
     "title": "資料",
     "dids_info" : "DID 情報",
     "dids_title" : "DID 番号",

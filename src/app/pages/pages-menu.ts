@@ -25,7 +25,8 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     title: 'Send Voice',
     link: '/pages/transmission/transmissions',
-    icon: 'phone-call-outline'
+    icon: 'phone-call-outline',
+    key : 'send_voice'
   },
   {
     title: 'Receive Fax',
@@ -65,7 +66,14 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     title: 'Voice Recordings',
     link: '/pages/message/recording',
-    icon: 'mic-outline'
+    icon: 'mic-outline',
+    key: 'voice_recordings'
+  },
+  {
+    title: 'Email Templates',
+    link: '/pages/message/template',
+    icon: 'email-outline',
+    key: 'email_template'
   },
   {
     title: 'Text Messages',

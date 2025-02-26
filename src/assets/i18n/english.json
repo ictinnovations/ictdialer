@@ -13,11 +13,14 @@
     "dashboard": "Dashboard",
     "campaigns": "Campaigns",
     "send_fax": "Send Fax",
+    "send_voice": "Send Voice",
     "receive_fax": "Receive Fax",
     "my_dids": "My DIDs",
     "my_cids": "My CIDs",
-    "fax_documents": "Fax Documents",
     "text_messages": "Text Messages",
+    "fax_documents": "Fax Documents",
+    "voice_recordings": "Voice Recordings",
+    "email_template": "Email Template",
     "contacts": "Contacts",
     "group": "Groups",
     "contact_dnc": "Contact DNC",
@@ -152,6 +155,7 @@
     "text_msg": "Message",
     "description": "Description"
   },
+
 
   "document": {
     "title": "Document",

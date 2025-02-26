@@ -6,6 +6,8 @@ import { FormsDocumentComponent } from './document/document-component';
 import { AddDocumentComponent } from './document/document-form-component';
 import { FormsRecordingComponent } from './recording/recording-component';
 import { AddRecordingComponent } from './recording/recording-form-component';
+import { FormsTemplateComponent } from './email/email-component';
+import { AddTemplateComponent } from './email/email-form-component';
 import { FormsTextComponent } from './text/text-component';
 import { AddTextComponent } from './text/text-form-component';
 
@@ -44,6 +46,21 @@ const routes: Routes = [{
     path: 'recording/:id/delete',
     component: AddRecordingComponent,
   }, {
+    path: 'template',
+    component: FormsTemplateComponent,
+  }, {
+    path: 'template/new',
+    component: AddTemplateComponent,
+  }, {
+    path: 'template/:id',
+    component: AddTemplateComponent,
+  }, {
+    path: 'template/:id/download',
+    component: FormsTemplateComponent,
+  }, {
+    path: 'template/:id/delete',
+    component: AddTemplateComponent,
+  }, {
     path: 'text',
     component: FormsTextComponent,
   }, {
@@ -76,6 +93,8 @@ export const routedComponents = [
   AddDocumentComponent,
   FormsRecordingComponent,
   AddRecordingComponent,
+  FormsTemplateComponent,
+  AddTemplateComponent,
   FormsTextComponent,
   AddTextComponent,
 ];

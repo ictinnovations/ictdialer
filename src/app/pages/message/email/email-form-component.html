@@ -1,0 +1,115 @@
+<h3>{{'email.add' | translate}}</h3>
+<div class="col-lg-12">
+<form id="form1" #f1="ngForm">
+<nb-card>
+    <nb-card-header>
+      {{'email.email_info' | translate}}
+    </nb-card-header>
+  <nb-card-body>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="name">{{'email.email_name' | translate}}</label>
+            <input [(ngModel)]="template.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control"  id="name" required/>
+          </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    {{'email.further_info' | translate}}
+  </nb-card-header>
+<nb-card-body>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="form-group">
+          <label for="subject">{{'email.subject' | translate}}:</label>
+          <input [(ngModel)]="template.subject" [ngModelOptions]="{standalone: true}" type="text" class="form-control"  id="subject" required/>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="form-group">
+          <label for="body">{{'email.message' | translate}}:</label>
+          <textarea [(ngModel)]="this.template.body" [ngModelOptions]="{standalone: true}" class="form-control"  id="body" rows="10" cols="30" required></textarea>
+    </div>
+      </div>
+      <div class="col-sm-12">
+          <div class="form-group">
+          <label for="body_alt">{{'email.plain_msg' | translate}}:</label>
+          <textarea [(ngModel)]="this.template.body_alt" [ngModelOptions]="{standalone: true}" class="form-control"  id="body_alt" rows="10" cols="30" required></textarea>
+        </div>
+            </div>
+  </div>
+</nb-card-body>
+</nb-card>
+<!--
+<nb-card>
+  <nb-card-header>
+    Email Message
+  </nb-card-header>
+<nb-card-body>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label for="body">Message:</label>
+          <textarea [(ngModel)]="this.template.body" [ngModelOptions]="{standalone: true}" class="form-control" placeholder="Message" id="body" rows="10" cols="30" required></textarea>
+    </div>
+      </div>
+      <div class="col-sm-6">
+    <div class="form-group">
+    <label for="body_alt">Plain Message:</label>
+    <textarea [(ngModel)]="this.template.body_alt" [ngModelOptions]="{standalone: true}" class="form-control" placeholder="Alternative text message" id="body_alt" rows="10" cols="30" required></textarea>
+  </div>
+      </div>
+  </div>
+</nb-card-body>
+</nb-card>
+!-->
+<nb-card>
+    <nb-card-header>
+      {{'email.upload_attachment' | translate}}
+    </nb-card-header>
+    <nb-card-body>
+        <div class="container">
+            
+                <div class="navbar navbar-default">
+                </div>
+            
+                <div class="row">
+            
+                    <div class="col-md-3">
+  
+                        <input type="file" ng2FileSelect [uploader]="uploader" />
+                    </div>
+  
+            
+                </div>
+            
+            </div>
+    </nb-card-body>
+    </nb-card>
+  
+<nb-card>
+  <nb-card-header>
+    {{'email.description' | translate}}
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="description">{{'email.description' | translate}}:</label>
+        <input [(ngModel)]="template.description" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="description" required/>  
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<div *ngIf="(template_id>0)">
+    <button type="button" class="btn btn-primary" (click)="updateTemplate()">{{'buttons.update' | translate}}</button>
+</div>
+<div *ngIf="(!template_id)">
+    <button type="button" class="btn btn-success" (click)="addTemplate()">{{'buttons.submit' | translate}}</button>
+</div>
+</form>
+</div>

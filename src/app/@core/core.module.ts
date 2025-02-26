@@ -31,6 +31,7 @@ import { SendFaxService } from '../pages/sendfax/sendfax.service';
 import { InFaxService } from '../pages/infax/infax.service';
 import { IncomingNumberService } from '../pages/incoming_number/incoming_number.service';
 import { RecordingService } from '../pages/message/recording/recording.service';
+import { TemplateService } from '../pages/message/email/email.service';
 import { TextService } from '../pages/message/text/text.service';
 
 const socialLinks = [
@@ -155,6 +156,7 @@ export const NB_CORE_PROVIDERS = [
   InFaxService,
   IncomingNumberService,
   RecordingService,
+  TemplateService,
   TextService
 ];
 

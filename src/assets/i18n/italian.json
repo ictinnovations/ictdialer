@@ -14,11 +14,14 @@
     "dashboard": "Dashboard",
     "campaigns": "Campagne",
     "send_fax": "Fax inviati",
+    "send_voice": "Invia Voce",
     "receive_fax": "Fax ricevuti",
     "my_dids": "DIDs",
     "my_cids": "CIDs",
     "fax_documents":"Documento fax",
     "text_messages": "Messaggi di Testo",
+    "voice_recordings": "Registrazioni Vocali",
+    "email_template": "Modello Email",
     "contacts": "contatti",
     "contact_dnc": "Contatti DNC",
 
@@ -155,6 +158,7 @@
     "unsupported_file": "File non supportato",
     "upload_file": "Upload"
   },
+  
   "provider": {
     "title": "Fornitore",
     "list": "Elenco fornitori",
