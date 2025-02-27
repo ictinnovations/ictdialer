@@ -279,7 +279,13 @@
       "delay_bw_email": "メール間の遅延",
       "create_email": "メールキャンペーンを作成",
       "email_campaign": "メールキャンペーン",  
-      "template": "テンプレート"
+      "template": "テンプレート",
+      "choose_text": "テキストを選択",
+      "delay_bw_sms": "SMS間の遅延",
+      "create_sms": "SMSキャンペーンを開始",
+      "sms_campaign": "SMSキャンペーン",
+      "text": "テキスト"
+
   
 
   },

@@ -292,7 +292,12 @@
    "delay_bw_email":"Delay between email",
    "create_email":"Create Email Campaign",
    "email_campaign":"Email Campaign",
-   "template" :"Template"
+   "template" :"Template",
+   "choose_text":"Choose Text",
+   "delay_bw_sms":"Delay between sms",
+   "create_sms":"Launch SMS Campaign",
+   "sms_campaign":"SMS Campaign",
+   "text" :"Text"
 
   },
  

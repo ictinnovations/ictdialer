@@ -5,6 +5,7 @@ import { CampaignComponent } from './campaign.component';
 import { FormsCampaignComponent } from './campaign-component';
 import { AddDocCampaignComponent } from './senddocument/campaign-document-component';
 import { AddEmailCampaignComponent } from './sendemail/campaign-email-component';
+import { AddSMSCampaignComponent } from './sendsms/campaign-form-component';
 
 const routes: Routes = [{
   path: '',
@@ -27,6 +28,12 @@ const routes: Routes = [{
   }, {
     path: 'campaigns/sendemail/:id',
     component: AddEmailCampaignComponent,
+  }, {
+    path: 'campaigns/sendsms/new',
+    component: AddSMSCampaignComponent,
+  }, {
+    path: 'campaigns/sendsms/:id',
+    component: AddSMSCampaignComponent,
   }],
 }];
 
@@ -46,5 +53,6 @@ export const routedComponents = [
   CampaignComponent,
   FormsCampaignComponent,
   AddDocCampaignComponent,
-  AddEmailCampaignComponent
+  AddEmailCampaignComponent,
+  AddSMSCampaignComponent
 ];

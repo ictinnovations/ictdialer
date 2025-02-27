@@ -270,7 +270,13 @@
       "delay_bw_email": "Ritardo tra le email",   
       "create_email": "Crea Campagna Email",
       "email_campaign": "Campagna Email",
-      "template": "Template"
+      "template": "Template",
+      "choose_text": "Scegli Testo",
+      "delay_bw_sms": "Ritardo tra gli SMS",
+      "create_sms": "Lancia Campagna SMS",
+      "sms_campaign": "Campagna SMS",
+      "text": "Testo"
+
   
   },
   "buttons": {
