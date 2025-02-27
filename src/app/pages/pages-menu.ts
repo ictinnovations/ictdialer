@@ -68,6 +68,12 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: 'mic-outline'
   },
   {
+    title: 'Text Messages',
+    link: '/pages/message/text',
+    icon: 'message-square-outline',
+    key: 'text_messages'
+  },
+  {
     title: 'My DIDs',
     link: '/pages/incoming_number/incoming_number',
     icon: 'arrow-downward-outline',

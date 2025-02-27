@@ -18,6 +18,7 @@
     "receive_fax": "ファックスを受信する",
     "my_dids": "私のDID",
     "fax_documents" :"ユーザー管理",
+    "text_messages": "テキストメッセージ",
     "contacts": "連絡先",
     "contact_dnc": "連絡先 DNC",
 
@@ -114,6 +115,35 @@
     "length": "長さ",
     "recording_info": "記録情報"
 },
+
+"email": {
+    "title": "ドキュメント",
+    "list": "メールリスト",
+    "add": "メールを追加",
+    "email_info": "メール情報",
+    "email_name": "メール名",
+    "further_info": "追加情報",
+    "subject": "件名",
+    "message": "メッセージ",
+    "plain_msg": "プレーンメッセージ",
+    "upload_attachment": "添付ファイルをアップロード",
+    "attachment_quality": "添付ファイル品質タイプ",
+    "description": "説明",
+    "type": "タイプ"
+},
+
+ "text": {
+    "length": "長さ",
+    "type": "タイプ",
+    "text_name": "テキスト名",
+    "add_text": "テキストを追加",
+    "text_list": "テキストリスト",
+    "text_info": "テキスト情報",
+    "text_data": "テキストデータ",
+    "text_msg": "メッセージ",
+    "description": "説明"
+ },
+
 
   "document": {
     "title": "資料",

@@ -1,0 +1,55 @@
+<h3>{{'text.add_text' | translate}}</h3>
+<div class="col-lg-12">
+<form id="form1" #f1="ngForm">
+<nb-card>
+    <nb-card-header>
+      {{'text.text_info' | translate}}
+    </nb-card-header>
+  <nb-card-body>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="name">{{'text.text_name' | translate}}:</label>
+            <input [(ngModel)]="text.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control"  id="name" required/>
+          </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    {{'text.text_data' | translate}}
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="data">{{'text.text_msg' | translate}}:</label>
+        <textarea [(ngModel)]="this.text.data" [ngModelOptions]="{standalone: true}" class="form-control"  id="data" rows="10" cols="30" required></textarea>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    {{'text.description' | translate}}
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="description">{{'text.description' | translate}}:</label>
+        <input [(ngModel)]="text.description" [ngModelOptions]="{standalone: true}" type="text" class="form-control"  id="description" required/>  
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<div *ngIf="(text_id>0)">
+    <button type="button" class="btn btn-primary" (click)="updateText()">{{'buttons.update' | translate}}</button>
+</div>
+<div *ngIf="(!text_id)">
+    <button type="button" class="btn btn-success" (click)="addText()">{{'buttons.submit' | translate}}</button>
+</div>
+</form>
+</div>

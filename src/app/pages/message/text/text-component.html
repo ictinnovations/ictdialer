@@ -1,0 +1,55 @@
+<nb-card>
+    <nb-card-header>
+      {{'text.text_list' | translate}}
+    </nb-card-header>
+  
+    <nb-card-body>
+        <button type="button" mat-raised-button color="primary" style="font-size:15px"  [routerLink]="['/pages/message/text/new']"><i class="fa fa-plus"></i> {{'text.add_text' | translate}}</button>
+        <br>
+        <br>
+      <div class="example-container mat-elevation-z8">
+        <mat-table #table [dataSource]="aText" matSort>
+          <ng-container matColumnDef="ID">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{'general.ID' | translate}}</mat-header-cell>
+            <mat-cell *matCellDef="let text">
+              {{text.text_id}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{'text.text_name' | translate}}</mat-header-cell>
+            <mat-cell *matCellDef="let text" style="text-align:left">
+              {{text.name}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="type">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{'text.type' | translate}}</mat-header-cell>
+            <mat-cell *matCellDef="let text">
+              {{text.type}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="length">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>{{'text.length' | translate}}</mat-header-cell>
+              <mat-cell *matCellDef="let text">
+                {{text.length}}</mat-cell>
+            </ng-container>
+          <ng-container cdkColumnDef="Operations">
+              <mat-header-cell *matHeaderCellDef>{{'general.operations' | translate}}</mat-header-cell>
+              <mat-cell *matCellDef="let text">
+              <button mat-icon-button color="primary" style= "font-size:20px">
+                <mat-icon><a routerLink="/pages/message/text/{{text.text_id}}" title="Edit"><nb-icon icon="edit-2-outline"></nb-icon></a></mat-icon>
+              </button>
+              <button mat-icon-button color="primary" style= "font-size:20px">
+                <mat-icon style="color: red" (click)="showStaticModal(text.name, text.text_id)" ><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>                
+              </button>
+              </mat-cell>
+              </ng-container>
+        <mat-header-row
+          *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+    </mat-table>
+    <mat-paginator #paginator
+    [length] = "length"
+    [pageIndex]="0"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 25, 100]">
+  </mat-paginator>
+  </div>
+</nb-card-body>
+</nb-card>

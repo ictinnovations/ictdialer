@@ -18,6 +18,7 @@
     "my_dids": "DIDs",
     "my_cids": "CIDs",
     "fax_documents":"Documento fax",
+    "text_messages": "Messaggi di Testo",
     "contacts": "contatti",
     "contact_dnc": "Contatti DNC",
 
@@ -111,6 +112,34 @@
     "length": "Length",
     "recording_info": "Recording Information"
 },
+
+ "email": {
+    "title": "Documento",
+    "list": "Elenco Email",
+    "add": "Aggiungi Email",
+    "email_info": "Informazioni Email",
+    "email_name": "Nome Email",
+    "further_info": "Ulteriori informazioni",
+    "subject": "Oggetto",
+    "message": "Messaggio",
+    "plain_msg": "Messaggio semplice",
+    "upload_attachment": "Carica allegato",
+    "attachment_quality": "Tipo di qualità allegato",
+    "description": "Descrizione",
+    "type": "Tipo"
+},
+
+ "text": {
+    "length": "Lunghezza",
+    "type": "Tipo",
+    "text_name": "Nome Testo",
+    "add_text": "Aggiungi Testo",
+    "text_list": "Elenco Testi",
+    "text_info": "Informazioni Testo",
+    "text_data": "Dati Testo",
+    "text_msg": "Messaggio",
+    "description": "Descrizione"
+ },
 
   "document": {
     "title": "Documenti",

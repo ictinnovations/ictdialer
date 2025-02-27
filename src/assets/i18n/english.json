@@ -16,7 +16,8 @@
     "receive_fax": "Receive Fax",
     "my_dids": "My DIDs",
     "my_cids": "My CIDs",
-    "fax_documents":"Fax Documents",
+    "fax_documents": "Fax Documents",
+    "text_messages": "Text Messages",
     "contacts": "Contacts",
     "group": "Groups",
     "contact_dnc": "Contact DNC",
@@ -122,7 +123,35 @@
     "type": "Type",
     "length": "Length",
     "recording_info": "Recording Information"
-},
+  },
+
+  "email": {
+    "title": "Document",
+    "list": "Email List",
+    "add": "Add Email",
+    "email_info": "Email information",
+    "email_name": "Email Name",
+    "further_info": "Further Information",
+    "subject":"subject",
+    "message":"Message",
+    "plain_msg": "Plain Message", 
+    "upload_attachment": "Upload email_body_attachment",
+    "attachment_quality": "attachment Quality type",
+    "description": "Description",
+    "type": "Type"
+  },
+
+  "text": {
+    "length": "Length",
+    "type": "Type",
+    "text_name": "Text Name",
+    "add_text": "Add Text",
+    "text_list": "Text List",
+    "text_info": "Text Information",
+    "text_data": "Text Data",
+    "text_msg": "Message",
+    "description": "Description"
+  },
 
   "document": {
     "title": "Document",

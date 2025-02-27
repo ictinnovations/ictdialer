@@ -31,6 +31,7 @@ import { SendFaxService } from '../pages/sendfax/sendfax.service';
 import { InFaxService } from '../pages/infax/infax.service';
 import { IncomingNumberService } from '../pages/incoming_number/incoming_number.service';
 import { RecordingService } from '../pages/message/recording/recording.service';
+import { TextService } from '../pages/message/text/text.service';
 
 const socialLinks = [
   {
@@ -153,7 +154,8 @@ export const NB_CORE_PROVIDERS = [
   SendFaxService,
   InFaxService,
   IncomingNumberService,
-  RecordingService
+  RecordingService,
+  TextService
 ];
 
 export function token_to_json(module: string, res: HttpResponse<Object>) {
