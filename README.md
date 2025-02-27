@@ -21,7 +21,7 @@ A Single GUI is created to cover all the major communication methods and service
 
 ### Features
 
-By Using ICTFax a user can manage:
+By Using ICTDialer a user can manage:
 
   * Voice Messages
   * Outbound Fax
