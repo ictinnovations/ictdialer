@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { CampaignComponent } from './campaign.component';
 import { FormsCampaignComponent } from './campaign-component';
 import { AddDocCampaignComponent } from './senddocument/campaign-document-component';
+import { AddEmailCampaignComponent } from './sendemail/campaign-email-component';
 
 const routes: Routes = [{
   path: '',
@@ -20,6 +21,12 @@ const routes: Routes = [{
   }, {
     path: 'campaigns/:id/delete',
     component: FormsCampaignComponent,
+  }, {
+    path: 'campaigns/sendemail/new',
+    component: AddEmailCampaignComponent,
+  }, {
+    path: 'campaigns/sendemail/:id',
+    component: AddEmailCampaignComponent,
   }],
 }];
 
@@ -39,4 +46,5 @@ export const routedComponents = [
   CampaignComponent,
   FormsCampaignComponent,
   AddDocCampaignComponent,
+  AddEmailCampaignComponent
 ];

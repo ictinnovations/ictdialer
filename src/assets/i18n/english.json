@@ -287,7 +287,12 @@
     "create_doc":"Create Document",
     "new":"New Campaigns",
    "document" :"Document",
-   "select":"Please Select an Option "
+   "select":"Please Select an Option",
+   "choose_template":"Choose Template",
+   "delay_bw_email":"Delay between email",
+   "create_email":"Create Email Campaign",
+   "email_campaign":"Email Campaign",
+   "template" :"Template"
 
   },
  

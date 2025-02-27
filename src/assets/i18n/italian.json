@@ -265,7 +265,13 @@
       "select":" Si prega di selezionare un'opzione di seguito",
       "delay_bw_fax":"Ritardo tra i fax",
       "update":"Aggiornamento",
-      "submit":"Invia"  
+      "submit":"Invia",
+      "choose_template": "Scegli Template",
+      "delay_bw_email": "Ritardo tra le email",   
+      "create_email": "Crea Campagna Email",
+      "email_campaign": "Campagna Email",
+      "template": "Template"
+  
   },
   "buttons": {
     "submit": "Invia",

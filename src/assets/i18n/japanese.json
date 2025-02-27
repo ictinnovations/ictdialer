@@ -274,7 +274,14 @@
       "select":"以下のオプションを選択してください",
       "delay_bw_fax":"FAX間の遅延",
       "update":"アップデート",
-      "submit":"送信"  
+      "submit":"送信",
+      "choose_template": "テンプレートを選択",
+      "delay_bw_email": "メール間の遅延",
+      "create_email": "メールキャンペーンを作成",
+      "email_campaign": "メールキャンペーン",  
+      "template": "テンプレート"
+  
+
   },
   "buttons": {
     "submit": "参加する",

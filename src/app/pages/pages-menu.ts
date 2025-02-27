@@ -9,12 +9,12 @@ export const MENU_ITEMS: MenuItem[] = [
     key: 'dashboard'
   },
   
-  // {
-  //   title: 'Fax Campaigns',
-  //   link: '/pages/campaigns/campaigns',
-  //   icon: 'radio-outline',
-  //   key : 'campaigns'
-  // },
+  {
+    title: 'Fax Campaigns',
+    link: '/pages/campaigns/campaigns',
+    icon: 'radio-outline',
+    key : 'campaigns'
+  },
 
   {
     title: 'Send Fax',
@@ -42,12 +42,12 @@ export const MENU_ITEMS: MenuItem[] = [
         key : 'contacts'
       },
       
-      // {
-      //   title: 'Groups',
-      //   link: '/pages/contact/group',
-      //   icon: 'people-outline',
-      //   key : 'group'
-      // },
+      {
+        title: 'Groups',
+        link: '/pages/contact/group',
+        icon: 'people-outline',
+        key : 'group'
+      },
       
       {
         title: 'Contact DNC',
