@@ -1,9 +1,10 @@
 Introduction
 ============
-ICTFAX is an open source multi-user [Fax server software] solution. ICTFAX features both inbound as well as outbound faxing solutions using T.38 protocol as well as G.711 passt hrough. ICTFAX is developed over reknown open source __Freeswitch__, __[ICTCore]__ communications frameowrk and Php based Angular framework. It support both inbound and outbound faxing. 
+**ICTDialer** is an open-source, multi-user auto dialer software designed for voice broadcasting and fax broadcasting. It supports both inbound and outbound communications using advanced telephony protocols such as T.38, G.711 pass-through, and SIP-based VoIP communication. **ICTDialer** is built on top of renowned open-source technologies, including **FreeSWITCH**, **ICTCore** communications **framework**, and a PHP-based Angular framework.
 
-ICTFAX can be used in following faxing scenarios
+**ICTDialer** can be used in following faxing scenarios
 
+* Voice Broadcasting
 * [Email to fax][emailtofax] / [web to fax][webtofax] / [fax to email][emailtofax]
 * ATA support supporting both sending and recieving Fax over Fax machines using ATA. 
 * G.711 based Fax Origination / Termination / Gateway
@@ -12,6 +13,7 @@ ICTFAX can be used in following faxing scenarios
 
 A Single GUI is created to cover all the major communication methods and services like:
 
+- Voice Broadcasting Campaigns
 - Send Document with multiple files (optional)
 - Fax to Email
 - Extension Support
@@ -21,6 +23,7 @@ A Single GUI is created to cover all the major communication methods and service
 
 By Using ICTFax a user can manage:
 
+  * Voice Messages
   * Outbound Fax
   * Inbound Fax
   * Fax DIDs
@@ -30,33 +33,10 @@ By Using ICTFax a user can manage:
   * User Management
   * Provider / Trunks
 
-For more information please visit [ICTFAX Website][official]
-
-Documentation
-=============
-
-* [Installation Guide][install]
-* [Administration Guide][admin]
-* [User Guide][user]
-
-
-Demo
-====
-Visit [ICTFAX Demo][demo] site and use following credential to login
-
-#### Admin Account
-* username: admin@ictcore.org
-* password: helloAdmin
-
-#### User Account
-* username: user@ictcore.org
-* password: helloUser
-
-
 Credits
 =======
-ICTFAX is developed by [ICT Innovations][developer]
-ICTFax developed over [ictcore] , a open source freeswitch based framework for developers 
+ICTDialer is developed by [ICT Innovations][developer]
+ICTDialer developed over [ictcore] , a open source freeswitch based framework for developers 
 
 [official]: https://ictfax.org/ "ICTFAX Open Source Online FAX & Email to FAX Solution"
 [gpl3]: https://www.gnu.org/licenses/gpl-3.0.html "GNU GPL V.3 License"
