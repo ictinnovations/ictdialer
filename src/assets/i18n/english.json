@@ -189,6 +189,7 @@
     "username": "Username",
     "password": "Password",
     "host": "Host",
+    "HostURL": "HTTP URL",
     "port": "Port",
     "prefix": "Prefix",
     "weight": "Weight",
@@ -200,6 +201,7 @@
     "sip": "SIP",
     "smpp": "SMPP",
     "smtp": "SMTP",
+    "http": "HTTP",
     "prefix_and_weight": "Prefix And Weight"
   },
   "user": {

@@ -32,10 +32,10 @@
           <div class="form-group">
             <div>  
               <label for="type">{{'provider.gateway_type' | translate}}:</label>  
-              <select class = "form-control" name = "type" [(ngModel)]= "provider.type" [ngModelOptions]="{standalone: true}" [disabled]="(provider_id>0)">
+              <select class = "form-control" name = "type" [(ngModel)]= "provider.type" [ngModelOptions]="{standalone: true}" (ngModelChange)="ChangeLayout($event)" [disabled]="(provider_id>0)">
                 <option value = "">{{'outbound_fax.select' | translate}}</option>  
                 <option value="sip">{{'provider.sip' | translate}}</option>
-                <option value="smpp">{{'provider.smpp' | translate}}</option>
+                <option value="http">{{'provider.http' | translate}}</option>
                 <option value="smtp">{{'provider.smtp' | translate}}</option>
               </select>
             </div>
@@ -44,43 +44,65 @@
       </nb-card-body>
     </nb-card>
 
-    <nb-card>
-      <nb-card-header>
-        {{'provider.access_credentials' | translate}}
-      </nb-card-header>
-      <nb-card-body>
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="form-group">
-              <label for="username">{{'provider.username' | translate}}:</label>
-              <input [(ngModel)]="provider.username" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="username" required/>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="form-group">
-              <label for="password">{{'provider.password' | translate}}:</label>
-              <input [(ngModel)]="provider.password" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="password" required/>  
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="form-group">
-              <label for="host">{{'provider.host' | translate}}:</label>
-              <input [(ngModel)]="provider.host" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="host" required/>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="form-group">
-              <label for="port">{{'provider.port' | translate}}:</label>
-              <input [(ngModel)]="provider.port" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="port" required/>
-            </div>
-          </div>
-        </div>
-      </nb-card-body>
-    </nb-card>
 
-    <nb-card>
+    <nb-flip-card  [flipped]="isFlipped">
+      <nb-card-front>
+        <nb-card>
+          <nb-card-header>
+            {{'provider.access_credentials' | translate}}
+          </nb-card-header>
+          <nb-card-body>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="username">{{'provider.username' | translate}}:</label>
+                  <input [(ngModel)]="provider.username" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="username" required/>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="password">{{'provider.password' | translate}}:</label>
+                  <input [(ngModel)]="provider.password" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="password" required/>  
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="host">{{'provider.host' | translate}}:</label>
+                  <input [(ngModel)]="provider.host" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="host" required/>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="port">{{'provider.port' | translate}}:</label>
+                  <input [(ngModel)]="provider.port" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="port" required/>
+                </div>
+              </div>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </nb-card-front>
+      <nb-card-back>
+        <nb-card>
+          <nb-card-header>
+            {{'provider.access_credentials' | translate}}
+          </nb-card-header>
+          <nb-card-body>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="host">{{'provider.HostURL' | translate}}:</label>
+                  <textarea [(ngModel)]="provider.host" [ngModelOptions]="{standalone: true}" class="form-control" id="host" rows="6" required></textarea>
+                </div>
+              </div>
+            </div>          
+          </nb-card-body>
+        </nb-card>
+      </nb-card-back>
+    </nb-flip-card>
+
+    <nb-card [hidden]="isHidden">
       <nb-card-header>
         {{'provider.prefix_and_weight' | translate}}
       </nb-card-header>
@@ -126,7 +148,7 @@
       </nb-card-body>
     </nb-card>
 
-    <nb-card>
+    <nb-card [hidden]="isHidden">
       <nb-card-header>
         {{'provider.additional_info' | translate}}
       </nb-card-header>

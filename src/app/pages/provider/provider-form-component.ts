@@ -21,6 +21,8 @@ export class AddProviderComponent implements OnInit {
   form1: any= {};
   provider: Provider= new Provider;
   provider_id: any= null;
+  isFlipped: boolean;
+  isHidden: boolean;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -51,6 +53,16 @@ export class AddProviderComponent implements OnInit {
       this.router.navigate(['../../provider'], {relativeTo: this.route});
     })
     .catch(this.handleError);
+  }
+
+  ChangeLayout($event) : any {
+    if($event === 'http'){
+      this.isFlipped = true;
+      this.isHidden = true;
+    } else {
+      this.isFlipped = false;
+      this.isHidden = false;
+    }
   }
 
   private handleError(error: any): Promise<any> {
