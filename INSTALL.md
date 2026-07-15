@@ -1,91 +1,320 @@
-### ICTFAX - INSTALLATION GUIDE (CENTOS / FEDORA)
-
-For older version view [Installation Guide for ICTFax 3.7][installation_guide_old]
-
+### ICTDialer - INSTALLATION GUIDE (CENTOS / FEDORA)
 **INSTALLATION INSTRUCTIONS**   
 
-ICTFax is a unique and complete solution featuring Mass faxing. Email to Fax, Web to Fax, Fax to Email and Fax over IP server with ATA / Rest API support
+ictdialer is a unique and complete solution featuring Mass, Voice, Sms, Email and fax broadcasting campaigns, and Transmissions.
 
-### 1. INSTALL BASIC SYSTEM REQUIREMENTS
+- Install the MariaDB 10.11 
 
-* CentOs 7
-* Apache 2
-* MySQL 5
-* PHP 5.3.3
-* ICTCore
-* Sendmail
-* FreeSWITCH
+Create mariadb 10.11 repo. Add the following code into this file `vi /etc/yum.repos.d/MariaDB.repo`
 
-To install above requirements, first of all we need to install their respective repositories
-Note: this guide is specifically written for CentOs 7
+```
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.11/rhel8-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+```
 
-    yum install -y https://service.ictinnovations.com/repo/7/ict-release-7-4.el7.centos.noarch.rpm
-    yum install -y http://files.freeswitch.org/freeswitch-release-1-6.noarch.rpm
-    yum install -y epel-release 
+Install required dependencies
 
-Disable SELinux, before proceeding further,
-Check the SELinux state by:
+```
+sudo dnf install perl-DBI boost-program-options socat -y
+sudo dnf install boost boost-program-options -y
+```
+- Install the Perl module and its dependencies (For Rockylinux & Centos9)
 
-    getenforce 
+```
+sudo dnf install perl perl-CPAN -y
+sudo cpan Sys::Hostname
+```
 
-and then disable with  
-         
-    setenforce 0
 
-If the output is either permissive or disabled, skip this task and follow the instructions given below, otherwise disable it first and then follow the instructions:
+Install the MariaDB
 
-### 2. ICTCORE INSTALLATION
-ICTCore is main dependency of ICTFax, if you have proper repositories pre installed (see above) then all other dependencies will be installed along with ICTCore. We just need to issue following command:
+```
+sudo dnf install MariaDB-server MariaDB-client --disablerepo='*' --enablerepo='mariadb' -y
+```
 
-    yum -y install ictcore ictcore-fax ictcore-email
+- Install Remi-repo & Epel-repo
 
-**SETUP ICTFax DATABASE**
+```
+sudo dnf install epel-release -y
+yum install dnf-utils http://rpms.remirepo.net/enterprise/remi-release-9.rpm
+```
 
-Login to mysql and enter these commands one by one:
- 
-    CREATE DATABASE ictfax;
-    USE ictfax;
-    GRANT ALL PRIVILEGES ON ictfax.* TO ictfaxuser@localhost IDENTIFIED BY 'plsChangeIt';
-    FLUSH PRIVILEGES;
-    SOURCE /usr/ictcore/db/database.sql;
-    SOURCE /usr/ictcore/db/fax.sql;
-    SOURCE /usr/ictcore/db/email.sql;
-    SOURCE /usr/ictcore/db/data/role_user.sql;
-    SOURCE /usr/ictcore/db/data/role_admin.sql;
-    SOURCE /usr/ictcore/db/data/demo_users.sql;
-  
-Now update `/usr/ictcore/etc/ictcore.conf` files with database credential as per above created database.
+- enable the PHP Remi 8.3
 
-Open the file ictcore.conf and find out the [db] section and replace user, password and database name in the following lines:
+```
+sudo dnf module reset php -y
+sudo dnf module enable php:remi-8.3 -y
+```
 
-    user = ictfaxuser
-    pass = plsChangeIt
-    name = ictfax
+- Install the Okey repository for FreeSWITCH (For Rockylinux & Centos9)
 
-### 3. ICTFax INSTALATION 
+```
+dnf config-manager --enable crb
+wget http://repo.okay.com.mx/centos/9/x86_64/release/okay-release-1-10.el9.noarch.rpm
+yum install okay-release-1-10.el9.noarch.rpm
+dnf install task-freeswitch
+```
 
-Now install ICTFax web interface
+- download ICTCore packages from our private repository/koji and install in on the server but please don't install ictcore-sms
 
-    yum install ictfax
+```
+yum install ictcore ictcore-fax ictcore-email ictcore-voice ictcore-freeswitch ictcore-sendmail
+```
 
-Now Restart the **apache** by typing the following command in the terminal
+- Install nodejs 14,  nvm 6.x.x and angular 13.
 
-    service httpd restart
+```
+sudo dnf install -y curl git gcc-c++ make
 
-Now visit `http://yourdomain/ictfax` in your browser 
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
-Default Username : **admin@ictcore.org**  
-Default Password : **helloAdmin**  
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
 
-Login by entering the default admin and password, which we provided you. Go to the administration panel, which is placed on the bottom of the side bar on left.Create a new user or edit the existing.
+nvm install 14.21.3
+nvm use 14.21.3
+nvm alias default 14.21.3
 
-You can configure providers and accounts too. For further details visit **[Admin guide][admin_guide]**.
+npm install -g npm@6.14.18
 
-### Useful links
-* [Starting with REST APIs for FAX][api_tutorial]
-* [Complete REST API Guide for ICTFax][api_guide]
+npm install -g @angular/cli@13.3.11
 
-[installation_guide_old]: http://ictfax.org/installation-guide-ictfax-3.7 "ICTFax installation guide for version 3.7"
-[admin_guide]: http://ictfax.org/content/ictfax-admin-guide "ICTFAX Administration Guide"
-[api_tutorial]: http://ictfax.org/fax-api-tutorial "ICTFax REST API Tutorial"
-[api_guide]: http://ictfax.org/fax-rest-api-guide.html "ICTFax REST API Guide for faxing"
+node --version
+npm --version
+ng version
+```
+
+- download ictdialer source code from our github repository and follow below steps to compile
+
+```
+git clone https://github.com/ictinnovations/ictdialer.git /tmp/ictdialer
+cd /tmp/ictdialer
+npm install
+ng build
+rm -rf /usr/ictdialer
+mv dist /usr/ictdialer
+```
+
+- Install FastCGI Process Manager 
+
+```
+yum install php php-fpm  php-gd php-mysqlnd
+```
+
+- configure the document root in apache  "/usr/ictdialer"
+
+- uncomment "LoadModule mpm_prefork_module modules/mod_mpm_prefork.so" and comment this line "LoadModule mpm_event_module modules/mod_mpm_event.so" from this file /etc/httpd/conf.modules.d/00-mpm.conf 
+
+- change PHP_ADMIN_VALUE open_basedir line into 
+
+```
+SetEnv PHP_ADMIN_VALUE "open_basedir = /usr/ictcore/:/usr/bin:/bin:/tmp/"
+```
+
+- install Imagic 
+
+```
+yum install -y ImageMagick ImageMagick-devel  
+pecl install imagick  
+echo "extension=imagick.so" > /etc/php.d/imagick.ini  
+```
+
+- install mcrypt 
+
+```
+yum install --enablerepo=epel php-devel php-pear libmcrypt libmcrypt-devel  
+
+pecl install mcrypt  
+echo 'extension=mcrypt.so' > /etc/php.d/mcrypt.ini 
+```
+
+- install imap 
+
+```
+yum install php-imap -y
+```
+
+- disable selinux
+
+```
+setenforce 0
+```
+
+- restart the apache service
+- restart php-fpm service
+
+```
+service httpd restart
+service php-fpm restart
+```
+
+- install the ictdialer database 
+
+```
+### Service Provider Branch
+
+CREATE DATABASE ictdialer;
+USE ictdialer;
+GRANT ALL PRIVILEGES ON ictdialer.* TO ictdialeruser@localhost IDENTIFIED BY 'plsChangeIt';
+FLUSH PRIVILEGES;
+
+### Service Provider with 3-level-tenant
+
+source /usr/ictcore/db/database.sql;
+source /usr/ictcore/db/tenant.sql
+source /usr/ictcore/db/billing.sql;
+source /usr/ictcore/db/email.sql;
+source /usr/ictcore/db/fax.sql;
+source /usr/ictcore/db/sms.sql;
+source /usr/ictcore/db/voice.sql;
+source /usr/ictcore/db/contact_dnc.sql;
+source /usr/ictcore/db/branding.sql;
+source /usr/ictcore/db/data/role_user.sql;
+source /usr/ictcore/db/data/role_admin.sql;
+source /usr/ictcore/db/data/role_tenant.sql;
+source /usr/ictcore/db/data/demo_users.sql;
+source /usr/ictcore/db/routes_management/destination.sql;
+source /usr/ictcore/db/routes_management/permissions.sql;
+
+### Addioantiol Features 
+source /usr/ictcore/db/login_attempts.sql
+source /usr/ictcore/db/passwd_history.sql
+source /usr/ictcore/db/password_policy.sql
+source /usr/ictcore/db/update/update_retention.sql
+```
+
+for update 
+```
+source /usr/ictcore/db/update_user_level_upgrade/role_tenant.sql;
+```
+
+Open the file /etc/ictcore.conf and find out the [db] section and replace user, password and database name in the following lines:
+
+
+```
+user = ictdialeruser
+pass = plsChangeIt
+name = ictdialer
+```
+
+```
+cd /usr/ictcore/bin/sendmail
+./email_to_fax
+```
+
+- configure the email-2-fax and fax-2-service, following the guide "4. EMAIL TO FAX / FAX TO EMAIL SERVICE (OPTIONAL)"  from this link  https://ictdialer.org/content/ictdialer-installation-guide
+
+```
+echo "ictcore" >> /etc/mail/trusted-users
+echo "apache" >> /etc/mail/trusted-users
+
+echo "FAX_DOMAIN.COM" >> /etc/mail/local-host-names
+
+echo '@FAX_DOMAIN.COM ictcore' >> /etc/mail/virtusertable
+
+```
+
+to apply email related changes
+
+```
+/etc/mail/make
+```
+
+restart sendmail service so changes can take affect
+
+```
+chkconfig sendmail on
+service sendmail restart
+```
+
+- in case if document not uploading then install "libtiff-tools" package 
+
+```
+yum install libtiff-tools -y
+```
+
+- install aes library for encryption by `composer require phpseclib/phpseclib:~3.0` and `composer require spomky-labs/otphp endroid/qr-code`
+
+- How to start and stop the FreeSWITCH
+
+
+- run this command "freeswitch -nc" for background run
+
+- delete pid of FreeSWITCH to stop the FreeSWITCH service
+
+```
+ps -A | grep freeswitch
+
+19892 freeswitch
+
+kill -9 19892
+```
+
+- enter into freeswitch
+
+```
+fs_cli
+```
+
+- enable sip debug
+
+```
+sofia global siptrace on
+```
+
+### Additional Configuration 
+update listen_ip with 0.0.0.0 in /etc/freeswitch/autoload_configs/event_socket.conf.xml    [allowed_timeslot] => 
+    [allowed_days] => 
+  file
+
+### restart freeswitch with service command
+by-default freeswitch will not restart with `service freeswitch restart` command in cenots 8 / rocky linux 8. Therefore install the following codes for it 
+
+```
+cat <<EOF | sudo tee /etc/systemd/system/freeswitch.service
+[Unit]
+Description=freeswitch
+Wants=network-online.target
+Requires=network.target local-fs.target
+After=network.target network-online.target local-fs.target
+
+[Service]
+; service
+Type=forking
+Environment="DAEMON_OPTS=-nonat"
+EnvironmentFile=-/etc/default/freeswitch
+ExecStart=/usr/bin/freeswitch -ncwait ${DAEMON_OPTS}
+RestartSec=90
+Restart=always
+; exec
+;User=root
+;Group=daemon
+LimitCORE=infinity
+LimitNOFILE=100000
+LimitNPROC=60000
+LimitSTACK=250000
+LimitRTPRIO=infinity
+LimitRTTIME=infinity
+IOSchedulingClass=realtime
+IOSchedulingPriority=2
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=89
+UMask=0007
+NoNewPrivileges=false
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+```
+sudo systemctl daemon-reload
+sudo systemctl start freeswitch
+sudo systemctl enable freeswitch
+```
+
+
+`pear install System_Daemon`
