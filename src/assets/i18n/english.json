@@ -299,7 +299,13 @@
    "delay_bw_sms":"Delay between sms",
    "create_sms":"Launch SMS Campaign",
    "sms_campaign":"SMS Campaign",
-   "text" :"Text"
+   "text" :"Text",
+   "voice_campaign": "Voice Campaign",
+   "create_voice": "Create Voice Campaign",
+   "Title": "Voice",
+   "select_voice": "Select Voice",
+   "delay_bw_voice":"Delay between voice"
+
 
   },
  
