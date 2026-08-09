@@ -60,6 +60,22 @@ jobs:
       - name: Check an Angular deep link falls back to index.html
         run: curl -fsS http://127.0.0.1:8080/pages/campaign/list | grep -qi '<ngx-app'
 
+      # A dialer that boots without FreeSWITCH is a dialer that cannot dial, so
+      # wait for the switch and confirm mod_sofia came up with it.
+      - name: Check FreeSWITCH is up with mod_sofia loaded
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec ictdialer-ci fs_cli -p ci-smoke-test -x 'show modules' 2>/dev/null | grep -q mod_sofia; then
+              echo "mod_sofia loaded after ${i}0s"; exit 0
+            fi
+            sleep 10
+          done
+          docker exec ictdialer-ci fs_cli -p ci-smoke-test -x 'show modules' || true
+          echo "mod_sofia never loaded"; exit 1
+
+      - name: Check the schema loaded
+        run: docker exec ictdialer-ci mysql -N -B -e "SELECT COUNT(*) FROM ictfax.account"
+
       - name: Container logs
         if: always()
         run: docker logs ictdialer-ci

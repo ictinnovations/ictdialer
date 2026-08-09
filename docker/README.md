@@ -1,7 +1,7 @@
 # Running ICTDialer in Docker
 
-This image is the ICTCore base plus the ICTDialer dashboard: Apache, PHP,
-FreeSWITCH, MariaDB and the Angular front end in one container.
+One container with everything ICTDialer needs: Apache, PHP, FreeSWITCH,
+MariaDB, the ICTCore REST API and the Angular dashboard.
 
 Two different products share this name. This one is the open source voice and
 fax broadcasting dialer built on FreeSWITCH and ICTCore. The commercial service
@@ -28,9 +28,9 @@ Publish the RTP range or your broadcast calls will connect and play silence.
 ## How the two halves fit together
 
 The dashboard is a static Angular build served from `/usr/ictdialer`, and it
-calls the REST API at `/api` on the same origin. The base image aliases `/api`
-to the ICTCore entry point, so one Apache has to serve both. That's why this is
-a single container rather than a GUI talking to an API over the network.
+calls the REST API at `/api` on the same origin. ICTCore's own Apache config
+aliases `/api` to its entry point, so one Apache serves both. That's why this
+is a single container rather than a GUI talking to an API over the network.
 
 Angular does its own routing, so Apache falls back to `index.html` for any path
 that isn't a real file. Without it, reloading on a deep link gives you a 404.
@@ -71,6 +71,22 @@ bundled database is a convenience, not a deployment plan.
 docker build -f docker/Dockerfile -t ictdialer:dev .
 ```
 
-Node 16 builds the Angular app in the first stage, then the output is copied
-onto the ICTCore image. Node 16 specifically, because this is Angular 13 and
-the OpenSSL 3 in Node 18 breaks the hashing the older webpack depends on.
+Node 16 builds the Angular app in the first stage, then a Rocky Linux 8 stage
+assembles Apache, PHP 7.4, MariaDB, FreeSWITCH and ICTCore and drops the built
+dashboard on top. Node 16 specifically, because this is Angular 13 and the
+OpenSSL 3 in Node 18 breaks the hashing the older webpack depends on.
+
+ICTCore is cloned from its own repository during the build. To pin a branch or
+tag:
+
+```bash
+docker build -f docker/Dockerfile --build-arg ICTCORE_REF=ictcore -t ictdialer:dev .
+```
+
+## Where FreeSWITCH comes from
+
+SignalWire moved their EL8 RPMs behind a paid token, so the packages here come
+from two Fedora Copr repositories, `beaveryoga/FreeSWITCH-1.10.12` for
+FreeSWITCH itself and `beaveryoga/broadvoice` for the libraries EL8 has no
+package for (sofia-sip, spandsp3, libks2, signalwire-client-c2). Copr is HTTPS
+and GPG signed, which the free third-party mirrors are not.
