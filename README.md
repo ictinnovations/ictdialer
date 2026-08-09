@@ -33,6 +33,28 @@ By Using ICTDialer a user can manage:
   * User Management
   * Provider / Trunks
 
+Quick start with Docker
+=======================
+
+The image bundles Apache, PHP, FreeSWITCH, MariaDB and this dashboard, so there
+is nothing else to install.
+
+```
+docker run -d --name ictdialer \
+  -p 8080:80 \
+  -p 5060:5060/tcp -p 5060:5060/udp \
+  -p 16384-16484:16384-16484/udp \
+  ictinnovations/ictdialer:latest
+```
+
+Give it about two minutes on first boot while the database is created and the
+schema loads, then open `http://localhost:8080/`. Sign in with
+`admin@ictcore.org` / `helloAdmin` and change that password straight away.
+Publish the RTP range as shown or your calls will connect and play silence.
+
+For an external database, volumes and build instructions see
+[docker/README.md](docker/README.md).
+
 Credits
 =======
 ICTDialer is developed by [ICT Innovations][developer]

@@ -1,0 +1,9 @@
+.git
+.github
+.devel
+.vscode
+.travis.yml
+node_modules
+dist
+doc
+e2e
