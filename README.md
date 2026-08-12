@@ -33,6 +33,23 @@ By Using ICTDialer a user can manage:
   * User Management
   * Provider / Trunks
 
+Screenshots
+===========
+
+ICTDialer and [ICTFax][ictfaxrepo] share the same ICTCore dashboard, so these
+screens look the same in both once you sign in:
+
+![Dashboard with live counters](https://raw.githubusercontent.com/ictinnovations/ictdialer/master/doc/screenshots/dashboard.png)
+
+Outbound jobs, with per-job status and a retry action on anything that failed:
+
+![Outbound job list](https://raw.githubusercontent.com/ictinnovations/ictdialer/master/doc/screenshots/outbound-fax.png)
+
+Inbound, where each received document can be viewed, downloaded or marked as
+read:
+
+![Inbound list](https://raw.githubusercontent.com/ictinnovations/ictdialer/master/doc/screenshots/inbound-fax.png)
+
 Quick start with Docker
 =======================
 
@@ -60,6 +77,7 @@ Credits
 ICTDialer is developed by [ICT Innovations][developer]
 ICTDialer developed over [ictcore] , a open source freeswitch based framework for developers 
 
+[ictfaxrepo]: https://github.com/ictinnovations/ictfax "ICTFax open source fax server"
 [official]: https://ictfax.org/ "ICTFAX Open Source Online FAX & Email to FAX Solution"
 [gpl3]: https://www.gnu.org/licenses/gpl-3.0.html "GNU GPL V.3 License"
 [install]: https://ictfax.org/content/ictfax-installation-guide "ICTFAX Installation Guide"
