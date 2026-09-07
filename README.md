@@ -2,6 +2,11 @@ Introduction
 ============
 **ICTDialer** is an open-source, multi-user auto dialer software designed for voice broadcasting and fax broadcasting. It supports both inbound and outbound communications using advanced telephony protocols such as T.38, G.711 pass-through, and SIP-based VoIP communication. **ICTDialer** is built on top of renowned open-source technologies, including **FreeSWITCH**, **ICTCore** communications **framework**, and a PHP-based Angular framework.
 
+**Website:** https://www.ictdialer.com &middot; **Engine:** [ICTCore](https://www.ictcore.org) on FreeSWITCH &middot; **Docker:** https://hub.docker.com/r/ictinnovations/ictdialer
+
+This repository is the open source edition. The hosted version is available at [ictdialer.com](https://www.ictdialer.com).
+
+
 **ICTDialer** can be used in following faxing scenarios
 
 * Voice Broadcasting
