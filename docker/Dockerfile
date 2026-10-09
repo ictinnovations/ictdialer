@@ -21,10 +21,11 @@ FROM rockylinux:8
 # so the build cache invalidates when ICTCore moves. A branch ref caches on the
 # clone command string, which never changes, and silently keeps serving an old
 # checkout. Override with --build-arg to build against a different revision.
-ARG ICTCORE_REF=cb987b5e465f1bc9e1c832722eb8115cff385e16
-# PHP 7.4 matches the versions pinned in ICTCore's composer.lock (twig 1.35,
-# swiftmailer 5.4). Both are pre-PHP-8 and will fatal on 8.x.
-ARG PHP_STREAM=remi-7.4
+ARG ICTCORE_REF=165ff26a601f0cb841530d2baffff475a0469718
+# ICTCore needs PHP 8.1+ since ictinnovations/ictcore#23. Remi rather than the
+# AppStream php module, because AppStream has never packaged php-imap or
+# php-pecl-imagick, and the email and thumbnail paths need both.
+ARG PHP_STREAM=remi-8.3
 
 LABEL org.opencontainers.image.title="ictdialer" \
       org.opencontainers.image.description="Open source voice and fax broadcasting dialer built on FreeSWITCH and ICTCore. Not the ictdialer.com hosted service." \
@@ -97,16 +98,13 @@ RUN MYSQLD=$(ls /usr/libexec/mariadbd /usr/libexec/mysqld /usr/sbin/mariadbd /us
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# composer update rather than install: ICTCore's committed composer.lock predates
-# the dompdf requirement in its composer.json, so install refuses to run. Drift is
-# bounded because composer.json caps twig at 1.x and swiftmailer at 5.x, which are
-# the two that decide PHP 7.4 compatibility.
+# composer install takes the versions from ICTCore's composer.lock as is. Since
+# ictinnovations/ictcore#23 moved to twig 3, symfony/mailer, dompdf 3 and php-jwt 7,
+# the lock resolves on PHP 8.3 without turning composer's advisory block off.
 #
-# policy.advisories.block=false because composer 2.9 refuses to resolve any package
-# carrying a published advisory, and every version this codebase pins is old enough
-# to have one. Turning the block off keeps the build honest about what it installs
-# instead of silently upgrading past the PHP 7.4 ceiling. Modernising twig,
-# swiftmailer, dompdf and php-jwt is the real fix and it belongs upstream.
+# The github url rewrite is for composer: the RestServer entry in ICTCore's
+# repositories block resolves to git@github.com, which has no key in a build
+# container and fails with "Host key verification failed".
 WORKDIR /usr/ictcore
 # fetch rather than clone --branch, because --branch only takes a branch or tag
 # name and ICTCORE_REF is a commit.
@@ -119,8 +117,9 @@ RUN mkdir -p /tmp/ictcore && cd /tmp/ictcore && git init -q . \
           /tmp/ictcore/etc /tmp/ictcore/docs /tmp/ictcore/wwwroot \
           /tmp/ictcore/composer.json /tmp/ictcore/composer.lock /usr/ictcore/ \
  && rm -rf /tmp/ictcore \
- && composer config --no-plugins policy.advisories.block false \
- && composer update --no-dev --no-interaction --no-progress --prefer-dist --ignore-platform-reqs \
+ && git config --global url."https://github.com/".insteadOf "git@github.com:" \
+ && composer install --no-dev --no-interaction --no-progress --prefer-dist \
+ && composer audit --no-dev --no-interaction \
  && composer clear-cache
 
 # ── wiring ───────────────────────────────────────────────────
@@ -163,6 +162,15 @@ RUN for d in dialplan directory sip_profiles; do \
       mkdir -p /etc/freeswitch/$d; \
       ln -sf /usr/ictcore/etc/freeswitch/$d/ictcore.xml /etc/freeswitch/$d/ictcore.xml; \
     done
+
+# ictcore.xml and vanilla's internal.xml both bind 5060, so whichever sofia
+# starts first wins and the other dies with "Error Creating SIP UA". ICTDialer
+# runs its calls through the ictcore profile and the ictcore dialplan context, so
+# the vanilla internal profiles are the ones that go. sofia.conf.xml globs *.xml,
+# so renaming is enough to drop them from the include.
+RUN cd /etc/freeswitch/sip_profiles \
+ && mv -f internal.xml      internal.xml.noload \
+ && mv -f internal-ipv6.xml internal-ipv6.xml.noload
 
 # ── the dashboard ────────────────────────────────────────────
 # The GUI calls API_URL '/api', which ictcore.conf aliases to the REST entry

@@ -71,7 +71,7 @@ docker build -f docker/Dockerfile -t ictdialer:dev .
 ```
 
 Node 16 builds the Angular app in the first stage, then a Rocky Linux 8 stage
-assembles Apache, PHP 7.4, MariaDB, FreeSWITCH and ICTCore and drops the built
+assembles Apache, PHP 8.3, MariaDB, FreeSWITCH and ICTCore and drops the built
 dashboard on top. Node 16 specifically, because this is Angular 13 and the
 OpenSSL 3 in Node 18 breaks the hashing the older webpack depends on.
 
