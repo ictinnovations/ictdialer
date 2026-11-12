@@ -7,7 +7,29 @@ Introduction
 This repository is the open source edition. The hosted version is available at [ictdialer.com](https://www.ictdialer.com).
 
 
-**ICTDialer** can be used in following faxing scenarios
+Quick start with Docker
+=======================
+
+The image bundles Apache, PHP, FreeSWITCH, MariaDB and this dashboard, so there
+is nothing else to install.
+
+```
+docker run -d --name ictdialer \
+  -p 8080:80 \
+  -p 5060:5060/tcp -p 5060:5060/udp \
+  -p 16384-16484:16384-16484/udp \
+  ictinnovations/ictdialer:latest
+```
+
+Give it about two minutes on first boot while the database is created and the
+schema loads, then open `http://localhost:8080/`. Sign in with
+`admin@ictcore.org` / `helloAdmin` and change that password straight away.
+Publish the RTP range as shown or your calls will connect and play silence.
+
+For an external database, volumes and build instructions see
+[docker/README.md](docker/README.md).
+
+ICTDialer covers these scenarios:
 
 * Voice Broadcasting
 * [Email to fax][emailtofax] / [web to fax][webtofax] / [fax to email][emailtofax]
@@ -54,28 +76,6 @@ Inbound, where each received document can be viewed, downloaded or marked as
 read:
 
 ![Inbound list](https://raw.githubusercontent.com/ictinnovations/ictdialer/master/doc/screenshots/inbound-fax.png)
-
-Quick start with Docker
-=======================
-
-The image bundles Apache, PHP, FreeSWITCH, MariaDB and this dashboard, so there
-is nothing else to install.
-
-```
-docker run -d --name ictdialer \
-  -p 8080:80 \
-  -p 5060:5060/tcp -p 5060:5060/udp \
-  -p 16384-16484:16384-16484/udp \
-  ictinnovations/ictdialer:latest
-```
-
-Give it about two minutes on first boot while the database is created and the
-schema loads, then open `http://localhost:8080/`. Sign in with
-`admin@ictcore.org` / `helloAdmin` and change that password straight away.
-Publish the RTP range as shown or your calls will connect and play silence.
-
-For an external database, volumes and build instructions see
-[docker/README.md](docker/README.md).
 
 Credits
 =======
